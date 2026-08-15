@@ -1,0 +1,35 @@
+{
+  "skill_name": "continuous-agent-loop",
+  "evals": [
+    {
+      "id": "diagnoses-loop-churn",
+      "prompt": "My autonomous coding loop has run 30 iterations overnight. Each iteration produces a diff and a commit, but the specific acceptance test I defined at the start still fails, and the diffs touch different files each time rather than converging on a fix. Is this loop making progress? What should I do?",
+      "expected_output": "Identifies this as loop churn without measurable progress (iteration count climbing with no movement toward the acceptance gate) and recommends freezing the loop and diagnosing the root cause rather than letting it continue.",
+      "assertions": [
+        { "text": "Identifies this as churn without real progress", "check": { "contains_any": ["churn", "no progress", "not converging", "not making progress"] } },
+        { "text": "Recommends freezing/stopping the loop to diagnose before continuing", "check": { "contains_any": ["freeze", "stop the loop", "pause", "diagnose"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-cost-drift-from-escalation",
+      "prompt": "In my continuous loop, every time an iteration fails a test, the script automatically retries with a more expensive/stronger model. After a week, cost per iteration has crept up significantly and the same test still fails intermittently. What's actually going wrong here, and what should I check before escalating again?",
+      "expected_output": "Identifies unbounded model escalation as the cause of cost drift and recommends checking whether the failure is due to under-specification or a genuine reasoning gap before escalating further, rather than continuing to escalate blindly.",
+      "assertions": [
+        { "text": "Identifies escalation as the source of rising cost", "check": { "contains_any": ["escalat", "cost drift", "stronger model", "more expensive model"] } },
+        { "text": "Recommends diagnosing the root cause instead of escalating again", "check": { "contains_any": ["root cause", "under-specif", "diagnose", "before escalating"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "designs-mandatory-quality-gate",
+      "prompt": "Right now my continuous agent loop accepts each iteration's output whenever the agent's final message says something like 'this looks complete.' There's no build check, no test run, and no explicit acceptance criteria being checked. What should I add before trusting this loop to run unattended?",
+      "expected_output": "Recommends adding explicit, mechanical quality gates per iteration — build/compile check, test suite pass, and the concrete acceptance criteria defined up front — rather than relying on the agent's own completion claim.",
+      "assertions": [
+        { "text": "Rejects relying on the agent's own completion claim", "check": { "contains_any": ["not sufficient", "not enough", "can't rely", "own claim", "self-report"] } },
+        { "text": "Recommends concrete gates: build, test, acceptance criteria", "check": { "contains_any": ["build", "test suite", "acceptance criteria", "quality gate"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "skill_name": "laravel-verification",
+  "evals": [
+    {
+      "id": "orders-phases-and-stops-early",
+      "prompt": "A Laravel project's composer.lock references a dependency with a known CVE, and separately `composer validate` is currently failing due to a malformed composer.json. Given the standard laravel-verification pipeline (env/composer, lint/static-analysis, tests, security audit, migrations, deploy readiness, queue/scheduler), which phase should be fixed first and why should the pipeline not proceed to run the security audit or tests yet?",
+      "expected_output": "Explains that the composer.json/composer validate failure (Phase 1, environment and composer checks) must be fixed first, and that the pipeline should stop there rather than proceeding to later phases like tests or the security audit, because a broken autoloader/composer state makes later phase results unreliable.",
+      "assertions": [
+        {
+          "text": "Identifies composer validate / Phase 1 as the first thing to fix",
+          "check": { "contains_any": ["composer validate", "Phase 1", "environment"] }
+        },
+        {
+          "text": "Explains the pipeline stops at the first failing gate rather than running everything",
+          "check": { "contains_any": ["stop", "gate", "fail fast", "before"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "config-cache-env-gotcha",
+      "prompt": "In a Laravel controller (not a config file), a developer calls `env('PAYMENT_GATEWAY_KEY')` directly to read a secret. The team is about to add `php artisan config:cache` to their deploy pipeline. What will happen to that call once config:cache runs in production, and what should the developer do instead?",
+      "expected_output": "Explains that once config:cache runs, any env() call outside the config/ directory will return null in production because config:cache bakes config/*.php values into a single cached file and no longer reads .env directly, and recommends moving the value into a config/*.php file and reading it via config('...') instead.",
+      "assertions": [
+        {
+          "text": "Explains env() outside config/ returns null after config:cache",
+          "check": { "contains_all": ["config:cache", "null"] }
+        },
+        {
+          "text": "Recommends reading via config() from a config file instead of env() in the controller",
+          "check": { "contains_all": ["config("] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "pretend-does-not-catch-raw-sql",
+      "prompt": "A Laravel migration's up() method contains only a single `DB::statement('ALTER TABLE reservations ADD CONSTRAINT ...')` raw SQL call, with no schema-builder calls. During pre-deploy verification, `php artisan migrate --pretend` is run and shows no SQL output for this migration. Does this mean the migration is a no-op and safe to skip, and what is actually happening?",
+      "expected_output": "Explains that migrate --pretend only prints SQL that Eloquent's schema builder would generate, and does not execute or preview raw DB::statement calls, so the empty output is a false negative, not proof the migration does nothing, and it must be reviewed manually.",
+      "assertions": [
+        {
+          "text": "Explains --pretend does not cover raw DB::statement calls",
+          "check": { "contains_all": ["DB::statement", "pretend"] }
+        },
+        {
+          "text": "Flags this as a false negative, not a real no-op",
+          "check": { "contains_any": ["false negative", "does not mean", "not safe to skip", "not a no-op"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

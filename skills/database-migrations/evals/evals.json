@@ -1,0 +1,61 @@
+{
+  "skill_name": "database-migrations",
+  "evals": [
+    {
+      "id": "flags-not-null-without-default",
+      "prompt": "Review this migration for a table with 5 million existing rows:\n\nALTER TABLE reservations ADD COLUMN loyalty_tier TEXT NOT NULL;",
+      "expected_output": "Flags that NOT NULL without a default on an existing large table forces a full table rewrite and lock, and recommends adding it nullable with a default or via backfill-then-constrain.",
+      "assertions": [
+        {
+          "text": "Flags the NOT NULL without default issue",
+          "check": { "contains_all": ["NOT NULL"] }
+        },
+        {
+          "text": "Explains the lock/rewrite consequence",
+          "check": { "contains_any": ["lock", "rewrite"] }
+        },
+        {
+          "text": "Recommends a default or backfill-based alternative",
+          "check": { "contains_any": ["default", "backfill", "nullable"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-blocking-index-creation",
+      "prompt": "Review this migration against a table with heavy write traffic:\n\nCREATE INDEX idx_reservations_guest_email ON reservations (guest_email);",
+      "expected_output": "Flags that a plain CREATE INDEX blocks writes and recommends CREATE INDEX CONCURRENTLY.",
+      "assertions": [
+        {
+          "text": "Flags the blocking-writes issue",
+          "check": { "contains_any": ["block", "lock"] }
+        },
+        {
+          "text": "Recommends CONCURRENTLY",
+          "check": { "contains_all": ["CONCURRENTLY"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-expand-contract-for-rename",
+      "prompt": "We want to rename the `username` column to `display_name` on the users table in production, with zero downtime. What's the safe approach?",
+      "expected_output": "Recommends the expand-migrate-contract pattern: add the new column, backfill, deploy app to use the new column, then drop the old column in a later migration — never a direct RENAME COLUMN while the app still references the old name.",
+      "assertions": [
+        {
+          "text": "Recommends adding a new column rather than renaming directly",
+          "check": { "contains_any": ["add", "new column"] }
+        },
+        {
+          "text": "Mentions backfilling data",
+          "check": { "contains_any": ["backfill"] }
+        },
+        {
+          "text": "Mentions dropping the old column as a separate, later step",
+          "check": { "contains_any": ["drop", "later migration", "separate migration"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

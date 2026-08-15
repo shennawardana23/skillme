@@ -1,0 +1,61 @@
+{
+  "skill_name": "security-analysis",
+  "evals": [
+    {
+      "id": "flags-sql-identifier-injection",
+      "prompt": "Run a security-analysis scan on this Go function:\n\nfunc GetSorted(db *sql.DB, sortColumn string) (*sql.Rows, error) {\n\tquery := fmt.Sprintf(\"SELECT id, name FROM items ORDER BY %s\", sortColumn)\n\treturn db.Query(query)\n}",
+      "expected_output": "Flags the sortColumn identifier interpolation as SQL injection even though no parameter placeholder is bypassed for a value, explaining that placeholders don't protect identifiers, and gives a remediation (allowlist of valid column names).",
+      "assertions": [
+        {
+          "text": "Flags SQL injection",
+          "check": { "contains_any": ["SQL injection", "injection"] }
+        },
+        {
+          "text": "Explains the identifier vs value distinction",
+          "check": { "contains_any": ["identifier", "column name", "ORDER BY"] }
+        },
+        {
+          "text": "Recommends an allowlist remediation",
+          "check": { "contains_any": ["allowlist", "whitelist", "allow list", "map of valid"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-hardcoded-nonce-and-reports-format",
+      "prompt": "Run a security-analysis scan on this Go snippet:\n\nvar nonce = []byte(\"0123456789ab\")\n\nfunc Encrypt(gcm cipher.AEAD, plaintext []byte) []byte {\n\treturn gcm.Seal(nil, nonce, plaintext, nil)\n}",
+      "expected_output": "Flags the hardcoded/reused nonce as a cryptographic weakness at CRITICAL or HIGH severity, using the required output format with a Security Risk Level and a Summary count.",
+      "assertions": [
+        {
+          "text": "Flags the hardcoded nonce",
+          "check": { "contains_any": ["nonce", "IV"] }
+        },
+        {
+          "text": "Uses the required risk level format",
+          "check": { "contains_any": ["Security Risk Level", "CRITICAL", "HIGH"] }
+        },
+        {
+          "text": "Includes a summary count",
+          "check": { "contains_any": ["Summary", "Total:"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "reasoning-pass-flags-toctou-race",
+      "prompt": "Run a security-analysis scan (including the Pass 2 reasoning step) on this pseudocode for a coupon redemption flow:\n\nfunc RedeemCoupon(ctx context.Context, db *sql.DB, couponID string) error {\n\tvar remaining int\n\tdb.QueryRowContext(ctx, \"SELECT remaining_uses FROM coupons WHERE id=$1\", couponID).Scan(&remaining)\n\tif remaining <= 0 {\n\t\treturn errors.New(\"coupon exhausted\")\n\t}\n\t_, err := db.ExecContext(ctx, \"UPDATE coupons SET remaining_uses = remaining_uses - 1 WHERE id=$1\", couponID)\n\treturn err\n}",
+      "expected_output": "Flags a check-then-act race condition (TOCTOU) between reading remaining_uses and decrementing it, recommending an atomic conditional update or transaction with locking.",
+      "assertions": [
+        {
+          "text": "Flags the race condition",
+          "check": { "contains_any": ["race condition", "TOCTOU", "check-then-act", "concurrent"] }
+        },
+        {
+          "text": "Recommends an atomic fix",
+          "check": { "contains_any": ["atomic", "transaction", "WHERE remaining_uses >", "row lock", "FOR UPDATE"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

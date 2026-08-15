@@ -1,0 +1,35 @@
+{
+  "skill_name": "agent-drift-and-re-anchoring",
+  "evals": [
+    {
+      "id": "diagnoses-goal-drift-not-generic-confusion",
+      "prompt": "An agent was asked to fix one flaky test. Twenty tool calls later, it has refactored the entire test harness, added a new mocking library, and hasn't touched the actual flaky test yet. What happened and what should have caught it earlier?",
+      "expected_output": "Names this as goal drift specifically (not generic 'confusion') and recommends periodic re-anchoring against the original one-sentence objective, rather than a vague 'be more careful' fix.",
+      "assertions": [
+        {
+          "text": "Names the specific drift mechanism (goal drift)",
+          "check": { "contains_all": ["goal drift"] }
+        },
+        {
+          "text": "Recommends re-anchoring against the original objective",
+          "check": { "contains_any": ["re-anchor", "restate the original", "original objective"] }
+        }
+      ]
+    },
+    {
+      "id": "bigger-context-window-not-the-fix",
+      "prompt": "Our long-running agent keeps losing track of earlier constraints as the conversation grows. Someone suggested just switching to a model with a much bigger context window to fix it. Will that work?",
+      "expected_output": "Explains that a bigger context window delays when drift becomes visible but does not fix the underlying mechanisms (context drift, role drift, etc.) - recommends active mitigations like re-injecting key constraints or compression instead.",
+      "assertions": [
+        {
+          "text": "States a bigger window does not fix the underlying problem",
+          "check": { "contains_any": ["does not fix", "delays", "not a fix"] }
+        },
+        {
+          "text": "Recommends an active mitigation instead of just more context",
+          "check": { "contains_any": ["re-inject", "re-anchor", "compress", "prune"] }
+        }
+      ]
+    }
+  ]
+}

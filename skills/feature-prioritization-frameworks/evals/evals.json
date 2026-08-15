@@ -1,0 +1,65 @@
+{
+  "skill_name": "feature-prioritization-frameworks",
+  "evals": [
+    {
+      "id": "compute-and-rank-rice-scores",
+      "prompt": "Score and rank these five backlog features using RICE (Reach x Impact x Confidence / Effort), showing the computed score for each:\n\n1. Faster checkout flow: reach 4800 users/month, impact 2 (high), confidence 75%, effort 2 person-months\n2. Dark mode toggle: reach 9000 users/month, impact 0.5 (low), confidence 100%, effort 0.75 person-months\n3. Push notifications for deals: reach 3000 users/month, impact 1 (medium), confidence 60%, effort 1 person-month\n4. Predictive maintenance ML pipeline: reach 800 users/month, impact 3 (massive), confidence 30%, effort 6 person-months\n5. Multi-language interface support: reach 1500 users/month, impact 2 (high), confidence 50%, effort 3 person-months\n\nWhich should we build first, and which should we build last?",
+      "expected_output": "Computes each RICE score correctly (Faster checkout flow = 3600, Dark mode toggle = 6000, Push notifications = 1800, Predictive maintenance ML pipeline = 120, Multi-language support = 500) and ranks Dark mode toggle first and Predictive maintenance ML pipeline last, despite the latter having the highest raw impact score.",
+      "assertions": [
+        {
+          "text": "Computes the top-ranked feature's RICE score correctly and names it as top priority",
+          "check": { "contains_all": ["6000", "Dark mode"] }
+        },
+        {
+          "text": "Computes the bottom-ranked feature's RICE score correctly and names it as lowest priority",
+          "check": { "contains_all": ["120", "Predictive maintenance"] }
+        },
+        {
+          "text": "Shows the RICE formula components (Reach, Impact, Confidence, Effort) for the per-feature computation, not just final numbers",
+          "check": { "contains_all": ["Reach", "Impact", "Confidence", "Effort"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommend-moscow-for-fixed-deadline",
+      "prompt": "We have a hard regulatory compliance deadline in 6 weeks and a fixed list of 12 features stakeholders want in the release, but only enough engineering time for about 7 of them. Which prioritization framework should we use to decide what ships, and why not RICE?",
+      "expected_output": "Recommends MoSCoW for this fixed-deadline, fixed-scope negotiation scenario, explaining that RICE is better suited to ranking comparable features by ROI rather than deciding what to cut under a hard deadline, and that MoSCoW gives stakeholders clear Must/Should/Could/Won't buckets.",
+      "assertions": [
+        {
+          "text": "Recommends MoSCoW by name",
+          "check": { "contains_all": ["MoSCoW"] }
+        },
+        {
+          "text": "Names the Must/Should/Could/Won't buckets, not just the framework name",
+          "check": { "contains_all": ["Must", "Should", "Could"] }
+        },
+        {
+          "text": "Explains RICE is weaker here because it ranks by ROI rather than deciding what to cut under a fixed scope/deadline",
+          "check": { "contains_any": ["ROI", "rank", "ranking"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "classify-features-with-kano",
+      "prompt": "Using the Kano model, classify these three hotel features by satisfaction-curve shape: (1) working Wi-Fi in every room, (2) a surprise free room upgrade at check-in for loyalty members, (3) faster Wi-Fi speed tiers as you pay more. For each, explain why it isn't just a RICE scoring question.",
+      "expected_output": "Classifies working Wi-Fi as Basic/must-be, the surprise upgrade as Delight/attractive, and tiered Wi-Fi speed as Performance, and explains that Kano is about the shape of the satisfaction curve rather than a numeric ranking like RICE.",
+      "assertions": [
+        {
+          "text": "Classifies working Wi-Fi as a Basic/must-be feature",
+          "check": { "contains_any": ["Basic", "must-be", "must be"] }
+        },
+        {
+          "text": "Classifies the surprise upgrade as Delight/attractive",
+          "check": { "contains_any": ["Delight", "attractive", "excitement"] }
+        },
+        {
+          "text": "Classifies tiered Wi-Fi speed as Performance",
+          "check": { "contains_any": ["Performance", "performance"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

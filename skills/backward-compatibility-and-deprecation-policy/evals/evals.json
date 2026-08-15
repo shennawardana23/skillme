@@ -1,0 +1,53 @@
+{
+  "skill_name": "backward-compatibility-and-deprecation-policy",
+  "evals": [
+    {
+      "id": "flags-removal-without-usage-check",
+      "prompt": "We announced deprecation of our old /v1/reservations endpoint 8 months ago in a changelog post, with no in-API warning added. The sunset date we picked is next Monday. Nobody has checked recent traffic to the endpoint. Should we go ahead and remove it on schedule?",
+      "expected_output": "Flags that removal should not proceed purely on the calendar date without checking actual current usage first, and notes the changelog-only notice with no in-artifact warning likely means real usage is unknown and possibly nonzero.",
+      "assertions": [
+        {
+          "text": "Recommends checking actual current usage before removing",
+          "check": { "contains_any": ["check usage", "measure usage", "check traffic", "check current usage"] }
+        },
+        {
+          "text": "Flags the changelog-only notice as insufficient/risky",
+          "check": { "contains_any": ["changelog", "in-artifact", "warning header", "deprecation header"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-no-sunset-date",
+      "prompt": "Our internal Go library has a function marked `// Deprecated: use NewLoader instead` in its doc comment, added two years ago. No sunset date was ever set, and it's still used in 40 places across the codebase. Is this an effective deprecation, and what's missing?",
+      "expected_output": "Flags the lack of a concrete sunset date as the missing piece that turns this into permanent dead weight rather than an actual deprecation, and recommends setting a specific date and actively tracking/migrating the remaining call sites.",
+      "assertions": [
+        {
+          "text": "Flags missing sunset date as the core problem",
+          "check": { "contains_any": ["sunset date", "no date", "without a date", "lacks a date"] }
+        },
+        {
+          "text": "Recommends setting a concrete date and tracking migration",
+          "check": { "contains_any": ["set a date", "specific date", "track migration", "migration progress"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "hyrum-law-internal-api",
+      "prompt": "We want to change the ordering of fields returned in our internal `GET /internal/hotel-summary` JSON response, and change an error message's exact wording. Since it's an internal API only used by other teams within our own company, and we never documented field ordering or exact error text as part of the contract, is it safe to make this change without any deprecation process?",
+      "expected_output": "Explains that per Hyrum's Law, other teams may depend on the undocumented field ordering or exact error text even though it was never promised, and recommends treating this as a compatibility risk requiring communication/migration rather than assuming it's safe because it wasn't documented.",
+      "assertions": [
+        {
+          "text": "References Hyrum's Law or the undocumented-behavior-becomes-a-dependency idea",
+          "check": { "contains_any": ["hyrum", "observable behavior", "depended on"] }
+        },
+        {
+          "text": "Does not simply approve the change as risk-free",
+          "check": { "contains_any": ["risk", "communicate", "coordinate with", "notify", "caution"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

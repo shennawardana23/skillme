@@ -1,0 +1,61 @@
+{
+  "skill_name": "security-scan",
+  "evals": [
+    {
+      "id": "flags-wildcard-bash-permission",
+      "prompt": "Using the security-scan skill, audit this .claude/settings.json snippet:\n\n{\n  \"permissions\": {\n    \"allow\": [\"Bash(*)\", \"WebFetch\"],\n    \"deny\": []\n  }\n}\n\nGrade the finding and give the exact fix.",
+      "expected_output": "Flags Bash(*) as a Critical finding (unrestricted shell access) and the empty deny list as a High finding, recommending scoped Bash rules and a populated deny list.",
+      "assertions": [
+        {
+          "text": "Flags unrestricted Bash access as Critical",
+          "check": { "contains_any": ["Critical", "CRITICAL"] }
+        },
+        {
+          "text": "Names the Bash wildcard specifically",
+          "check": { "contains_all": ["Bash(*)"] }
+        },
+        {
+          "text": "Recommends scoping the permission",
+          "check": { "contains_any": ["scope", "scoped", "restrict", "allowlist", "narrow"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-hook-silent-error-suppression",
+      "prompt": "Using the security-scan skill, audit this .claude hook command:\n\n\"command\": \"scripts/scan-secrets.sh $FILE 2>/dev/null || true\"\n\nWhat's the finding and why does it matter?",
+      "expected_output": "Flags the 2>/dev/null and || true as silent error suppression on a security-relevant hook (secret scanning), meaning the hook can fail without anyone noticing, and recommends removing the suppression or handling failures explicitly.",
+      "assertions": [
+        {
+          "text": "Flags silent error suppression",
+          "check": { "contains_any": ["silent", "suppress", "|| true", "2>/dev/null"] }
+        },
+        {
+          "text": "Explains the consequence for the secret-scanning hook",
+          "check": { "contains_any": ["fail", "failure signal", "silently"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-hardcoded-secret-in-mcp-config",
+      "prompt": "Using the security-scan skill, audit this mcp.json snippet:\n\n{\n  \"mcpServers\": {\n    \"internal-api\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"internal-api-mcp\"],\n      \"env\": { \"API_KEY\": \"sk-live-abc123def456\" }\n    }\n  }\n}\n\nList every finding, grade the overall config, and give fixes.",
+      "expected_output": "Flags the hardcoded API_KEY as Critical and the npx -y auto-install as a Medium supply-chain finding, includes an overall letter grade, and recommends replacing the key with an environment variable reference.",
+      "assertions": [
+        {
+          "text": "Flags the hardcoded secret",
+          "check": { "contains_any": ["hardcoded", "API_KEY", "secret"] }
+        },
+        {
+          "text": "Flags the npx -y auto-install risk",
+          "check": { "contains_any": ["npx -y", "supply chain", "auto-install"] }
+        },
+        {
+          "text": "Includes a letter grade",
+          "check": { "matches_any": ["Grade:\\s*[A-F]"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "skill_name": "frontend-slides",
+  "evals": [
+    {
+      "id": "flags-negated-clamp-css",
+      "prompt": "In an HTML presentation deck's CSS, I wrote: right: -clamp(28px, 3.5vw, 44px); to nudge an element left by a variable amount. Will this work in browsers? If not, what should I write instead?",
+      "expected_output": "Explains that negating a clamp()/min()/max() call directly is silently ignored by browsers, and recommends wrapping it in calc(-1 * clamp(...)) instead.",
+      "assertions": [
+        {
+          "text": "States the negated clamp is invalid/ignored",
+          "check": { "contains_any": ["silently ignored", "invalid", "won't work", "does not work"] }
+        },
+        {
+          "text": "Recommends the calc(-1 * ...) fix",
+          "check": { "contains_all": ["calc(-1"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "explains-viewport-fit-over-shrinking-text",
+      "prompt": "I'm building an HTML slide deck and one slide has too much content to fit in one viewport height. Should I shrink the font size further to make it fit, or is there a better approach? What's the actual rule for handling this?",
+      "expected_output": "Explains that shrinking text below a readable size is not an acceptable fix, and the correct approach is to split the content across multiple slides so each slide still fits one viewport with no internal scrolling.",
+      "assertions": [
+        {
+          "text": "Rejects shrinking text as the fix",
+          "check": { "contains_any": ["not shrink", "don't shrink", "avoid shrinking", "not the right", "not an acceptable"] }
+        },
+        {
+          "text": "Recommends splitting into multiple slides",
+          "check": { "contains_any": ["split", "another slide", "multiple slides"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "builds-viewport-safe-slide-file",
+      "prompt": "Create a minimal 2-slide HTML presentation about 'Q3 Roadmap' and write it to a file named presentation.html in the current directory. Follow the viewport-fit requirements for slide decks: each slide must be exactly one viewport tall with no internal scrolling, and motion must respect reduced-motion preferences.",
+      "expected_output": "Writes presentation.html containing .slide rules with height: 100dvh and overflow: hidden, plus a prefers-reduced-motion media query.",
+      "assertions": [
+        {
+          "text": "presentation.html was created",
+          "check": { "files_exist": ["presentation.html"] }
+        },
+        {
+          "text": "Uses the dvh viewport-safe height",
+          "check": { "file_contains": [{ "path": "presentation.html", "contains": "100dvh" }] }
+        },
+        {
+          "text": "Respects prefers-reduced-motion",
+          "check": { "file_contains": [{ "path": "presentation.html", "contains": "prefers-reduced-motion" }] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

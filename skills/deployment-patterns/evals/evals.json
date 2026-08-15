@@ -1,0 +1,53 @@
+{
+  "skill_name": "deployment-patterns",
+  "evals": [
+    {
+      "id": "flags-conflated-liveness-readiness",
+      "prompt": "Our Go service has a single /health endpoint used for both the Kubernetes livenessProbe and readinessProbe, and it pings the database. When the database has a brief blip, all our pods restart at once instead of just being pulled from the load balancer. Why does this happen and how should we fix it?",
+      "expected_output": "Explains that conflating liveness and readiness in one endpoint means a database blip is treated as a liveness failure and triggers a restart storm, and recommends splitting into a liveness endpoint (process alive, no dependency checks) and a separate readiness endpoint (checks dependencies like the database).",
+      "assertions": [
+        {
+          "text": "Explains the restart-storm cause (liveness triggers restart, not just removal from rotation)",
+          "check": { "contains_any": ["restart"] }
+        },
+        {
+          "text": "Recommends separate liveness and readiness endpoints",
+          "check": { "contains_all": ["readiness"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-rolling-deploy-with-breaking-schema-change",
+      "prompt": "We're planning a rolling deployment that both ships new application code and runs a migration that renames a column the old code still reads directly (not through the expand/migrate/contract pattern). Is a rolling deployment safe for this release?",
+      "expected_output": "Flags that a rolling deployment runs old and new code simultaneously against the same schema, so a non-backward-compatible schema change (a direct column rename) will break the old code instances still running during the rollout window, and recommends the expand/migrate/contract pattern instead.",
+      "assertions": [
+        {
+          "text": "Flags that old and new code run simultaneously during a rolling deploy",
+          "check": { "contains_any": ["simultaneously", "same time", "both", "old code"] }
+        },
+        {
+          "text": "Recommends expand/migrate/contract or equivalent backward-compatible approach",
+          "check": { "contains_any": ["expand", "backward-compatible", "backward compatible"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-fail-fast-config-validation",
+      "prompt": "Our Go service currently starts up successfully even if the JWT_SECRET environment variable is missing, and only errors when the first request that needs it comes in, hours later, in production. What should we change about startup?",
+      "expected_output": "Recommends validating all required configuration (including JWT_SECRET) at process startup and exiting immediately with a non-zero status if anything required is missing, rather than starting successfully and failing later on first use.",
+      "assertions": [
+        {
+          "text": "Recommends validating config at startup",
+          "check": { "contains_any": ["startup", "at start", "boot"] }
+        },
+        {
+          "text": "Recommends failing fast / exiting rather than starting degraded",
+          "check": { "contains_any": ["fail fast", "exit", "crash"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

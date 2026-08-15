@@ -1,0 +1,35 @@
+{
+  "skill_name": "php-codeigniter-tdd",
+  "evals": [
+    {
+      "id": "requires-separate-tests-db-group",
+      "prompt": "Our CodeIgniter 4 app.Config/Database.php has a 'tests' group with the exact same 'database' value as the 'default' group. We're about to write DatabaseTestTrait tests. Any concern?",
+      "expected_output": "Flags that the tests group must be a genuinely separate database from default, since DatabaseTestTrait migrates/refreshes/seeds against whichever database the tests group points to, and a shared database risks wiping real development data.",
+      "assertions": [
+        {
+          "text": "Flags the shared database as a real risk before writing tests",
+          "check": { "contains_any": ["same database", "shared", "separate", "risk"] }
+        },
+        {
+          "text": "Explains the mechanism: migrate/refresh/seed hits whatever the tests group points to",
+          "check": { "contains_any": ["migrate", "refresh", "seed"] }
+        }
+      ]
+    },
+    {
+      "id": "database-test-uses-trait-not-bare-case",
+      "prompt": "Write a CodeIgniter 4 test for ReservationModel that verifies insert() rejects a check_out date earlier than check_in.",
+      "expected_output": "Uses CIUnitTestCase with DatabaseTestTrait (not a bare CIUnitTestCase making live queries with no test-isolation trait) and asserts on the model's validation errors.",
+      "assertions": [
+        {
+          "text": "Uses DatabaseTestTrait",
+          "check": { "contains_all": ["DatabaseTestTrait"] }
+        },
+        {
+          "text": "Extends CIUnitTestCase",
+          "check": { "contains_all": ["CIUnitTestCase"] }
+        }
+      ]
+    }
+  ]
+}

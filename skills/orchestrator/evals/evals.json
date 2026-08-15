@@ -1,0 +1,35 @@
+{
+  "skill_name": "orchestrator",
+  "evals": [
+    {
+      "id": "prioritizes-security-over-style-in-mixed-request",
+      "prompt": "A request comes in: \"Review this Go HTTP handler — I want to know if the SQL query is safe from injection, and also whether the variable names follow our style guide.\" You have both a security-review skill and a code-style skill available in your catalog. How should you sequence handling this, and why?",
+      "expected_output": "Recommends addressing the security/injection concern first, before the style concern, because security risk takes priority over style in an ambiguous or mixed request.",
+      "assertions": [
+        { "text": "States security should be addressed first", "check": { "contains_any": ["security first", "address the security", "highest risk", "security before", "prioritize security"] } },
+        { "text": "Explicitly contrasts it with the lower-priority style concern", "check": { "contains_any": ["style", "naming", "lower priority", "then"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "loads-full-skill-not-just-description",
+      "prompt": "You're routing a request — \"add a new column to our reservations table, which is partitioned by hotel_id\" — to a database-migration skill in your catalog. Once you've identified that skill as the right match, what should you do next: answer using just a general sense of what that skill's description says, or something else? Explain the right approach.",
+      "expected_output": "Explains that the matched skill's full body/instructions should be loaded and followed, not just its one-line description, since the description alone won't carry the specific domain knowledge (e.g. partition-aware filtering) the skill exists to provide.",
+      "assertions": [
+        { "text": "Recommends loading and following the full skill content, not just the description", "check": { "contains_any": ["full skill", "read the skill", "load the skill", "entire skill", "not just the description"] } },
+        { "text": "Explains why the description alone is insufficient", "check": { "contains_any": ["description alone", "domain knowledge", "generic answer", "won't capture", "not enough"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "asks-exactly-one-clarifying-question",
+      "prompt": "A request says only: \"Fix the bug in the booking module.\" There's no error message, no file reference, and no description of what's actually wrong — it could be a debugging task, a data-integrity task, or something else entirely. What's the right number of clarifying questions to ask before proceeding, and why not zero or several?",
+      "expected_output": "Recommends asking exactly one clarifying question to resolve the genuine ambiguity, explaining that zero risks solving the wrong problem and asking several stalls unnecessarily when one well-chosen question would resolve the ambiguity.",
+      "assertions": [
+        { "text": "Recommends exactly one clarifying question", "check": { "contains_any": ["one clarifying question", "a single question", "ask one question", "exactly one"] } },
+        { "text": "Explains why zero or many questions is wrong", "check": { "contains_any": ["wrong problem", "stall", "too many questions", "risk answering", "ambiguous"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

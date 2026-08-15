@@ -1,0 +1,49 @@
+{
+  "skill_name": "using-agent-skills",
+  "evals": [
+    {
+      "id": "prefers-specific-over-name-match",
+      "prompt": "Using the using-agent-skills meta-skill's discovery procedure, explain how you would decide between two available skills when a task arrives: one skill is literally named 'database-migrations' but its description says it only covers PostgreSQL partition-aware migration scripts, and another skill named 'general-helper' has a description explicitly matching this exact task's trigger phrase. The task is unrelated to databases. Which skill should be invoked and why?",
+      "expected_output": "Explains that the skill should be chosen based on whether its description's trigger conditions actually match the task, not based on the name sounding relevant, and picks the skill whose description matches rather than the database-named one.",
+      "assertions": [
+        {
+          "text": "Explains matching should be based on description/trigger conditions, not name alone",
+          "check": { "contains_any": ["description", "trigger"] }
+        },
+        {
+          "text": "Concludes the name-matching skill should not be force-fit onto an unrelated task",
+          "check": { "contains_any": ["not force", "shouldn't invoke", "should not invoke", "doesn't match", "does not match", "skip despite", "false positive", "wins", "general-helper"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "no-skill-fits-proceed-natively",
+      "prompt": "Using the using-agent-skills approach, what should happen if a task arrives and none of the available skills' descriptions match the task at all? Should the agent still try to invoke the closest-sounding skill, or do something else?",
+      "expected_output": "States that when no skill genuinely matches, the agent should proceed using ordinary judgment rather than force-fitting an unrelated skill onto the task.",
+      "assertions": [
+        {
+          "text": "States proceeding without a skill using native judgment is correct",
+          "check": { "contains_any": ["native judgment", "proceed without", "no skill", "own judgment"] }
+        },
+        {
+          "text": "States that force-fitting a mismatched skill is the wrong move",
+          "check": { "contains_any": ["force-fit", "force fit", "shouldn't force", "should not force"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "core-behaviors-apply-regardless",
+      "prompt": "According to the using-agent-skills meta-skill, are behaviors like surfacing assumptions, pushing back on flawed approaches, and verifying before declaring done only required when a specific workflow skill is active, or do they apply at all times regardless of which skill is invoked?",
+      "expected_output": "States that these core behaviors (surfacing assumptions, avoiding sycophancy, verifying before completion, scope discipline) are non-negotiable and apply at all times, regardless of which specific skill is active.",
+      "assertions": [
+        {
+          "text": "States these behaviors apply regardless of the active skill",
+          "check": { "contains_any": ["regardless", "at all times", "non-negotiable", "always apply"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

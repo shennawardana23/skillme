@@ -1,0 +1,53 @@
+{
+  "skill_name": "dependency-and-license-policy",
+  "evals": [
+    {
+      "id": "flags-agpl-saas",
+      "prompt": "We run a hotel booking SaaS product. We're considering adding a Go library that's licensed under AGPL-3.0 to handle PDF invoice generation on our backend, which customers reach only over the network (we never distribute the binary to them). Is this safe to add without legal review?",
+      "expected_output": "Flags AGPL as triggering source-release obligations even for network-only SaaS use (no distribution required), and recommends escalating to legal before adding it.",
+      "assertions": [
+        {
+          "text": "Identifies AGPL's network-use trigger, not just distribution",
+          "check": { "contains_any": ["network", "saas", "network use"] }
+        },
+        {
+          "text": "Recommends legal review/escalation rather than approving unilaterally",
+          "check": { "contains_any": ["legal", "escalate", "review"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "distinguishes-lgpl-linking",
+      "prompt": "A teammate wants to statically link an LGPL-licensed C library into our proprietary Go binary that we ship to customers as a single compiled executable. They say 'LGPL is fine to use in proprietary software, so this is no problem.' Evaluate this reasoning.",
+      "expected_output": "Explains that LGPL's weak-copyleft exception typically relies on the library being dynamically linked/swappable, and that static linking into a single binary is a more contested case that needs closer scrutiny, not an automatic pass.",
+      "assertions": [
+        {
+          "text": "Flags static linking as different from dynamic linking under LGPL",
+          "check": { "contains_all": ["static"] }
+        },
+        {
+          "text": "Does not simply approve the plan as unconditionally fine",
+          "check": { "contains_any": ["scrutiny", "risk", "caution", "review", "careful", "concern"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "permissive-dependency-quick-approve",
+      "prompt": "We want to add a small Apache-2.0 licensed Go utility library (no transitive dependencies) to our proprietary backend service that we never distribute in source form. Is this safe to add, and why?",
+      "expected_output": "Confirms Apache-2.0 is permissive and safe to use in proprietary software without triggering source-release obligations, noting its explicit patent grant as a bonus.",
+      "assertions": [
+        {
+          "text": "Identifies Apache-2.0 as permissive/safe for proprietary use",
+          "check": { "contains_any": ["permissive", "safe"] }
+        },
+        {
+          "text": "Does not incorrectly demand legal escalation for a routine permissive license",
+          "check": { "not_contains": ["must escalate to legal", "requires legal sign-off before any use"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

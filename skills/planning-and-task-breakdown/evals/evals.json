@@ -1,0 +1,49 @@
+{
+  "skill_name": "planning-and-task-breakdown",
+  "evals": [
+    {
+      "id": "vertical-slicing-task-breakdown",
+      "prompt": "I have a spec for a full task-management CRUD feature (create, list, edit, delete tasks) spanning a database schema, an API layer, and a UI. Using planning-and-task-breakdown, should the task list be organized as 'Task 1: build the whole schema, Task 2: build all API endpoints, Task 3: build all UI' or should it be sliced differently? Explain the recommended approach.",
+      "expected_output": "Recommends vertical slicing -- each task is a complete feature path like 'user can create a task' spanning schema+API+UI -- rather than one task per horizontal layer.",
+      "assertions": [
+        {
+          "text": "Recommends vertical slicing",
+          "check": { "contains_any": ["vertical slic", "vertical"] }
+        },
+        {
+          "text": "Advises against one task per horizontal layer",
+          "check": { "contains_any": ["horizontal", "not layer by layer", "avoid building all"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "xl-task-split-and-title",
+      "prompt": "I wrote this task: 'Task 4: Add search filtering and refactor the results pagination component.' Using planning-and-task-breakdown's sizing guidance, is this task well-sized as written, and what specific clue in the title suggests it should be split?",
+      "expected_output": "States the task should be split into two tasks, and identifies the word 'and' in the title as the signal that it's actually two separate tasks.",
+      "assertions": [
+        {
+          "text": "Recommends splitting the task into two",
+          "check": { "contains_any": ["split", "two tasks", "break it down", "separate tasks"] }
+        },
+        {
+          "text": "Identifies 'and' in the title as the specific tell",
+          "check": { "contains_all": ["and"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "task-output-file-locations",
+      "prompt": "According to planning-and-task-breakdown's output conventions, where should the implementation plan document and the task checklist be saved in the repository?",
+      "expected_output": "States the plan goes to tasks/plan.md and the task checklist to tasks/todo.md.",
+      "assertions": [
+        {
+          "text": "Names both file paths",
+          "check": { "contains_all": ["tasks/plan.md", "tasks/todo.md"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

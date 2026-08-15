@@ -1,0 +1,35 @@
+{
+  "skill_name": "customs-trade-compliance",
+  "evals": [
+    {
+      "id": "applies-gri-in-order",
+      "prompt": "Using the customs-trade-compliance skill's classification decision logic, if a product is prima facie classifiable under two different HS headings, which GRI rule should be applied to resolve it, and can GRI 3 be applied before checking GRI 1?",
+      "expected_output": "Says GRI 3 (specifically 3(a), most specific heading) applies here, but GRI 1 must be checked and fail first — GRI rules are applied in strict order, never skipping ahead.",
+      "assertions": [
+        { "text": "Mentions GRI 3 or GRI 3(a)", "check": { "contains_any": ["GRI 3", "GRI3"] } },
+        { "text": "Says GRI 1 must be tried/fail first, in strict order", "check": { "contains_any": ["GRI 1", "in order", "strict order"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "prior-disclosure-timing-matters",
+      "prompt": "Our compliance team just discovered we misclassified a product for the past year, underpaying duty. Customs has not opened any investigation yet. Using the customs-trade-compliance skill, what should we do, and why does timing matter here?",
+      "expected_output": "Recommends filing a prior disclosure now, before any government investigation begins, since prior disclosure filed before an investigation opens caps penalty exposure dramatically compared to waiting.",
+      "assertions": [
+        { "text": "Recommends prior disclosure", "check": { "contains_any": ["prior disclosure"] } },
+        { "text": "Explains timing matters (before investigation opens)", "check": { "contains_any": ["before", "investigation"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "screening-hit-not-auto-cleared-or-blocked",
+      "prompt": "Our restricted-party screening tool flagged a customer with a partial name match to a sanctions list entry. Per the customs-trade-compliance skill, should we automatically block the transaction, automatically clear it, or something else?",
+      "expected_output": "Says neither — assess match quality (name similarity, address, country nexus) and document the adjudication rationale rather than auto-blocking or auto-clearing.",
+      "assertions": [
+        { "text": "Says not to automatically block or clear it", "check": { "contains_any": ["do not automatically", "not automatically", "neither"] } },
+        { "text": "Mentions assessing match quality or documenting rationale", "check": { "contains_any": ["match quality", "document", "adjudicat"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

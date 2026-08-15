@@ -1,0 +1,53 @@
+{
+  "skill_name": "vue-nuxt-frontend-patterns",
+  "evals": [
+    {
+      "id": "flags-reactivity-loss-on-destructure",
+      "prompt": "Why does this Vue 3 code not update the UI when count changes elsewhere?\n\nconst state = reactive({ count: 0 })\nconst { count } = state\n// later: count is used in a template but never updates",
+      "expected_output": "Explains that destructuring a reactive() object breaks the reactive connection and recommends toRefs(state) instead.",
+      "assertions": [
+        {
+          "text": "Identifies destructuring reactive as the cause",
+          "check": { "contains_all": ["reactive"] }
+        },
+        {
+          "text": "Recommends toRefs",
+          "check": { "contains_all": ["toRefs"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-bare-fetch-in-setup",
+      "prompt": "Review this Nuxt 3 component's data fetching:\n\n<script setup>\nconst route = useRoute()\nconst reservation = await $fetch(`/api/reservations/${route.params.id}`)\n</script>\n\nIs this the right way to fetch data here?",
+      "expected_output": "Flags that a bare $fetch call at the top level of script setup double-fetches (once server-side, once client-side during hydration) and recommends useFetch or useAsyncData instead.",
+      "assertions": [
+        {
+          "text": "Recommends useFetch or useAsyncData",
+          "check": { "contains_any": ["useFetch", "useAsyncData"] }
+        },
+        {
+          "text": "Explains the double-fetch / hydration issue",
+          "check": { "contains_any": ["twice", "hydrat", "server and client", "double"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-missing-v-for-key",
+      "prompt": "Review this Vue template for issues:\n\n<li v-for=\"item in reservations\">{{ item.guestName }}</li>",
+      "expected_output": "Flags the missing :key binding on v-for and explains the DOM node reuse / stale local state consequence.",
+      "assertions": [
+        {
+          "text": "Flags the missing key",
+          "check": { "contains_all": ["key"] }
+        },
+        {
+          "text": "Explains a concrete consequence, not just 'add a key'",
+          "check": { "contains_any": ["reuse", "stale", "state"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

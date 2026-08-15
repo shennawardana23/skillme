@@ -1,0 +1,57 @@
+{
+  "skill_name": "code-simplification",
+  "evals": [
+    {
+      "id": "simplifies-nested-conditionals-to-guard-clauses",
+      "prompt": "Using the code-simplification skill, simplify this Go function without changing its behavior:\n\nfunc Process(data *Data) error {\n\tif data != nil {\n\t\tif data.IsValid() {\n\t\t\tif data.HasPermission() {\n\t\t\t\treturn doWork(data)\n\t\t\t} else {\n\t\t\t\treturn errors.New(\"no permission\")\n\t\t\t}\n\t\t} else {\n\t\t\treturn errors.New(\"invalid data\")\n\t\t}\n\t} else {\n\t\treturn errors.New(\"data is nil\")\n\t}\n}\n\nShow the simplified version.",
+      "expected_output": "Rewrites the function using early-return guard clauses that check nil, then IsValid, then HasPermission, calling doWork last, with identical error behavior and no removed error handling.",
+      "assertions": [
+        {
+          "text": "Uses guard clauses / early returns",
+          "check": { "contains_any": ["guard clause", "early return"] }
+        },
+        {
+          "text": "Preserves all three error conditions",
+          "check": { "contains_all": ["nil", "no permission"] }
+        },
+        {
+          "text": "Calls doWork as the final step",
+          "check": { "contains_all": ["doWork"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-simplification-that-would-change-behavior",
+      "prompt": "Using the code-simplification skill, review whether this proposed 'simplification' is safe:\n\nOriginal:\nfunc GetTimeout(cfg *Config) time.Duration {\n\tif cfg.Timeout == 0 {\n\t\treturn 30 * time.Second\n\t}\n\treturn cfg.Timeout\n}\n\nProposed 'simplified' version:\nfunc GetTimeout(cfg *Config) time.Duration {\n\treturn cfg.Timeout\n}\n\nIs this a valid simplification? Why or why not?",
+      "expected_output": "Rejects the proposed change because it silently drops the default-timeout behavior when cfg.Timeout is zero, changing observable behavior rather than just its expression — this is not a valid simplification.",
+      "assertions": [
+        {
+          "text": "Rejects the change as unsafe",
+          "check": { "contains_any": ["not a valid simplification", "changes behavior", "not safe", "should not"] }
+        },
+        {
+          "text": "Identifies the lost default-timeout behavior",
+          "check": { "contains_any": ["default", "30", "zero"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-splitting-refactor-from-feature-work",
+      "prompt": "Using the code-simplification skill's process, what should happen if, while adding a new 'export to CSV' feature, an agent also wants to simplify three unrelated deeply-nested functions it noticed in the same file?",
+      "expected_output": "Recommends keeping the simplification work as a separate change from the feature addition, scoping the current change to what was asked and not doing unscoped drive-by refactoring.",
+      "assertions": [
+        {
+          "text": "Recommends separating the two changes",
+          "check": { "contains_any": ["separate change", "separate PR", "separate commit", "split"] }
+        },
+        {
+          "text": "Warns against unscoped drive-by refactoring",
+          "check": { "contains_any": ["scope", "unrelated", "drive-by", "unless asked"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

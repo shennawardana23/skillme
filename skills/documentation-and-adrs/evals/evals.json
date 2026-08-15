@@ -1,0 +1,34 @@
+{
+  "skill_name": "documentation-and-adrs",
+  "evals": [
+    {
+      "id": "never-delete-superseded-adrs",
+      "prompt": "We're changing a decision that was documented in ADR-004 last year. Using the documentation-and-adrs skill, should we edit or delete ADR-004 to reflect the new decision, or do something else?",
+      "expected_output": "Says not to delete or edit the old ADR — write a new ADR that references and supersedes it, keeping the old one for historical context.",
+      "assertions": [
+        { "text": "Says not to delete the old ADR", "check": { "contains_any": ["never delete", "don't delete", "do not delete"] } },
+        { "text": "Recommends a new ADR that supersedes the old one", "check": { "contains_any": ["supersede", "new adr"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "comment-why-not-what",
+      "prompt": "Using the documentation-and-adrs skill's inline documentation guidance, is a comment that says '// increment counter by 1' above a line like counter++ a good comment? What should comments focus on instead?",
+      "expected_output": "Says this is a bad comment because it restates the code; comments should explain the non-obvious why, not the what.",
+      "assertions": [
+        { "text": "Says this kind of comment is bad or unnecessary", "check": { "contains_any": ["bad", "restate", "unnecessary", "not a good"] } },
+        { "text": "Says comments should explain why not what", "check": { "contains_any": ["why", "not the what"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "adr-includes-alternatives-considered",
+      "prompt": "According to the documentation-and-adrs skill's ADR template, besides the decision itself, what else must be documented, and why does it matter?",
+      "expected_output": "Says alternatives considered (with pros/cons and reasons for rejection) must be documented, so the same debate isn't re-litigated later by someone who wasn't there.",
+      "assertions": [
+        { "text": "Mentions alternatives considered", "check": { "contains_any": ["alternatives considered", "alternatives"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "skill_name": "compose-multiplatform-patterns",
+  "evals": [
+    {
+      "id": "explains-modifier-order-effect",
+      "prompt": "In Jetpack Compose, does it matter whether I write Modifier.padding(16.dp).background(Color.Red) versus Modifier.background(Color.Red).padding(16.dp)? Explain what actually differs visually between the two.",
+      "expected_output": "Explains that modifiers apply as an ordered chain, so padding-then-background draws the background inside the padded area (background fills the smaller inset box), while background-then-padding draws the background first over the full size and then insets content, producing a visibly different colored area.",
+      "assertions": [
+        {
+          "text": "States that modifier order matters / is a chain",
+          "check": { "contains_any": ["order matters", "chain", "sequence"] }
+        },
+        {
+          "text": "Describes the visual difference between the two orderings",
+          "check": { "contains_any": ["inside the pad", "before the background", "smaller", "full size"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-immutable-for-skippable-recomposition",
+      "prompt": "I have a Composable that takes a plain (non-annotated) Kotlin data class as a parameter, and it recomposes every time its parent recomposes even though the data class's values haven't changed. What's the likely cause and fix?",
+      "expected_output": "Explains that Compose can't prove the data class is stable without an @Immutable or @Stable annotation, so it can't safely skip recomposition, and recommends annotating the class.",
+      "assertions": [
+        {
+          "text": "Recommends @Immutable or @Stable",
+          "check": { "contains_any": ["@Immutable", "@Stable"] }
+        },
+        {
+          "text": "Explains stability/skippability as the mechanism",
+          "check": { "contains_any": ["stable", "skip"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-missing-key-in-lazy-list",
+      "prompt": "Review this Jetpack Compose code for issues:\n\nLazyColumn {\n    items(items) { item ->\n        ItemRow(item = item)\n    }\n}\n\nItems can be reordered, inserted, or deleted from the underlying list.",
+      "expected_output": "Flags the missing key parameter on items() and explains that without a stable key, per-item remembered state (like animation or focus) can get attached to the wrong row when the list is reordered or mutated.",
+      "assertions": [
+        {
+          "text": "Flags the missing key",
+          "check": { "contains_all": ["key"] }
+        },
+        {
+          "text": "Explains a concrete consequence of missing keys, not just 'add a key'",
+          "check": { "contains_any": ["reorder", "identity", "wrong row", "remembered state"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

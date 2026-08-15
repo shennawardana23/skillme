@@ -1,0 +1,56 @@
+{
+  "skill_name": "test-driven-development",
+  "evals": [
+    {
+      "id": "go-table-driven-test",
+      "prompt": "Write a Go table-driven test for a function `func Discount(pct float64, amount int) int` that computes a discounted price. Cover at least: 0% discount, 50% discount, and a negative percentage. Write the test to a file named discount_test.go in the current directory.",
+      "expected_output": "discount_test.go contains a table-driven test using t.Run per case, named subtests describing the behavior, not 'case 1'/'case 2'.",
+      "assertions": [
+        {
+          "text": "discount_test.go exists and uses subtests",
+          "check": {
+            "files_exist": ["discount_test.go"],
+            "file_contains": [{ "path": "discount_test.go", "contains": "t.Run(" }]
+          }
+        },
+        {
+          "text": "Test file does not use vague numbered case names",
+          "check": { "not_matches": ["(?i)case[ _]?[0-9]"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "prove-it-bug-fix-pattern",
+      "prompt": "In this Go package, `type Task struct { ID string; Status string; CompletedAt time.Time }` has a method `func (t *Task) Complete() { t.Status = \"completed\" }`. A bug report says: 'Completing a task doesn't set the CompletedAt timestamp.' Don't ask clarifying questions — use the struct and method exactly as given above. Show the correct TDD workflow for fixing this bug, including the actual reproduction test code.",
+      "expected_output": "Describes writing a failing reproduction test BEFORE the fix, shows the test would fail first, then the fix.",
+      "assertions": [
+        {
+          "text": "States the test is written before the fix and must fail first",
+          "check": { "contains_any": ["fails first", "watch it fail", "must fail", "reproduces the bug", "confirm red", "confirm the bug", "→ FAIL", "-> FAIL"] }
+        },
+        {
+          "text": "Does not jump straight to editing the implementation without a test",
+          "check": { "contains_any": ["test", "Test"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "mock-vs-real-judgment",
+      "prompt": "I'm testing a function that calls a third-party payment gateway and also reads from our own Postgres database. Should I mock both, mock neither, or something in between?",
+      "expected_output": "Recommends mocking/stubbing the external payment gateway (slow, non-deterministic, side effects) while using a real or fake database for the Postgres calls.",
+      "assertions": [
+        {
+          "text": "Distinguishes the external payment gateway from the internal database",
+          "check": { "contains_all": ["payment"] }
+        },
+        {
+          "text": "Recommends real/fake DB over mocking internal dependencies wholesale",
+          "check": { "contains_any": ["real", "fake", "test database", "in-memory"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

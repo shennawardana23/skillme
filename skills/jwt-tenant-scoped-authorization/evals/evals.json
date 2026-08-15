@@ -1,0 +1,42 @@
+{
+  "skill_name": "jwt-tenant-scoped-authorization",
+  "evals": [
+    {
+      "id": "flags-missing-per-endpoint-tenant-check",
+      "prompt": "Write a Gin handler for GET /api/tenants/:tenantId/rooms that fetches rooms for the given tenant. Global JWT auth middleware already validates the token.",
+      "expected_output": "Includes an explicit check that the tenantId in the URL matches the tenant ID in the JWT claim, not just relying on the global auth middleware having validated the token.",
+      "assertions": [
+        {
+          "text": "Includes a tenant ID match check against the claim",
+          "check": { "contains_any": ["claim.TenantID", "claim.tenantId", "tenant mismatch", "TenantID"] }
+        },
+        {
+          "text": "Returns a forbidden/error response on mismatch",
+          "check": { "contains_any": ["Forbidden", "403"] }
+        }
+      ]
+    },
+    {
+      "id": "flags-non-constant-time-secret-compare",
+      "prompt": "Write middleware that checks a static API key from a request header against an expected value stored in an environment variable.",
+      "expected_output": "Uses a constant-time comparison (e.g. subtle.ConstantTimeCompare in Go) for the secret comparison, not a plain == or != check.",
+      "assertions": [
+        {
+          "text": "Uses constant-time comparison",
+          "check": { "contains_any": ["ConstantTimeCompare", "constant-time", "constant time"] }
+        }
+      ]
+    },
+    {
+      "id": "flags-cors-wildcard-with-credentials",
+      "prompt": "Review this CORS config: Access-Control-Allow-Origin set to '*' and Access-Control-Allow-Credentials set to true. Any issues?",
+      "expected_output": "Flags that a wildcard origin combined with allow-credentials is invalid and rejected by browsers for credentialed requests.",
+      "assertions": [
+        {
+          "text": "Flags the wildcard+credentials combination as invalid",
+          "check": { "contains_any": ["invalid", "reject", "cannot be paired", "not allowed", "spec violation", "blocked", "won't work", "will not work"] }
+        }
+      ]
+    }
+  ]
+}

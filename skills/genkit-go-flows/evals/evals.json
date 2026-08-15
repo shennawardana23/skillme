@@ -1,0 +1,46 @@
+{
+  "skill_name": "genkit-go-flows",
+  "evals": [
+    {
+      "id": "correct-module-path",
+      "prompt": "Write a minimal Go program that initializes Genkit and defines one flow. Show the imports.",
+      "expected_output": "Uses the correct current module path github.com/firebase/genkit/go, not an outdated genkit-ai/genkit path.",
+      "assertions": [
+        {
+          "text": "Uses the correct firebase/genkit/go module path",
+          "check": { "contains_all": ["firebase/genkit/go"] }
+        },
+        {
+          "text": "Does not use the outdated genkit-ai module path",
+          "check": { "not_contains": ["genkit-ai/genkit"] }
+        }
+      ]
+    },
+    {
+      "id": "recommends-traced-dev-loop",
+      "prompt": "I wrote a Genkit Go flow and I'm running it with `go run .` to check the output, but I can't see any trace or Dev UI. What am I missing?",
+      "expected_output": "Explains that plain `go run .` does not capture Genkit traces, and recommends `genkit start -- go run .` or `genkit flow:run <name> '<json>' -- go run .` instead.",
+      "assertions": [
+        {
+          "text": "Recommends genkit start or genkit flow:run",
+          "check": { "contains_any": ["genkit start", "genkit flow:run"] }
+        }
+      ]
+    },
+    {
+      "id": "no-genkit-start-in-ci-script",
+      "prompt": "Write a CI script step that runs our Genkit flow named validateBooking with test input as part of an automated pipeline.",
+      "expected_output": "Uses `genkit flow:run` (self-terminating) for the scripted/CI invocation, not `genkit start` (a blocking server process unsuitable for a script step).",
+      "assertions": [
+        {
+          "text": "Uses genkit flow:run for the scripted invocation",
+          "check": { "contains_all": ["genkit flow:run"] }
+        },
+        {
+          "text": "Does not use the blocking genkit start command as the CI step",
+          "check": { "not_matches": ["(?m)^\\s*genkit start\\s"] }
+        }
+      ]
+    }
+  ]
+}

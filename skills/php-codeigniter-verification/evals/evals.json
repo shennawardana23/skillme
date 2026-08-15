@@ -1,0 +1,39 @@
+{
+  "skill_name": "php-codeigniter-verification",
+  "evals": [
+    {
+      "id": "uses-spark-not-artisan",
+      "prompt": "Write the CI verification commands for our CodeIgniter 4 project: run migrations and run the test suite.",
+      "expected_output": "Uses `php spark migrate` and `php spark test`, not Laravel's `php artisan` equivalents.",
+      "assertions": [
+        {
+          "text": "Uses spark for migrations",
+          "check": { "contains_all": ["spark migrate"] }
+        },
+        {
+          "text": "Uses spark for tests",
+          "check": { "contains_all": ["spark test"] }
+        },
+        {
+          "text": "Does not use artisan (wrong framework's CLI)",
+          "check": { "not_contains": ["artisan"] }
+        }
+      ]
+    },
+    {
+      "id": "checks-route-filter-wiring-not-just-config-read",
+      "prompt": "We added a new admin-only route group in CodeIgniter 4 with a 'adminonly' filter. How do we verify the filter is actually wired up correctly before deploying?",
+      "expected_output": "Recommends running `php spark routes` to see the resolved filter chain per route, rather than just reading Config/Filters.php by eye, since a typo'd alias silently attaches nothing without throwing an error.",
+      "assertions": [
+        {
+          "text": "Recommends spark routes to verify",
+          "check": { "contains_all": ["spark routes"] }
+        },
+        {
+          "text": "Explains a typo'd filter alias fails silently",
+          "check": { "contains_any": ["silent", "typo", "does not throw", "won't error"] }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "skill_name": "php-codeigniter-legacy-auth-session",
+  "evals": [
+    {
+      "id": "flags-missing-object-level-check",
+      "prompt": "Write a classic CodeIgniter controller method that updates a hotel's template settings. The method already checks the user has 'cms_template_edit' privilege before proceeding, and reads hotel_id from POST data.",
+      "expected_output": "Flags that checking feature-level privilege alone is not enough - the code needs to also verify the posted hotel_id belongs to a hotel this specific user is allowed to modify, or it's vulnerable to an IDOR-style attack.",
+      "assertions": [
+        {
+          "text": "Flags missing object-level / ownership check",
+          "check": { "contains_any": ["ownership", "belongs to", "object-level", "IDOR", "retarget", "not this", "second check", "any user", "user is assigned", "user has access"] }
+        }
+      ]
+    },
+    {
+      "id": "flags-predictable-session-key",
+      "prompt": "Review this session key generation: $key = sha1('app-cms-' . $user_id); used as the auth cookie value. Any concerns?",
+      "expected_output": "Flags that this session key is deterministically computable from the user ID alone (no random component), meaning anyone who knows or guesses a user ID can compute a valid session key.",
+      "assertions": [
+        {
+          "text": "Flags the key as predictable/computable",
+          "check": { "contains_any": ["predictable", "computable", "guess", "no random"] }
+        }
+      ]
+    },
+    {
+      "id": "flags-csrf-off-by-default-assumption",
+      "prompt": "This is a classic CodeIgniter 3 application. Can we assume CSRF protection is enabled by default the way it would be in CodeIgniter 4?",
+      "expected_output": "Correctly states that classic CodeIgniter defaults to CSRF protection off, unlike CodeIgniter 4's default-on posture, and recommends explicitly checking the csrf_protection config value.",
+      "assertions": [
+        {
+          "text": "States CSRF is off by default in classic CodeIgniter",
+          "check": { "contains_any": ["off by default", "disabled by default", "not enabled by default", "= FALSE", "=FALSE", "default false", "default. FALSE", "default (FALSE"] }
+        }
+      ]
+    }
+  ]
+}

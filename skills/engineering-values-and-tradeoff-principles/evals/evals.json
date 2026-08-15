@@ -1,0 +1,53 @@
+{
+  "skill_name": "engineering-values-and-tradeoff-principles",
+  "evals": [
+    {
+      "id": "recommends-error-budget-over-debate",
+      "prompt": "Our team debates every release whether to ship a risky feature or hold back for stability, and the answer seems to depend on who argues loudest that week. How should we structure this decision so it stops being relitigated every time?",
+      "expected_output": "Recommends adopting an error-budget-style policy: set an explicit reliability target below 100% ahead of time, treat the gap as a spendable budget for risk, and write down an automatic consequence (like a release freeze) when the budget is exhausted, so the decision is a lookup rather than a fresh argument each time.",
+      "assertions": [
+        {
+          "text": "References the error budget concept",
+          "check": { "contains_any": ["error budget"] }
+        },
+        {
+          "text": "Recommends deciding the threshold ahead of time rather than relitigating each release",
+          "check": { "contains_any": ["ahead of time", "in advance", "before the pressure", "agreed"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-100-percent-target",
+      "prompt": "Our VP wants to set our new booking API's reliability target at 100% uptime, arguing 'why would we ever accept downtime on purpose?' Is 100% a good reliability target, and what would you recommend instead?",
+      "expected_output": "Explains that 100% is typically the wrong target since it leaves no room to ship any changes (all changes carry some risk) and disproportionately costs more per additional nine of reliability, recommending a target below 100% (like 99.9%) chosen based on actual user impact instead.",
+      "assertions": [
+        {
+          "text": "Flags 100% as the wrong target",
+          "check": { "contains_any": ["wrong target", "not the right target", "not a good target", "bad target"] }
+        },
+        {
+          "text": "Recommends a target below 100% based on user impact",
+          "check": { "contains_any": ["99.9", "below 100", "user impact", "actual need"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-unenforced-freeze",
+      "prompt": "We set up an error budget policy: when our monthly error budget is exhausted, we freeze new feature releases until reliability recovers. In practice, the last three times the budget was exhausted, the team shipped new features anyway because 'this release was important.' Is this a healthy way to run the policy?",
+      "expected_output": "Flags that repeatedly overriding the freeze without a visible, logged exception process means the policy has stopped functioning and the team is back to relitigating the tradeoff live each time, defeating the purpose of having the policy.",
+      "assertions": [
+        {
+          "text": "Flags the repeated override as undermining the policy",
+          "check": { "contains_any": ["undermin", "no longer function", "stopped working", "not a real policy", "defeats the purpose"] }
+        },
+        {
+          "text": "Contrasts with a proper visible/logged exception process",
+          "check": { "contains_any": ["exception process", "logged exception", "visible exception"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

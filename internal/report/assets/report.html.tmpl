@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>smeval report — {{.SkillName}}</title>
+<style>
+  :root {
+    --paper: #f5f5f5;
+    --paper-2: #ececec;
+    --ink: #2d3142;
+    --muted: #4f5d75;
+    --soft: #7a8399;
+    --rule: rgba(45,49,66,0.12);
+    --rule-solid: #bfc0c0;
+    --accent: #eb6c36;
+    --accent-tint: rgba(235,108,54,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #2d3142;
+      --paper-2: #393e53;
+      --ink: #f5f5f5;
+      --muted: #bfc0c0;
+      --soft: #8e98ac;
+      --rule: rgba(245,245,245,0.12);
+      --rule-solid: rgba(191,192,192,0.25);
+      --accent: #f08a59;
+      --accent-tint: rgba(240,138,89,0.10);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+  }
+  main { max-width: 860px; margin: 0 auto; padding: 48px 24px 96px; }
+  h1 {
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    font-size: 1.9rem;
+    margin: 0 0 4px;
+  }
+  .meta {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    color: var(--soft);
+    margin-bottom: 32px;
+  }
+  .summary {
+    display: flex;
+    gap: 24px;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule-solid);
+    border-bottom: 1px solid var(--rule-solid);
+    margin-bottom: 32px;
+  }
+  .summary .stat { font-family: ui-monospace, SFMono-Regular, monospace; }
+  .summary .stat b { display: block; font-size: 1.4rem; font-family: ui-sans-serif, system-ui, sans-serif; font-weight: 600; }
+  .summary .stat span { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); }
+  .case {
+    border-top: 1px solid var(--rule);
+    padding: 20px 0;
+  }
+  .case:last-child { border-bottom: 1px solid var(--rule); }
+  .case-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .case-id { font-weight: 600; font-size: 15px; }
+  .badge {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--rule-solid);
+    color: var(--muted);
+  }
+  .badge.fail, .badge.error {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-tint);
+  }
+  .badge.pass { color: var(--muted); }
+  .case-sub {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    color: var(--soft);
+    margin-top: 4px;
+  }
+  .fallback-tag { color: var(--accent); }
+  ul.assertions { list-style: none; margin: 12px 0 0; padding: 0; }
+  ul.assertions li {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 13px;
+    border-top: 1px solid var(--rule);
+  }
+  ul.assertions li:first-child { border-top: none; }
+  .mark { flex-shrink: 0; width: 16px; text-align: center; font-weight: 600; }
+  .mark.pass { color: var(--muted); }
+  .mark.fail { color: var(--accent); }
+  .assertion-text { flex: 1; }
+  .evidence { color: var(--soft); font-size: 12px; margin-top: 2px; }
+  .engine-error {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--accent-tint);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 10px;
+    white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>{{.SkillName}}</h1>
+  <div class="meta">smeval report — generated {{.GeneratedAt}}{{if .Benchmark}} — benchmark mode (with_skill vs without_skill){{end}}</div>
+
+  <div class="summary">
+    <div class="stat"><b>{{.PassedCases}}/{{.TotalCases}}</b><span>cases fully passed</span></div>
+  </div>
+
+  {{range .Cases}}
+  <div class="case">
+    <div class="case-head">
+      <div class="case-id">{{.ID}}</div>
+      {{if .Error}}
+        <span class="badge error">error</span>
+      {{else if eq .Passed .Total}}
+        <span class="badge pass">pass {{.Passed}}/{{.Total}}</span>
+      {{else}}
+        <span class="badge fail">fail {{.Passed}}/{{.Total}}</span>
+      {{end}}
+    </div>
+    {{if not .Error}}
+    <div class="case-sub">
+      model: {{.ModelUsed}}{{if .FallbackUsed}} <span class="fallback-tag">(fallback engaged)</span>{{end}}
+      {{if .WithoutSkill}} · without_skill: {{.WithoutSkill.Passed}}/{{.WithoutSkill.Total}}{{end}}
+    </div>
+    <ul class="assertions">
+      {{range .Assertions}}
+      <li>
+        <span class="mark {{if .Passed}}pass{{else}}fail{{end}}">{{if .Passed}}✓{{else}}✕{{end}}</span>
+        <div>
+          <div class="assertion-text">{{.Text}}</div>
+          <div class="evidence">{{.Evidence}}</div>
+        </div>
+      </li>
+      {{end}}
+    </ul>
+    {{else}}
+    <div class="engine-error">{{.Error}}</div>
+    {{end}}
+  </div>
+  {{end}}
+</main>
+</body>
+</html>

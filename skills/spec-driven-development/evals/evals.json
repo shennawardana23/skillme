@@ -1,0 +1,53 @@
+{
+  "skill_name": "spec-driven-development",
+  "evals": [
+    {
+      "id": "surface-assumptions-not-silent",
+      "prompt": "A stakeholder says: 'Build a notification system for our app.' No database, auth model, or notification channel (email/push/SMS) is specified. Using spec-driven development, what should happen before any spec content is written, and what should NOT happen?",
+      "expected_output": "States that assumptions (database, auth, channel) should be listed explicitly and surfaced to the stakeholder for correction, and that silently guessing and proceeding is the failure mode to avoid.",
+      "assertions": [
+        {
+          "text": "Mentions surfacing assumptions explicitly",
+          "check": { "contains_any": ["assumption", "assumptions"] }
+        },
+        {
+          "text": "States silently guessing/filling in is the thing to avoid",
+          "check": { "contains_any": ["silently", "without asking", "don't guess", "should not silently", "surface", "confirm"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "reframe-vague-requirement",
+      "prompt": "A requirement reads: 'Make the checkout page load faster.' Following spec-driven development's approach to reframing vague requirements, rewrite this as testable success criteria (mention at least one measurable metric with a target number).",
+      "expected_output": "Rewrites the requirement as specific measurable success criteria such as LCP or load time under a stated threshold.",
+      "assertions": [
+        {
+          "text": "Includes a measurable performance metric with a numeric target",
+          "check": { "matches_any": ["\\d+(\\.\\d+)?\\s?(s|ms|seconds|milliseconds)"] }
+        },
+        {
+          "text": "Frames it as success criteria, not just a repeated vague goal",
+          "check": { "contains_any": ["success criteria", "criteria", "target"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "four-phase-order",
+      "prompt": "In spec-driven development, what are the four gated phases in order, and what must happen between each phase before moving to the next one?",
+      "expected_output": "Lists Specify, Plan, Tasks, Implement in order, and states that human review/approval gates each transition.",
+      "assertions": [
+        {
+          "text": "Lists all four phase names",
+          "check": { "contains_all": ["Specify", "Plan", "Tasks", "Implement"] }
+        },
+        {
+          "text": "States a human review/approval gate occurs between phases",
+          "check": { "contains_any": ["human review", "human approves", "reviewed", "approval", "sign off", "signed off"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

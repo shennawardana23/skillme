@@ -1,0 +1,35 @@
+{
+  "skill_name": "hotel-rate-and-inventory-modeling",
+  "evals": [
+    {
+      "id": "separates-room-type-from-rate-plan",
+      "prompt": "Design a schema for hotel rooms where each room type (deluxe, suite, standard) has a single price field. We want to add a non-refundable discounted rate next month - how should we extend this?",
+      "expected_output": "Flags that a single price field on room type conflates room type and rate plan, and recommends a separate rate_plan entity in a many-to-many relationship with room type instead of adding more price fields to the room type.",
+      "assertions": [
+        {
+          "text": "Recommends a separate rate plan entity/table",
+          "check": { "contains_any": ["rate plan", "rate_plan"] }
+        },
+        {
+          "text": "Flags the single-price-field design as conflating two concepts",
+          "check": { "contains_any": ["conflate", "separate concept", "independent"] }
+        }
+      ]
+    },
+    {
+      "id": "distinguishes-overbooking-from-double-booking",
+      "prompt": "Our system shows 0 rooms available in inventory but we deliberately allotted 5 extra rooms to a specific OTA channel as a yield management strategy. Is this a bug?",
+      "expected_output": "Explains that deliberate, bounded overbooking via channel allotment is a normal yield-management pattern distinct from an accidental double-booking, and recommends tracking allotment separately from raw inventory with a bounded margin.",
+      "assertions": [
+        {
+          "text": "States this can be intentional, not automatically a bug",
+          "check": { "contains_any": ["intentional", "deliberate", "yield management"] }
+        },
+        {
+          "text": "Recommends tracking allotment separately from raw inventory",
+          "check": { "contains_all": ["allotment"] }
+        }
+      ]
+    }
+  ]
+}

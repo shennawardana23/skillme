@@ -1,0 +1,33 @@
+{
+  "skill_name": "prompt-optimizer",
+  "evals": [
+    {
+      "id": "advisory-only-no-execution",
+      "prompt": "Using the prompt-optimizer skill, if I paste a draft prompt and ask you to optimize it, should you also go ahead and execute the task described in that prompt?",
+      "expected_output": "Says no — this skill is advisory only and produces a diagnosis plus an optimized prompt, without writing code, creating files, or executing the task.",
+      "assertions": [
+        { "text": "Says it should not execute the task", "check": { "contains_any": ["advisory only", "not execute", "does not execute", "never execute"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "checks-live-skills-directory-not-memory",
+      "prompt": "Using the prompt-optimizer skill's approach to recommending relevant skills, should the recommendation be based on a fixed table of skill names memorized in advance, or something else?",
+      "expected_output": "Says to check the actual skills/ directory in the repo rather than relying on a hardcoded or memorized list, since the catalog can change.",
+      "assertions": [
+        { "text": "Mentions checking the actual skills/ directory", "check": { "contains_any": ["skills/", "skills directory"] } },
+        { "text": "Warns against a hardcoded/memorized list", "check": { "contains_any": ["hardcod", "memory", "stale"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "asks-clarifying-questions-when-context-missing",
+      "prompt": "A user's draft prompt says only 'add search to the app' with no mention of scope, acceptance criteria, or what's out of scope. Using the prompt-optimizer skill, what should happen given that 3 or more critical context items are missing?",
+      "expected_output": "Says to ask up to 3 clarifying questions before producing the optimized prompt, then incorporate the answers.",
+      "assertions": [
+        { "text": "Mentions asking clarifying questions", "check": { "contains_any": ["clarifying question", "clarification"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

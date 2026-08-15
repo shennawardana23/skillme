@@ -1,0 +1,53 @@
+{
+  "skill_name": "laravel-patterns",
+  "evals": [
+    {
+      "id": "flags-guarded-empty-mass-assignment",
+      "prompt": "Review this Eloquent model for issues:\n\nfinal class User extends Model\n{\n    protected $guarded = [];\n}\n\nfunc CreateUser is called as: User::create($request->all());",
+      "expected_output": "Flags $guarded = [] combined with User::create($request->all()) as a mass assignment vulnerability, since any field in the request (including something like is_admin) would be accepted.",
+      "assertions": [
+        {
+          "text": "Flags mass assignment risk",
+          "check": { "contains_any": ["mass assignment", "mass-assignment"] }
+        },
+        {
+          "text": "Recommends explicit fillable",
+          "check": { "contains_all": ["fillable"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-n-plus-one-query",
+      "prompt": "Review this Laravel controller code for performance issues:\n\n$reservations = Reservation::all();\nforeach ($reservations as $reservation) {\n    echo $reservation->guest->name;\n}",
+      "expected_output": "Flags the N+1 query pattern (one query per reservation to load guest) and recommends eager loading with ->with(['guest']).",
+      "assertions": [
+        {
+          "text": "Flags N+1 query issue",
+          "check": { "contains_any": ["N+1", "n+1"] }
+        },
+        {
+          "text": "Recommends eager loading with ->with()",
+          "check": { "contains_all": ["with("] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-unscoped-nested-binding",
+      "prompt": "Review this route definition for a multi-tenant app:\n\nRoute::get('/hotels/{hotel}/reservations/{reservation}', [ReservationController::class, 'show']);\n\nCould a user access a reservation belonging to a different hotel than the one in the URL?",
+      "expected_output": "Flags that without scopeBindings(), {reservation} resolves globally and a request could pass a reservation ID belonging to a different hotel; recommends Route::scopeBindings().",
+      "assertions": [
+        {
+          "text": "Identifies the cross-tenant access risk",
+          "check": { "contains_any": ["different hotel", "cross-tenant", "another hotel"] }
+        },
+        {
+          "text": "Recommends scopeBindings",
+          "check": { "contains_all": ["scopeBindings"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

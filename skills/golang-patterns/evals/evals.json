@@ -1,0 +1,53 @@
+{
+  "skill_name": "golang-patterns",
+  "evals": [
+    {
+      "id": "constructor-needs-functional-options",
+      "prompt": "A Go constructor currently looks like this and a fourth optional parameter is about to be added:\n\n```go\nfunc NewServer(addr string, timeout time.Duration, logger *slog.Logger) *Server\n```\n\nRewrite this as a constructor that takes the required `addr` plus any number of optional settings (timeout, logger, and room for more later), using the functional options pattern. Show the Option type, at least one With-style option function, and the constructor.",
+      "expected_output": "Defines an Option type as a function that mutates *Server, at least one WithX constructor function returning an Option, and a NewServer(addr string, opts ...Option) *Server that applies sane defaults and then applies each option.",
+      "assertions": [
+        {
+          "text": "Defines an Option function type",
+          "check": { "matches_any": ["type\\s+Option\\s+func\\(\\*Server\\)"] }
+        },
+        {
+          "text": "Constructor takes variadic options and applies them in a loop",
+          "check": { "contains_all": ["opts ...Option"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "slice-preallocation-fix",
+      "prompt": "Review this Go function for an allocation inefficiency and rewrite it to fix it:\n\n```go\nfunc processItems(items []Item) []Result {\n    var results []Result\n    for _, item := range items {\n        results = append(results, process(item))\n    }\n    return results\n}\n```\n\nThe number of items is known up front.",
+      "expected_output": "Identifies that appending to a nil slice causes repeated reallocation as it grows, and rewrites the function to preallocate with make([]Result, 0, len(items)) before the loop.",
+      "assertions": [
+        {
+          "text": "Explains the repeated reallocation/growth issue",
+          "check": { "contains_any": ["realloca", "grows", "growing"] }
+        },
+        {
+          "text": "Fixes it with make and len(items) capacity",
+          "check": { "matches_any": ["make\\(\\[\\]Result,\\s*0,\\s*len\\(items\\)\\)"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "interface-defined-at-point-of-use",
+      "prompt": "A `service` package needs to fetch a user by ID from some storage backend, but shouldn't depend on the concrete Postgres implementation. Where should the Go interface for this dependency be defined - in the service package or in the postgres storage package - and why? Show the interface definition.",
+      "expected_output": "Recommends defining a small interface (e.g. UserStore with a GetUser method) in the consuming service package rather than the postgres package, so the service package depends only on the behavior it needs and the storage package remains unaware of the interface, avoiding an import cycle and keeping the interface minimal.",
+      "assertions": [
+        {
+          "text": "Recommends defining the interface in the consumer/service package",
+          "check": { "contains_any": ["service package", "consumer", "consuming package"] }
+        },
+        {
+          "text": "Shows a small interface with a GetUser-style method",
+          "check": { "matches_any": ["interface\\s*\\{"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

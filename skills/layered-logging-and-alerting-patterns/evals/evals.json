@@ -1,0 +1,31 @@
+{
+  "skill_name": "layered-logging-and-alerting-patterns",
+  "evals": [
+    {
+      "id": "checks-side-effects-before-removing-log-call",
+      "prompt": "I found what looks like a redundant logger.Errorf call in a handler - the error is already returned to the caller. Should I just delete the logging call to clean up the code?",
+      "expected_output": "Recommends checking what the log call actually does before removing it (error tracker capture, centralized log shipping, alerting), since in this kind of system a log call can have side effects beyond writing output.",
+      "assertions": [
+        {
+          "text": "Recommends checking downstream effects before removing",
+          "check": { "contains_any": ["check what", "side effect", "before removing"] }
+        }
+      ]
+    },
+    {
+      "id": "recognizes-flush-delay-as-deliberate",
+      "prompt": "I noticed our Fatal() logging function calls time.Sleep(100 * time.Millisecond) right before os.Exit(). This looks like an unnecessary delay - should I remove it?",
+      "expected_output": "Explains this is likely a deliberate flush guarantee to let an async log-shipping goroutine finish before the process exits, and recommends against removing it without confirming.",
+      "assertions": [
+        {
+          "text": "Identifies this as a deliberate flush/delivery guarantee",
+          "check": { "contains_any": ["flush", "async", "deliver"] }
+        },
+        {
+          "text": "Recommends against removing it as dead code",
+          "check": { "contains_any": ["not dead code", "deliberate", "before removing"] }
+        }
+      ]
+    }
+  ]
+}

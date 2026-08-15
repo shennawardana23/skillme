@@ -1,0 +1,53 @@
+{
+  "skill_name": "security-review",
+  "evals": [
+    {
+      "id": "flags-math-rand-for-tokens",
+      "prompt": "Review this Go code for security issues:\n\nfunc GenerateSessionToken() string {\n\trand.Seed(time.Now().UnixNano())\n\treturn fmt.Sprintf(\"%x\", rand.Int63())\n}",
+      "expected_output": "Flags math/rand as unsuitable for session tokens and recommends crypto/rand.",
+      "assertions": [
+        {
+          "text": "Flags math/rand as insecure for tokens",
+          "check": { "contains_all": ["math/rand"] }
+        },
+        {
+          "text": "Recommends crypto/rand",
+          "check": { "contains_all": ["crypto/rand"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-missing-per-resource-authz",
+      "prompt": "Review this handler for security issues:\n\nfunc DeleteReservation(w http.ResponseWriter, r *http.Request) {\n\t// middleware already verified the request has a valid session\n\tid := r.URL.Query().Get(\"id\")\n\treservationRepo.Delete(id)\n\tw.WriteHeader(http.StatusNoContent)\n}",
+      "expected_output": "Flags the missing per-resource authorization check — authentication alone doesn't verify the caller may delete this specific reservation.",
+      "assertions": [
+        {
+          "text": "Flags missing authorization/ownership check",
+          "check": { "contains_any": ["authoriz", "ownership", "permission", "access control"] }
+        },
+        {
+          "text": "Distinguishes authentication from authorization",
+          "check": { "contains_any": ["authenticat"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-text-template-xss",
+      "prompt": "Review this Go code for security issues:\n\nfunc RenderComment(w http.ResponseWriter, userComment string) {\n\ttmpl := text_template.Must(text_template.New(\"c\").Parse(\"<div>{{.}}</div>\"))\n\ttmpl.Execute(w, userComment)\n}",
+      "expected_output": "Flags text/template as not auto-escaping HTML and recommends html/template for browser-rendered output.",
+      "assertions": [
+        {
+          "text": "Flags XSS risk from text/template",
+          "check": { "contains_any": ["XSS", "cross-site scripting"] }
+        },
+        {
+          "text": "Recommends html/template",
+          "check": { "contains_all": ["html/template"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "skill_name": "metrics-and-north-star-frameworks",
+  "evals": [
+    {
+      "id": "propose-north-star-with-inputs",
+      "prompt": "We run a habit-tracking app where users create daily habits (e.g. 'drink water', 'read 10 pages') and check them off each day. Propose a North Star Metric for this product, explain why it's better than just using Monthly Active Users, and list 2-3 input metrics that drive it.",
+      "expected_output": "Proposes a North Star Metric that reflects value delivered (e.g. habits checked off / completed per active user per week, or a streak-based completion metric) rather than raw activity or MAU, explains why MAU is a weaker choice because it doesn't capture whether users are getting real value, and lists 2-3 concrete, actionable input metrics.",
+      "assertions": [
+        {
+          "text": "Proposes a North Star expressed as a rate/ratio tied to completed habit activity, not a raw count",
+          "check": { "matches_any": ["(?i)per (active )?user per (day|week|month)", "(?i)(completions?|check-?ins?|checked off|streak)[^.\\n]{0,40}(per|rate|%|percent)"] }
+        },
+        {
+          "text": "Explains MAU is weaker because it doesn't capture value delivered, not just that MAU was mentioned",
+          "check": { "contains_any": ["vanity", "doesn't capture value", "doesn't reflect value", "value delivered", "core value"] }
+        },
+        {
+          "text": "Lists input metrics as distinct, named levers (not just the phrase 'input metrics')",
+          "check": { "matches_any": ["(?i)(activation|onboarding|retention|day\\s?7|day\\s?1|% of new users|percentage of new users)"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "map-symptom-to-aarrr-stage",
+      "prompt": "Our signups grew 40% this quarter after a marketing push, but weekly active users barely moved. Using the AARRR / Pirate Metrics framework, which stage of the funnel does this problem point to, and what should we investigate first? Also name what the other four AARRR stages are.",
+      "expected_output": "Correctly identifies this as an Activation problem (not Acquisition, which is clearly working, and not Retention/Referral/Revenue), recommends investigating the new-user onboarding / first-value experience, and correctly lists all five AARRR stages: Acquisition, Activation, Retention, Referral, Revenue.",
+      "assertions": [
+        {
+          "text": "Diagnoses the problem as an Activation-stage issue (not merely listing Activation among the five stage names)",
+          "check": { "matches_any": ["(?i)activation[^.\\n]{0,80}(problem|issue|gap|leak|bottleneck|is where)", "(?i)(problem|issue|leak|gap|points to|indicates|bottleneck)[^.\\n]{0,80}activation"] }
+        },
+        {
+          "text": "Recommends investigating onboarding / the first-value experience rather than spending more on acquisition",
+          "check": { "contains_any": ["onboarding", "first experience", "first session", "first value", "aha moment"] }
+        },
+        {
+          "text": "Lists all five AARRR stages by name",
+          "check": { "contains_all": ["Acquisition", "Activation", "Retention", "Referral", "Revenue"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "north-star-aarrr-composition",
+      "prompt": "Explain how the North Star Metric framework and the AARRR (Pirate Metrics) framework work together on the same product, rather than picking just one. Use a concrete example to illustrate.",
+      "expected_output": "Explains that AARRR provides funnel-stage diagnosis (where users are dropping off) while the North Star Metric provides one company-wide metric the team rallies around, and that input metrics feeding the North Star are typically each tied to a specific AARRR stage, connecting the two frameworks; illustrates with a concrete worked example.",
+      "assertions": [
+        {
+          "text": "Explains AARRR's role as diagnosing where in the funnel users drop off",
+          "check": { "contains_any": ["drop off", "drop-off", "leak", "where users are lost", "diagnos"] }
+        },
+        {
+          "text": "Explains input metrics are the connective tissue, each tied to a specific AARRR stage",
+          "check": { "matches_any": ["(?i)input metric[^.\\n]{0,80}(stage|acquisition|activation|retention|referral|revenue)"] }
+        },
+        {
+          "text": "Illustrates with a named, concrete product and a specific metric (not a generic placeholder)",
+          "check": { "not_contains": ["Product X", "Company X", "[product]", "[metric]"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "skill_name": "test-generation",
+  "evals": [
+    {
+      "id": "generates-table-driven-test-with-error-content-assertion",
+      "prompt": "Using the test-generation skill, generate Go tests for this function:\n\npackage validate\n\nimport \"errors\"\n\nvar ErrTooLong = errors.New(\"title too long\")\n\nfunc Title(s string) error {\n\tif len(s) == 0 {\n\t\treturn errors.New(\"title required\")\n\t}\n\tif len(s) > 100 {\n\t\treturn ErrTooLong\n\t}\n\treturn nil\n}\n\nProduce the full test file.",
+      "expected_output": "Produces a full _test.go file with package and imports, a table-driven test covering empty input, over-100-char input, and valid input, asserting on specific error content (e.g. errors.Is(err, ErrTooLong)) rather than just err != nil.",
+      "assertions": [
+        {
+          "text": "Includes package declaration",
+          "check": { "contains_any": ["package validate", "package validate_test"] }
+        },
+        {
+          "text": "Uses a table-driven test structure",
+          "check": { "contains_any": ["tests := []struct", "t.Run"] }
+        },
+        {
+          "text": "Asserts on specific error content, not just non-nil",
+          "check": { "contains_any": ["ErrTooLong", "errors.Is"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "generates-race-safe-concurrency-test",
+      "prompt": "Using the test-generation skill, generate a concurrency test for this Go counter type:\n\ntype Counter struct {\n\tmu sync.Mutex\n\tn  int\n}\n\nfunc (c *Counter) Inc() {\n\tc.mu.Lock()\n\tdefer c.mu.Unlock()\n\tc.n++\n}\n\nfunc (c *Counter) Value() int {\n\tc.mu.Lock()\n\tdefer c.mu.Unlock()\n\treturn c.n\n}\n\nWrite the test and note how it must be run.",
+      "expected_output": "Generates a test that increments the counter from many goroutines using a sync.WaitGroup, asserts the final value equals the expected total, and explicitly notes it must be run with go test -race.",
+      "assertions": [
+        {
+          "text": "Uses sync.WaitGroup to synchronize goroutines",
+          "check": { "contains_all": ["WaitGroup"] }
+        },
+        {
+          "text": "Asserts on the final counter value, not just absence of panic",
+          "check": { "contains_any": ["Value()", ".Value"] }
+        },
+        {
+          "text": "Notes the -race requirement",
+          "check": { "contains_all": ["-race"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "checks-go-version-before-adding-range-capture",
+      "prompt": "Using the test-generation skill's guidance on the tc := tc range-variable capture, a project's go.mod contains 'go 1.23'. Should generated table-driven tests include the `tc := tc` capture line, and why?",
+      "expected_output": "States that the tc := tc capture is unnecessary on Go 1.22+ since each loop iteration already gets its own variable, so for a go.mod declaring go 1.23 the line should be omitted (or noted as harmless but redundant).",
+      "assertions": [
+        {
+          "text": "States the capture is unnecessary for Go 1.22+",
+          "check": { "contains_any": ["1.22", "unnecessary", "not needed", "redundant"] }
+        },
+        {
+          "text": "References the go.mod version as the deciding factor",
+          "check": { "contains_any": ["go.mod", "go directive", "go 1.23"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

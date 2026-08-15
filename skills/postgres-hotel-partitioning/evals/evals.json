@@ -1,0 +1,57 @@
+{
+  "skill_name": "postgres-hotel-partitioning",
+  "evals": [
+    {
+      "id": "missing-filter-review",
+      "prompt": "Review this Go code for correctness. The `rooms` table is partitioned by hotel_id.\n\n```go\nconst q = `SELECT * FROM rooms WHERE status = $1`\n\nfunc (s *Store) AvailableRooms(ctx context.Context, status string) ([]Room, error) {\n    var rooms []Room\n    err := s.db.SelectContext(ctx, &rooms, q, status)\n    return rooms, err\n}\n```",
+      "expected_output": "Flags the missing hotel_id predicate as a partition-pruning bug (scans every partition), not a sign-off.",
+      "assertions": [
+        {
+          "text": "Names hotel_id as the missing predicate and explains the partition-scan consequence",
+          "check": {
+            "contains_all": ["hotel_id"],
+            "contains_any": ["partition", "scan every", "all partitions", "prune"]
+          }
+        },
+        {
+          "text": "Does not sign the query off as fine",
+          "check": { "not_contains": ["looks correct", "no issues", "LGTM", "this is fine"] }
+        }
+      ]
+    },
+    {
+      "id": "safe-query-write",
+      "prompt": "Write a Go function using sqlx that selects reservations for a given hotel ID and status from the `reservations` table, which is partitioned by hotel_id.",
+      "expected_output": "Binds hotel_id as an actual query parameter alongside status, not just mentioned in a comment, and never string-builds the SQL.",
+      "assertions": [
+        {
+          "text": "Mentions hotel_id",
+          "check": { "contains_all": ["hotel_id"] }
+        },
+        {
+          "text": "Binds hotel_id as an actual placeholder parameter, not just prose",
+          "check": { "matches_any": ["hotel_id\\s*=\\s*\\$\\d", "hotel_id\\s*=\\s*:\\w+", ":hotel_id\\b"] }
+        },
+        {
+          "text": "Does not build the query by string concatenation/formatting",
+          "check": { "not_matches": ["fmt\\.Sprintf\\(\\s*\"SELECT", "\\+\\s*hotelID\\s*\\+", "\\+\\s*status\\s*\\+"] }
+        }
+      ]
+    },
+    {
+      "id": "partition-migration",
+      "prompt": "Write the PostgreSQL DDL to create a new `stays` table partitioned by hotel_id, with example child partitions for hotel_id 101 and 102.",
+      "expected_output": "PARTITION BY LIST (hotel_id) on the parent, with PARTITION OF ... FOR VALUES IN child partitions.",
+      "assertions": [
+        {
+          "text": "Declares the parent with PARTITION BY LIST (hotel_id)",
+          "check": { "contains_all": ["PARTITION BY LIST", "hotel_id"] }
+        },
+        {
+          "text": "Creates child partitions with PARTITION OF ... FOR VALUES IN",
+          "check": { "contains_all": ["PARTITION OF", "FOR VALUES IN"] }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "skill_name": "one-on-ones-and-feedback-frameworks",
+  "evals": [
+    {
+      "id": "converts-trait-feedback-to-sbi",
+      "prompt": "I need to give feedback to a report who is 'not a team player.' In our last sprint planning meeting, they cut off two teammates mid-sentence while they were proposing estimates, and pushed through their own estimate without hearing them out, which meant we planned the sprint on incomplete information. Turn this into SBI-structured feedback.",
+      "expected_output": "Produces feedback structured into a specific Situation (the sprint planning meeting), an observable Behavior (cutting off teammates and pushing through an estimate without hearing them out), and a concrete Impact (sprint planned on incomplete information), avoiding the vague trait label 'not a team player.'",
+      "assertions": [
+        {
+          "text": "References the specific situation (sprint planning meeting)",
+          "check": { "contains_any": ["sprint planning"] }
+        },
+        {
+          "text": "Describes an observable behavior rather than a trait label",
+          "check": { "contains_any": ["cut off", "interrupted", "cutting off", "pushed through"] }
+        },
+        {
+          "text": "States a concrete impact",
+          "check": { "contains_any": ["incomplete information", "impact"] }
+        },
+        {
+          "text": "Avoids restating the vague trait label as the feedback itself",
+          "check": { "not_contains": ["you're not a team player", "you are not a team player"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-status-only-1on1",
+      "prompt": "My 1:1s with my direct reports currently consist of me going through their JIRA tickets one by one and asking for a status update on each. Is this a good use of the 1:1 time? What would you change?",
+      "expected_output": "Flags that a status-only 1:1 is a poor use of the dedicated time since status updates can happen asynchronously, and recommends restructuring the agenda to be report-owned and include blockers, growth/career conversation, and two-way feedback.",
+      "assertions": [
+        {
+          "text": "Flags the status-only format as a problem",
+          "check": { "contains_any": ["not a good use", "wasted", "poor use", "status update", "async"] }
+        },
+        {
+          "text": "Recommends the report own the agenda or including growth/feedback content",
+          "check": { "contains_any": ["report own", "their agenda", "growth", "career", "feedback", "blockers"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "identifies-fake-sbi",
+      "prompt": "Is this good SBI feedback? 'You're just not detail-oriented enough, and it's frustrating for the team.' If not, what's missing?",
+      "expected_output": "Identifies that this is not real SBI feedback because it lacks a specific Situation and observable Behavior, and is instead a vague trait/character judgment, recommending it be rewritten with a concrete example.",
+      "assertions": [
+        {
+          "text": "States this is not valid/real SBI feedback",
+          "check": { "contains_any": ["not sbi", "not valid", "not good sbi", "isn't sbi", "is not sbi"] }
+        },
+        {
+          "text": "Identifies the missing specific situation/behavior",
+          "check": { "contains_any": ["situation", "behavior", "specific example", "concrete"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

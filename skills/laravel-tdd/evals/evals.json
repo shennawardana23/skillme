@@ -1,0 +1,59 @@
+{
+  "skill_name": "laravel-tdd",
+  "evals": [
+    {
+      "id": "pest-feature-test-refreshdatabase",
+      "prompt": "In a Laravel project using Pest, write a feature test that verifies an authenticated owner can create a project via POST /api/projects with a 'name' field, and that the project row ends up in the database. Use RefreshDatabase and a User factory. Write the test to a file named ProjectCreationTest.php in the current directory.",
+      "expected_output": "A Pest test file using RefreshDatabase, a User factory, actingAs, postJson to /api/projects, assertCreated, and assertDatabaseHas.",
+      "assertions": [
+        {
+          "text": "Test file exists and uses RefreshDatabase and assertDatabaseHas",
+          "check": {
+            "files_exist": ["ProjectCreationTest.php"],
+            "file_contains": [
+              { "path": "ProjectCreationTest.php", "contains": "RefreshDatabase" },
+              { "path": "ProjectCreationTest.php", "contains": "assertDatabaseHas" }
+            ]
+          }
+        },
+        {
+          "text": "Uses a factory rather than manually inserting a user",
+          "check": { "file_contains": [{ "path": "ProjectCreationTest.php", "contains": "factory(" }] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "fake-side-effect-before-dispatch",
+      "prompt": "In a Laravel feature test, we dispatch a queued job called SendOrderConfirmation when an order is placed, and we want to assert it was queued without actually sending anything or running the job. What Laravel testing facade should be used, and where in the test must it be called relative to placing the order?",
+      "expected_output": "Recommends Queue::fake() called before the order-placing action, then asserting with Queue::assertPushed(SendOrderConfirmation::class).",
+      "assertions": [
+        {
+          "text": "Names Queue::fake as the mechanism",
+          "check": { "contains_all": ["Queue::fake"] }
+        },
+        {
+          "text": "States the fake must be set up before triggering the dispatch, and mentions assertPushed",
+          "check": { "contains_all": ["assertPushed"], "contains_any": ["before", "prior to", "first"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "refreshdatabase-vs-databasemigrations",
+      "prompt": "Our Laravel test suite uses the DatabaseMigrations trait on every feature test class, and the suite has gotten very slow as the number of migrations grew into the hundreds. What trait should we switch to for most feature tests, and why is it faster?",
+      "expected_output": "Recommends RefreshDatabase, explaining it migrates once per test run (or per-connection) and wraps each test in a rolled-back transaction instead of re-running every migration for every test.",
+      "assertions": [
+        {
+          "text": "Recommends RefreshDatabase",
+          "check": { "contains_all": ["RefreshDatabase"] }
+        },
+        {
+          "text": "Explains the transaction/rollback or migrate-once mechanism",
+          "check": { "contains_any": ["transaction", "rollback", "rolled back", "migrates once", "once per test run"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "skill_name": "git-workflow-and-versioning",
+  "evals": [
+    {
+      "id": "flags-behavior-change-as-patch",
+      "prompt": "We're releasing a change to our public Go client library that alters the default timeout behavior consumers have been observably relying on for retries, and the team wants to ship it as a PATCH version bump (e.g. 1.4.2 -> 1.4.3). Is that the right version bump?",
+      "expected_output": "Flags that a behavior change consumers observably relied on is a breaking change regardless of how small the diff looks, and recommends a MAJOR version bump instead of a patch.",
+      "assertions": [
+        {
+          "text": "Flags this as a breaking change, not a patch",
+          "check": { "contains_any": ["breaking", "major"] }
+        },
+        {
+          "text": "Recommends a major version bump",
+          "check": { "contains_any": ["MAJOR", "major version"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-go-v2-import-path-mismatch",
+      "prompt": "We're releasing a breaking v2.0.0 of our Go module `github.com/archipelago/sentec-client`, and just pushed the git tag `v2.0.0` without changing anything in go.mod. Will consumers be able to correctly get this new major version via `go get`?",
+      "expected_output": "Flags that Go modules require the major version to be reflected in the module's import path (e.g. module github.com/archipelago/sentec-client/v2) for v2 and above, and that just tagging v2.0.0 without updating go.mod's module path will not resolve correctly for consumers.",
+      "assertions": [
+        {
+          "text": "Flags the missing /v2 import path change in go.mod",
+          "check": { "contains_any": ["/v2", "import path"] }
+        },
+        {
+          "text": "States this will cause a resolution problem for consumers",
+          "check": { "contains_any": ["won't resolve", "will not resolve", "incorrect", "broken", "not correctly"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-atomic-commits-for-bisect",
+      "prompt": "We have one giant commit containing a refactor, a new feature, and a bug fix all mixed together, and now we're trying to use git bisect to find which change introduced a regression. Why is this hard, and what should we do differently going forward?",
+      "expected_output": "Explains that git bisect works best with atomic commits that each do one logical thing, and a mixed commit makes it ambiguous which part caused the regression; recommends committing each logical change separately going forward.",
+      "assertions": [
+        {
+          "text": "Explains the ambiguity problem for bisect with mixed commits",
+          "check": { "contains_any": ["ambiguous", "hard to tell", "can't tell", "unclear which"] }
+        },
+        {
+          "text": "Recommends atomic commits going forward",
+          "check": { "contains_any": ["atomic", "one logical thing", "separate commit"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

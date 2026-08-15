@@ -1,0 +1,53 @@
+{
+  "skill_name": "ci-cd-and-automation",
+  "evals": [
+    {
+      "id": "flags-disabling-lint-rule-to-unblock-merge",
+      "prompt": "Our golangci-lint check is failing on a PR due to an unused-variable warning, and the author wants to disable that lint rule in .golangci.yml to unblock the merge quickly. Is this the right approach?",
+      "expected_output": "Flags that disabling the lint rule to force a merge is not acceptable and recommends fixing the actual unused variable instead, since no quality gate should be skipped or silenced.",
+      "assertions": [
+        {
+          "text": "Recommends fixing the issue rather than disabling the rule",
+          "check": { "contains_any": ["fix the", "fix it", "don't disable", "should not disable"] }
+        },
+        {
+          "text": "States gates should not be skipped/silenced",
+          "check": { "contains_any": ["not be skipped", "shouldn't be skipped", "no gate", "not disable"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-parallel-jobs-over-sequential-steps",
+      "prompt": "Our GitHub Actions CI runs lint, then build, then test as three sequential steps inside a single job, and the whole pipeline takes 12 minutes. How should we restructure this to get faster feedback?",
+      "expected_output": "Recommends splitting lint, build, and test into separate parallel jobs so independent checks run concurrently instead of sequentially, along with caching dependencies to speed up each job.",
+      "assertions": [
+        {
+          "text": "Recommends running as separate parallel jobs",
+          "check": { "contains_any": ["parallel", "separate jobs"] }
+        },
+        {
+          "text": "Mentions caching as an additional optimization",
+          "check": { "contains_any": ["cach"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-production-secrets-in-fork-pr-workflow",
+      "prompt": "We're setting up a GitHub Actions workflow triggered on pull_request_target that runs the forked PR's code directly and has access to our production deployment secrets, so we can post deployment previews as PR comments. Is this safe?",
+      "expected_output": "Flags that running untrusted fork PR code with pull_request_target exposes production secrets to that code, which is a supply-chain risk, and recommends scoping secrets so production credentials are not exposed to jobs running untrusted PR code.",
+      "assertions": [
+        {
+          "text": "Flags the security risk of exposing secrets to untrusted PR code",
+          "check": { "contains_any": ["risk", "unsafe", "not safe", "danger"] }
+        },
+        {
+          "text": "Recommends not exposing production secrets to this workflow",
+          "check": { "contains_any": ["scope", "should not have access", "not expose", "shouldn't expose"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

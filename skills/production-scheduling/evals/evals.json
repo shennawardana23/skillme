@@ -1,0 +1,34 @@
+{
+  "skill_name": "production-scheduling",
+  "evals": [
+    {
+      "id": "identifies-true-constraint-not-wip-pileup",
+      "prompt": "WIP is piling up in front of Work Center B on our line. A junior planner assumes Work Center B is the bottleneck and wants to add a second machine there. Using the production-scheduling skill's bottleneck-identification approach, is that assumption safe, and what should be checked first?",
+      "expected_output": "Says WIP pileup does not necessarily mean that work center is the true constraint, and recommends checking the load-hours/available-hours utilization ratio and verifying causally before adding capacity.",
+      "assertions": [
+        { "text": "Says WIP pileup doesn't prove it's the constraint", "check": { "contains_any": ["does not necessarily", "not necessarily", "not proof", "isn't proof"] } },
+        { "text": "Recommends verifying utilization or a causal check", "check": { "contains_any": ["utilization", "would adding", "verify"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "dbr-subordination-principle",
+      "prompt": "Using the production-scheduling skill's Drum-Buffer-Rope framework, should a non-constraint work center be scheduled to run at 100% utilization if the constraint only runs at 85%?",
+      "expected_output": "Says no — non-constraint resources should be subordinated to the constraint's pace; running them at 100% while the constraint runs at 85% creates excess WIP with no throughput gain.",
+      "assertions": [
+        { "text": "Says this creates excess WIP without throughput gain", "check": { "contains_any": ["excess WIP", "no throughput gain", "subordinat"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "smed-internal-vs-external-setup",
+      "prompt": "In SMED methodology as described in the production-scheduling skill, what is the difference between an internal and an external setup element, and what's the general strategy for reducing changeover time?",
+      "expected_output": "Explains internal elements require the machine stopped while external elements can be done while the machine still runs, and the strategy is to convert internal elements to external wherever possible.",
+      "assertions": [
+        { "text": "Distinguishes internal vs external setup elements", "check": { "contains_all": ["internal", "external"] } },
+        { "text": "Mentions converting internal to external", "check": { "contains_any": ["convert", "external wherever possible"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

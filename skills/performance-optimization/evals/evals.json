@@ -1,0 +1,49 @@
+{
+  "skill_name": "performance-optimization",
+  "evals": [
+    {
+      "id": "flags-optimization-without-measurement",
+      "prompt": "A teammate wants to rewrite our Go reservation-lookup function to use a custom caching layer because they \"feel like it's probably slow,\" without having profiled it. Should we proceed with the rewrite?",
+      "expected_output": "Flags that no measurement exists yet and recommends profiling (e.g. with pprof or a benchmark) first to confirm this function is actually a bottleneck before adding the complexity of a custom cache.",
+      "assertions": [
+        {
+          "text": "Recommends measuring/profiling before optimizing",
+          "check": { "contains_any": ["profile", "measure", "pprof", "benchmark"] }
+        },
+        {
+          "text": "Pushes back on optimizing without evidence",
+          "check": { "contains_any": ["no measurement", "not measured", "no evidence", "premature"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-pprof-for-slow-endpoint",
+      "prompt": "One specific Go API endpoint has become noticeably slower over the last week, but the rest of the service is fine. What's the right first step to find out why?",
+      "expected_output": "Recommends capturing a CPU profile of that specific endpoint under load using pprof (or an equivalent Go profiler) to identify where the time is actually going, rather than guessing.",
+      "assertions": [
+        {
+          "text": "Recommends pprof or CPU profiling",
+          "check": { "contains_any": ["pprof", "CPU profile", "profiling"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-unbounded-query-fetch",
+      "prompt": "Review this Go code for a reservations listing endpoint:\n\nrows, err := db.QueryContext(ctx, \"SELECT * FROM reservations\")",
+      "expected_output": "Flags that this query has no limit or pagination and will grow unbounded as the table grows, recommending a bounded/paginated query instead.",
+      "assertions": [
+        {
+          "text": "Flags the missing limit/pagination",
+          "check": { "contains_any": ["unbounded", "no limit", "pagina"] }
+        },
+        {
+          "text": "Recommends adding LIMIT or pagination",
+          "check": { "contains_any": ["LIMIT", "pagina"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

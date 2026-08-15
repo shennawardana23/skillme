@@ -1,0 +1,53 @@
+{
+  "skill_name": "incremental-implementation",
+  "evals": [
+    {
+      "id": "vertical-vs-horizontal-slicing",
+      "prompt": "I'm implementing a full CRUD feature for 'tasks' (create, list, edit, delete) across a database, an API, and a UI. Using incremental implementation, should I build all the database work first, then all the API endpoints, then all the UI screens (horizontal), or should I slice differently? Explain the recommended slicing approach and why.",
+      "expected_output": "Recommends vertical slicing -- one complete end-to-end path (e.g. 'create a task' through DB+API+UI) per slice -- over building each layer completely before moving to the next.",
+      "assertions": [
+        {
+          "text": "Recommends vertical slicing by name or description",
+          "check": { "contains_any": ["vertical slice", "vertical slicing", "end-to-end", "end to end"] }
+        },
+        {
+          "text": "Explicitly advises against building layer by layer across the whole feature",
+          "check": { "contains_any": ["horizontal", "all the database", "layer by layer", "not layer"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "scope-discipline-noticed-not-touching",
+      "prompt": "While implementing a task that only requires adding a new API endpoint, I notice an unrelated file has an unused import and some outdated comments nearby. Per incremental implementation's scope discipline rule, should I fix these while I'm in the area, and if not, what should I do instead?",
+      "expected_output": "States these should not be fixed as part of this task (out of scope) and should instead be noted/flagged for a separate task, not silently cleaned up.",
+      "assertions": [
+        {
+          "text": "Says not to fix it as part of the current task",
+          "check": { "contains_any": ["should not fix", "don't fix", "out of scope", "not part of this task", "avoid fixing", "shouldn't touch"] }
+        },
+        {
+          "text": "Recommends noting it for a separate task rather than silently ignoring it",
+          "check": { "contains_any": ["note it", "flag it", "separate task", "mention it", "surface it"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "feature-flag-for-incomplete-work",
+      "prompt": "I need to merge a partially-built 'bulk export' feature to the main branch in small increments so my commits stay small, but the feature isn't ready for real users yet. What incremental-implementation technique should I use to merge safely without exposing an incomplete feature, and when should it be added relative to the first commit?",
+      "expected_output": "Recommends a feature flag that gates the incomplete feature, added starting with the very first commit that introduces the incomplete path, not added later.",
+      "assertions": [
+        {
+          "text": "Recommends a feature flag",
+          "check": { "contains_any": ["feature flag", "feature-flag"] }
+        },
+        {
+          "text": "States it should be present from the first commit, not added later",
+          "check": { "contains_any": ["from the first commit", "first commit that introduces", "from the start", "before it's reachable"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

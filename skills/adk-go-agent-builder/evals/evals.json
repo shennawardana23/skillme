@@ -1,0 +1,50 @@
+{
+  "skill_name": "adk-go-agent-builder",
+  "evals": [
+    {
+      "id": "basic-agent",
+      "prompt": "Using Google's Agent Development Kit for Go (google.golang.org/adk/v2), write minimal Go code that creates an LLM agent named \"weather_agent\" backed by a Gemini model, with an instruction restricting it to weather questions only.",
+      "expected_output": "Uses the real package API: llmagent.New, gemini.NewModel, google.golang.org/adk/v2 import path — not Python-ADK-derived syntax.",
+      "assertions": [
+        {
+          "text": "Imports and uses the real google.golang.org/adk/v2 module",
+          "check": { "contains_all": ["google.golang.org/adk/v2"] }
+        },
+        {
+          "text": "Uses llmagent.New and gemini.NewModel",
+          "check": { "contains_all": ["llmagent.New", "gemini.NewModel"] }
+        },
+        {
+          "text": "Does not invent Python-ADK-style syntax",
+          "check": { "not_contains": ["from google.adk", "import google.adk"] }
+        }
+      ]
+    },
+    {
+      "id": "function-tool",
+      "prompt": "Using google.golang.org/adk/v2, add a custom Go function tool to an ADK agent that returns the current server time in RFC3339 format.",
+      "expected_output": "Uses functiontool.New with the fixed func(ctx agent.Context, in In) (Out, error) handler shape.",
+      "assertions": [
+        {
+          "text": "Uses functiontool.New to wrap the function",
+          "check": { "contains_all": ["functiontool.New"] }
+        },
+        {
+          "text": "Handler signature includes agent.Context",
+          "check": { "contains_all": ["agent.Context"] }
+        }
+      ]
+    },
+    {
+      "id": "agent-composition",
+      "prompt": "Using google.golang.org/adk/v2, show how to compose two ADK Go agents so a root agent can delegate to a specialist search agent (using geminitool.GoogleSearch) as a tool, while the root agent also has its own custom function tools.",
+      "expected_output": "Uses agenttool.New to wrap the search agent as a tool — the correct pattern for combining a built-in Gemini tool with custom function tools on the same agent.",
+      "assertions": [
+        {
+          "text": "Uses agenttool.New to compose the specialist agent as a tool",
+          "check": { "contains_all": ["agenttool.New"] }
+        }
+      ]
+    }
+  ]
+}

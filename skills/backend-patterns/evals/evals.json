@@ -1,0 +1,53 @@
+{
+  "skill_name": "backend-patterns",
+  "evals": [
+    {
+      "id": "flags-n-plus-one",
+      "prompt": "Review this Go code for performance issues:\n\nreservations, _ := repo.ListByHotel(ctx, hotelID)\nfor _, r := range reservations {\n    guest, _ := guestRepo.ByID(ctx, hotelID, r.GuestID)\n    r.Guest = guest\n}",
+      "expected_output": "Flags this as an N+1 query pattern (one query per reservation) and recommends batch-fetching all guests in a single query using the collected guest IDs.",
+      "assertions": [
+        {
+          "text": "Identifies the N+1 query problem",
+          "check": { "contains_any": ["N+1", "one query per", "n queries"] }
+        },
+        {
+          "text": "Recommends batch fetching in a single query",
+          "check": { "contains_any": ["batch", "single query", "ByIDs", "one query"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-jitter-for-retries",
+      "prompt": "We're adding retry logic for calls to a flaky payment provider in our Go service, using exponential backoff with no jitter (delay = 2^attempt * 100ms). What's the risk at scale, and what should we change?",
+      "expected_output": "Flags that fixed exponential backoff without jitter causes many clients to retry in lockstep (synchronized retry storms) and recommends adding random jitter to spread retries out, plus only retrying idempotent operations.",
+      "assertions": [
+        {
+          "text": "Flags the lockstep/thundering-herd retry risk",
+          "check": { "contains_any": ["jitter", "lockstep", "thundering herd", "synchroniz"] }
+        },
+        {
+          "text": "Mentions idempotency for retried operations",
+          "check": { "contains_any": ["idempotent", "idempotency"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-inmemory-job-queue-durability",
+      "prompt": "Our background job system is a Go slice-based queue processed by a single goroutine, entirely in memory. What happens to queued jobs if the process crashes or restarts, and what should we use instead for jobs that must survive a restart?",
+      "expected_output": "Flags that an in-memory queue loses all queued jobs on crash or restart, and recommends a durable queue (Postgres SKIP LOCKED table, or a dedicated queue like SQS/Redis Streams) with idempotent job handlers.",
+      "assertions": [
+        {
+          "text": "Flags job loss on crash/restart",
+          "check": { "contains_any": ["lost", "lose", "crash", "restart"] }
+        },
+        {
+          "text": "Recommends a durable queue alternative",
+          "check": { "contains_any": ["durable", "SKIP LOCKED", "SQS", "Redis Streams", "persistent"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

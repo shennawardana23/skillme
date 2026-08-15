@@ -1,0 +1,53 @@
+{
+  "skill_name": "postgres-patterns",
+  "evals": [
+    {
+      "id": "recommends-keyset-over-offset-pagination",
+      "prompt": "Our products listing API uses `SELECT * FROM products ORDER BY id LIMIT 20 OFFSET 10000` for deep pages and it's gotten slow as the table grew. What's the underlying reason and what should we use instead?",
+      "expected_output": "Explains that OFFSET must scan and discard all preceding rows so cost grows with page depth, and recommends cursor/keyset pagination (WHERE id > last_seen_id) which is constant cost regardless of depth.",
+      "assertions": [
+        {
+          "text": "Explains OFFSET cost grows with page depth",
+          "check": { "contains_any": ["scan", "discard", "grows"] }
+        },
+        {
+          "text": "Recommends keyset/cursor pagination",
+          "check": { "contains_any": ["keyset", "cursor"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-skip-locked-for-queue-workers",
+      "prompt": "We have multiple worker processes pulling jobs from a Postgres `jobs` table using `SELECT id FROM jobs WHERE status = 'pending' ORDER BY created_at LIMIT 1 FOR UPDATE`. Workers are blocking on each other instead of processing jobs concurrently. What's wrong and what's the fix?",
+      "expected_output": "Explains that FOR UPDATE without SKIP LOCKED causes one worker's row lock to block the next worker's identical query, and recommends adding SKIP LOCKED so workers skip already-locked rows and process concurrently.",
+      "assertions": [
+        {
+          "text": "Identifies the blocking-on-lock issue",
+          "check": { "contains_any": ["block", "lock"] }
+        },
+        {
+          "text": "Recommends SKIP LOCKED",
+          "check": { "contains_all": ["SKIP LOCKED"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-float-for-money-column",
+      "prompt": "Review this table definition for a payments system:\n\nCREATE TABLE payments (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    amount float NOT NULL,\n    created_at timestamp NOT NULL\n);",
+      "expected_output": "Flags that float accumulates rounding error for currency and should be numeric(12,2) or similar, and flags that timestamp without time zone should be timestamptz.",
+      "assertions": [
+        {
+          "text": "Flags float for money and recommends numeric",
+          "check": { "contains_any": ["numeric"] }
+        },
+        {
+          "text": "Flags timestamp without time zone",
+          "check": { "contains_any": ["timestamptz", "time zone"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "skill_name": "code-review-and-quality",
+  "evals": [
+    {
+      "id": "recommends-splitting-oversized-change",
+      "prompt": "Using the code-review-and-quality process, evaluate this change request: a single pull request contains a 1400-line diff that refactors the existing payment module's error handling AND adds a brand-new refund feature with its own tests. Should this be reviewed as-is or split, and how?",
+      "expected_output": "Recommends splitting the refactor from the new feature into separate changes, citing the ~1000-line size guidance and the rule that refactors and feature work are two changes.",
+      "assertions": [
+        {
+          "text": "Recommends splitting the change",
+          "check": { "contains_any": ["split", "separate change", "two changes", "two PRs", "two diffs"] }
+        },
+        {
+          "text": "Distinguishes refactor from feature work",
+          "check": { "contains_all": ["refactor"] }
+        },
+        {
+          "text": "References the size guidance",
+          "check": { "contains_any": ["1000", "too large", "1400"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "labels-findings-by-severity",
+      "prompt": "Using the code-review-and-quality severity labeling system, write review comments for this Go change: it adds a new exported function with no doc comment, and separately removes an authorization check that verified the caller owned the resource before deleting it. Label each finding appropriately.",
+      "expected_output": "Labels the missing authorization check as Critical (blocks merge) and the missing doc comment as Nit or Optional, using the prefix system from the skill.",
+      "assertions": [
+        {
+          "text": "Labels the authorization removal as Critical",
+          "check": { "contains_any": ["Critical:", "CRITICAL"] }
+        },
+        {
+          "text": "Labels the missing doc comment as a minor/nit item",
+          "check": { "contains_any": ["Nit:", "Optional:", "Consider:"] }
+        },
+        {
+          "text": "Does not treat both findings as equally required",
+          "check": { "not_contains": ["both are critical", "both must block"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "rejects-vague-change-description",
+      "prompt": "Using the code-review-and-quality guidance on change descriptions, review whether this commit message is acceptable for merge: \"Fix bug\". If not, explain why and give a better one-line example for a change that fixes a null pointer panic when a user has no profile photo set.",
+      "expected_output": "Rejects \"Fix bug\" as an anti-pattern and proposes a specific, imperative, standalone replacement describing the actual fix.",
+      "assertions": [
+        {
+          "text": "Flags the description as an anti-pattern",
+          "check": { "contains_any": ["anti-pattern", "not acceptable", "too vague", "reject"] }
+        },
+        {
+          "text": "Proposes an imperative, specific replacement",
+          "check": { "contains_any": ["profile photo", "nil", "null pointer"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

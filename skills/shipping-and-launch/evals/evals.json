@@ -1,0 +1,34 @@
+{
+  "skill_name": "shipping-and-launch",
+  "evals": [
+    {
+      "id": "rollback-threshold-error-rate",
+      "prompt": "During a canary rollout, our error rate has risen to 2.5x baseline. Using the shipping-and-launch skill's rollout decision thresholds, should we advance the rollout, hold and investigate, or roll back?",
+      "expected_output": "Says to roll back immediately, since error rate above 2x baseline is the roll-back threshold, not merely hold-and-investigate.",
+      "assertions": [
+        { "text": "Recommends rolling back", "check": { "contains_any": ["roll back", "rollback"] } },
+        { "text": "References the 2x baseline threshold", "check": { "contains_any": ["2x", "two times", "twice"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "feature-flag-needs-owner-and-expiration",
+      "prompt": "Using the shipping-and-launch skill's feature flag rules, what two things should every feature flag have, and what commonly goes wrong when they're missing?",
+      "expected_output": "Says every flag should have an owner and an expiration date, and without them the flag tends to become permanent and forgotten.",
+      "assertions": [
+        { "text": "Mentions an owner", "check": { "contains_any": ["owner"] } },
+        { "text": "Mentions an expiration date", "check": { "contains_any": ["expiration"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "rollback-plan-written-before-deploy",
+      "prompt": "According to the shipping-and-launch skill, when should a rollback plan be written — before the deployment happens, or improvised during an incident if something goes wrong?",
+      "expected_output": "Says the rollback plan should be written before the deployment happens, not improvised during an incident.",
+      "assertions": [
+        { "text": "Says the plan should exist before deployment, not improvised during an incident", "check": { "contains_any": ["before it happens", "before the deployment", "not improvised"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "skill_name": "ai-regression-testing",
+  "evals": [
+    {
+      "id": "spots-parallel-path-drift",
+      "prompt": "We have a Go HTTP handler with two code paths: a sandbox/mock mode used in tests and demos, and a production mode that queries the real database. An agent just added a LoyaltyTier field to the production path's JSON response but the sandbox path's hardcoded struct literal still doesn't include it. Only the production path has a test. What's the risk here, and what test should I write to catch this class of bug going forward?",
+      "expected_output": "Identifies this as parallel-path drift between sandbox and production, and recommends a test that asserts both paths satisfy the same required-fields contract, not just the production path.",
+      "assertions": [
+        { "text": "Identifies the sandbox/production divergence as the core issue", "check": { "contains_any": ["sandbox", "parallel path", "both paths", "drift", "diverge"] } },
+        { "text": "Recommends testing both code paths against a shared contract", "check": { "contains_any": ["both paths", "each path", "shared contract", "required fields", "same fields"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "rejects-self-review-as-verification",
+      "prompt": "An AI coding agent fixed a bug where a SELECT query was missing a newly-added column, and then the same agent reviewed its own diff and said \"looks correct, the fix resolves the issue.\" No test suite was run. Is this sufficient verification that the bug is actually fixed? What should happen instead before we consider this done?",
+      "expected_output": "Explains that self-review by the same model carries the same blind spot into the review step and is not sufficient verification, and recommends running the automated test suite (and adding a regression test) before accepting the fix as complete.",
+      "assertions": [
+        { "text": "Rejects the self-review as sufficient verification", "check": { "contains_any": ["not sufficient", "not enough", "same blind spot", "not reliable", "can't trust"] } },
+        { "text": "Recommends running tests / adding a regression test before accepting the fix", "check": { "contains_any": ["run the test", "test suite", "regression test", "run tests"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-targeted-not-blanket-coverage",
+      "prompt": "After several bug-fix cycles with an AI agent, a teammate proposes writing unit tests for every single function in the codebase to reach 100% coverage, regardless of whether those functions have ever had a bug. Is that the right testing strategy for an AI-assisted codebase? What would you recommend instead?",
+      "expected_output": "Recommends against blanket coverage as the goal and instead prioritizes writing regression tests where bugs were actually found, since AI agents tend to repeat the same category of mistake.",
+      "assertions": [
+        { "text": "Pushes back on blanket 100% coverage as the goal", "check": { "contains_any": ["not the goal", "against", "not necessary", "diminishing", "not the right"] } },
+        { "text": "Recommends targeting tests at where bugs were found", "check": { "contains_any": ["where bugs were found", "bugs were found", "regression test", "targeted"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

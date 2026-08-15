@@ -1,0 +1,53 @@
+{
+  "skill_name": "data-retention-and-privacy-by-design",
+  "evals": [
+    {
+      "id": "flags-speculative-collection",
+      "prompt": "We're designing a new guest_profile table for our hotel PMS. A teammate suggests adding a passport_number field and a full_travel_history JSON blob 'in case we need it for future analytics features, even though nothing uses them yet.' Should we add these fields now?",
+      "expected_output": "Flags speculative collection without a named current purpose as a data minimization violation and recommends adding fields only when a specific feature needs them, with a retention period defined at that time.",
+      "assertions": [
+        {
+          "text": "Flags minimization / lack of specific purpose",
+          "check": { "contains_any": ["minimization", "purpose"] }
+        },
+        {
+          "text": "Recommends not collecting speculatively / waiting until needed",
+          "check": { "contains_any": ["don't collect", "not collect", "wait until", "when needed", "specific feature"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "soft-delete-insufficient",
+      "prompt": "A guest submitted a GDPR deletion request. Our engineer says 'Done — I set deleted_at = now() on their guest row.' Is this a complete and compliant response to the deletion request?",
+      "expected_output": "Explains that a soft-delete flag alone does not satisfy a deletion request since the data still exists and is often still queryable, and that a real purge/hard-delete across primary storage and downstream copies (backups, logs, analytics) is required.",
+      "assertions": [
+        {
+          "text": "Flags soft-delete as insufficient",
+          "check": { "contains_any": ["soft delete", "soft-delete", "not sufficient", "not enough", "insufficient"] }
+        },
+        {
+          "text": "Mentions downstream copies like backups/logs/analytics needing purging too",
+          "check": { "contains_any": ["backup", "log", "analytics", "downstream"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "identifies-privacy-by-design-principle",
+      "prompt": "We're adding a new marketing preferences feature. Should the default state for a new guest be opted-in to marketing emails, or opted-out, if we want to follow Privacy by Design principles?",
+      "expected_output": "Recommends opt-out as the default (privacy as the default setting) with opt-in required for additional data use, citing the Privacy by Design principle.",
+      "assertions": [
+        {
+          "text": "Recommends privacy-preserving default (opt-out/no marketing by default)",
+          "check": { "contains_any": ["opt-out", "opted out", "default setting", "privacy as the default"] }
+        },
+        {
+          "text": "Grounds the answer in the named Privacy by Design framework/author, not just echoing the prompt's phrase",
+          "check": { "contains_any": ["cavoukian", "gdpr article 25", "foundational principle"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

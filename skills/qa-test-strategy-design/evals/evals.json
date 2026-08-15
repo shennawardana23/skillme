@@ -1,0 +1,61 @@
+{
+  "skill_name": "qa-test-strategy-design",
+  "evals": [
+    {
+      "id": "risk-based-allocation",
+      "prompt": "We're adding a new feature that changes how nightly room rates are calculated for a hotel booking system, including a new discount-stacking rule. Design a test strategy for this feature: what should we test, at what level, and how much.",
+      "expected_output": "Identifies rate calculation as high-impact (money-affecting) and scores it as high risk regardless of code simplicity, recommends unit tests for the calculation logic plus integration/E2E coverage for the discount-stacking edge cases, and explicitly ties depth of testing to risk rather than proposing blanket full-coverage testing.",
+      "assertions": [
+        {
+          "text": "Identifies this as high risk because it affects money/rate calculation",
+          "check": { "contains_any": ["high risk", "high-risk", "impact", "money", "rate"] }
+        },
+        {
+          "text": "Recommends risk-based prioritization rather than uniform blanket testing",
+          "check": { "contains_any": ["risk-based", "prioritiz", "likelihood", "risk matrix"] }
+        },
+        {
+          "text": "Mentions test levels (unit/integration/E2E) as part of the allocation",
+          "check": { "contains_any": ["unit test", "integration test", "end-to-end", "E2E"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "pushes-back-on-e2e-for-everything",
+      "prompt": "A teammate suggests: 'Let's just add a full end-to-end Playwright test for every single PR from now on, no matter how small the change, so we never miss a bug.' Evaluate this as a test strategy.",
+      "expected_output": "Pushes back on blanket E2E-for-everything as a strategy, explains that E2E tests are slow/costly/flaky-prone and this inflates suite runtime without proportionally reducing risk, and recommends risk-based allocation with most coverage as unit tests per the test pyramid instead.",
+      "assertions": [
+        {
+          "text": "Pushes back rather than endorsing blanket E2E-for-everything",
+          "check": { "contains_any": ["not a strategy", "pyramid", "too slow", "flak", "not the right", "instead"] }
+        },
+        {
+          "text": "References the test pyramid or unit-heavy allocation as the alternative",
+          "check": { "contains_any": ["pyramid", "unit test", "70", "20", "10"] }
+        },
+        {
+          "text": "Does not simply agree that testing everything at E2E level is fine",
+          "check": { "not_contains": ["great idea", "sounds good, let's do that"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "partitioned-table-risk-flag",
+      "prompt": "We're adding a small new read-only endpoint that queries our reservations table (partitioned by hotel_id in PostgreSQL) to list a hotel's upcoming check-ins. The query is one line and looks trivial. What test strategy would you apply?",
+      "expected_output": "Flags that queries against a hotel_id-partitioned table are higher risk than they look because a missing hotel_id filter can silently scan/return wrong data across partitions, and recommends elevating this beyond 'trivial, skip testing' with an explicit test for partition filtering correctness.",
+      "assertions": [
+        {
+          "text": "Flags the partition key / hotel_id filtering risk explicitly",
+          "check": { "contains_all": ["hotel_id"] }
+        },
+        {
+          "text": "Does not dismiss it as too trivial to test",
+          "check": { "not_contains": ["no testing needed", "skip testing entirely"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

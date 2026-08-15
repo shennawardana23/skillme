@@ -1,0 +1,53 @@
+{
+  "skill_name": "api-and-interface-design",
+  "evals": [
+    {
+      "id": "flags-producer-side-fat-interface",
+      "prompt": "Review this Go package design:\n\npackage store\n\ntype Store interface {\n    GetReservation(ctx context.Context, id string) (*Reservation, error)\n    SaveReservation(ctx context.Context, r *Reservation) error\n    GetGuest(ctx context.Context, id string) (*Guest, error)\n    SaveGuest(ctx context.Context, g *Guest) error\n    GetFolio(ctx context.Context, id string) (*Folio, error)\n}\n\nA billing package only needs to look up a reservation by ID. Should billing depend on the Store interface above?",
+      "expected_output": "Flags that the interface is defined next to its implementation and is too large for the billing consumer, and recommends billing declare its own small consumer-side interface with just the method it needs.",
+      "assertions": [
+        {
+          "text": "Recommends a consumer-defined, smaller interface",
+          "check": { "contains_any": ["consumer", "smaller interface", "narrow"] }
+        },
+        {
+          "text": "Flags that the interface is too large / not scoped to what billing needs",
+          "check": { "contains_any": ["too large", "too big", "only needs one method", "GetReservation"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-functional-options-for-extension",
+      "prompt": "We have `func NewClient(url string) *Client` used across a dozen call sites. We now need to let some callers configure a custom timeout, without breaking the existing call sites. What's the safe way to extend this Go constructor?",
+      "expected_output": "Recommends the functional-options pattern (variadic Option parameters) so existing NewClient(url) calls keep compiling, rather than adding a required parameter.",
+      "assertions": [
+        {
+          "text": "Recommends functional options / variadic Option parameters",
+          "check": { "contains_any": ["functional option", "Option func", "variadic"] }
+        },
+        {
+          "text": "Notes existing call sites must keep working unchanged",
+          "check": { "contains_any": ["existing call", "backward", "breaking"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-breaking-exported-interface-change",
+      "prompt": "We want to add a new method to an exported Go interface that is implemented by three other internal packages and one open-source plugin outside our repo. Is this a safe change to make directly?",
+      "expected_output": "Flags that adding a method to an interface implemented outside the package is a breaking change for every implementer, especially the external plugin, and recommends an additive alternative such as a new interface or a new optional method surfaced via a separate type.",
+      "assertions": [
+        {
+          "text": "Flags this as a breaking change for implementers",
+          "check": { "contains_any": ["breaking", "break"] }
+        },
+        {
+          "text": "Calls out the external/outside-repo implementer as the specific risk",
+          "check": { "contains_any": ["external", "outside", "plugin"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

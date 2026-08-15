@@ -1,0 +1,53 @@
+{
+  "skill_name": "doubt-driven-development",
+  "evals": [
+    {
+      "id": "artifact-not-claim",
+      "prompt": "I'm about to apply doubt-driven development to a decision: I claim 'this new rate limiter is safe under concurrent requests because it uses a mutex.' I have the rate limiter code (the artifact) and the concurrency requirement (the contract). When I spawn a fresh-context reviewer to doubt this, what exactly should I paste into the reviewer's prompt: the claim, the artifact and contract, or all three?",
+      "expected_output": "States that only the artifact and contract should be passed to the reviewer, and the claim must be withheld because showing it biases the reviewer toward agreement.",
+      "assertions": [
+        {
+          "text": "States the claim should be withheld from the reviewer",
+          "check": { "contains_any": ["not the claim", "without the claim", "withhold", "should not", "must not", "don't pass the claim", "never pass"] }
+        },
+        {
+          "text": "States artifact and contract are what gets passed",
+          "check": { "contains_all": ["artifact", "contract"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "doubt-theater-detection",
+      "prompt": "I've run two doubt-driven-development review cycles on the same piece of code. Both times the fresh-context reviewer surfaced several substantive findings, but both times I classified every single finding as 'noise' or 'already fine as-is' and made no changes. Is this working as intended, or is something wrong with how I'm applying the skill?",
+      "expected_output": "Identifies this pattern as 'doubt theater' -- validating rather than doubting -- and recommends stopping to escalate rather than running a third cycle the same way.",
+      "assertions": [
+        {
+          "text": "Names the pattern as doubt theater or equivalent (validating not doubting)",
+          "check": { "contains_any": ["doubt theater", "validating", "rubber-stamp", "rubber stamp"] }
+        },
+        {
+          "text": "Recommends stopping/escalating rather than continuing the same way",
+          "check": { "contains_any": ["escalate", "stop", "pause", "flag to the user", "surface"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "when-not-to-apply",
+      "prompt": "I just renamed a local variable from 'tmp' to 'pendingOrder' in a single function, with no other changes. Should I apply doubt-driven development's adversarial fresh-context review to this rename before it stands?",
+      "expected_output": "No -- a mechanical rename with obviously preserved behavior is explicitly out of scope for doubt-driven development.",
+      "assertions": [
+        {
+          "text": "Says this rename does not need the doubt-driven review process",
+          "check": { "contains_any": ["no", "not necessary", "don't need", "not required", "skip", "doesn't warrant"] }
+        },
+        {
+          "text": "Gives a reason tied to it being mechanical/trivial",
+          "check": { "contains_any": ["mechanical", "trivial", "rename", "obvious"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

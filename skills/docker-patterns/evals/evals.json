@@ -1,0 +1,53 @@
+{
+  "skill_name": "docker-patterns",
+  "evals": [
+    {
+      "id": "flags-depends-on-without-healthcheck",
+      "prompt": "Our Docker Compose file has an `app` service with `depends_on: [db]` (no condition), and it intermittently fails to connect to Postgres on `docker compose up` right after a fresh start, though it works fine on subsequent runs. Why, and how do we fix the compose file?",
+      "expected_output": "Explains that a plain depends_on only waits for the db container to start, not for Postgres to be ready to accept connections, and recommends depends_on with condition: service_healthy backed by a healthcheck.",
+      "assertions": [
+        {
+          "text": "Explains depends_on only waits for container start, not readiness",
+          "check": { "contains_any": ["start", "ready"] }
+        },
+        {
+          "text": "Recommends condition: service_healthy",
+          "check": { "contains_all": ["service_healthy"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-root-user-and-latest-tag",
+      "prompt": "Review this Dockerfile for a Go service:\n\nFROM golang:latest\nWORKDIR /app\nCOPY . .\nRUN go build -o /server ./cmd/server\nCMD [\"/server\"]",
+      "expected_output": "Flags use of the :latest tag (should pin a specific version) and that the container runs as root by default (should create and use a non-root user), and recommends a multi-stage build to avoid shipping the Go toolchain.",
+      "assertions": [
+        {
+          "text": "Flags the :latest tag",
+          "check": { "contains_any": ["latest"] }
+        },
+        {
+          "text": "Flags running as root / missing non-root user",
+          "check": { "contains_any": ["root", "non-root", "nonroot"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "explains-dockerignore-purpose",
+      "prompt": "Our Dockerfile does `COPY . .` and we don't have a .dockerignore file. What's the risk, and what should a .dockerignore for a Go/Node project typically exclude?",
+      "expected_output": "Explains that without .dockerignore, COPY . . ships .git history, .env files, and other local artifacts into the image (bloating it and risking secret leakage), and recommends excluding .git, .env, node_modules, and similar paths.",
+      "assertions": [
+        {
+          "text": "Explains the risk of shipping .git/.env into the image",
+          "check": { "contains_any": [".env", ".git"] }
+        },
+        {
+          "text": "Recommends creating a .dockerignore excluding these paths",
+          "check": { "contains_all": [".dockerignore"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

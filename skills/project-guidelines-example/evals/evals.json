@@ -1,0 +1,57 @@
+{
+  "skill_name": "project-guidelines-example",
+  "evals": [
+    {
+      "id": "six-required-sections",
+      "prompt": "I'm writing a project guidelines document for a new Go + PostgreSQL service called 'inventory-service' so future agent sessions know how to work in it. Following the project-guidelines-example skill, list the six categories of information this document must contain.",
+      "expected_output": "Lists architecture overview, directory contract, response/error shape, exact commands, testing requirements, and Always/Ask-first/Never boundaries.",
+      "assertions": [
+        {
+          "text": "Mentions architecture and directory contract",
+          "check": { "contains_any": ["architecture"] }
+        },
+        {
+          "text": "Mentions the response/error shape and exact commands",
+          "check": { "contains_any": ["response shape", "error shape", "response/error"] }
+        },
+        {
+          "text": "Mentions the Always/Ask first/Never boundary structure",
+          "check": { "contains_all": ["Always"], "contains_any": ["Ask first", "Never"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "specific-not-generic",
+      "prompt": "A teammate drafted a project guidelines doc that says: 'Write clean code. Handle errors properly. Use good naming.' Is this a good project guidelines document per the project-guidelines-example skill? What's missing?",
+      "expected_output": "States this is not sufficient because it restates generic best practice rather than this project's specific facts (exact commands, response shape, directory conventions, etc.) that can't be derived from general knowledge.",
+      "assertions": [
+        {
+          "text": "Says this is insufficient / too generic",
+          "check": { "contains_any": ["generic", "not specific", "insufficient", "not enough", "too vague"] }
+        },
+        {
+          "text": "States it's missing project-specific facts like commands or structure",
+          "check": { "contains_any": ["specific", "commands", "directory", "response shape", "conventions"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "never-list-needs-reason",
+      "prompt": "A project guidelines document has this boundary line: 'Never: query the orders table without filtering by tenant_id.' Per the project-guidelines-example skill's gotchas, is stating the rule alone sufficient, or should something be added, and why?",
+      "expected_output": "States the rule should be paired with a reason (e.g. the table is partitioned by tenant_id and an unfiltered query can leak cross-tenant data or scan every partition), because an unexplained restriction is more likely to be silently violated later.",
+      "assertions": [
+        {
+          "text": "States a reason should be added, not just the bare rule",
+          "check": { "contains_any": ["reason", "explain why", "because", "should be paired"] }
+        },
+        {
+          "text": "Mentions the consequence (leak / scan every partition / cross-tenant)",
+          "check": { "contains_any": ["leak", "cross-tenant", "every partition", "scan"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

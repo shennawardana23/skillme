@@ -1,0 +1,35 @@
+{
+  "skill_name": "lifecycle-planner",
+  "evals": [
+    {
+      "id": "requires-acceptance-criteria-first",
+      "prompt": "Using the lifecycle-planner skill, what should happen in Phase 1 before any code is written for a new feature request?",
+      "expected_output": "Says to write structured acceptance criteria (Given/When/Then), identify edge cases, and list what's explicitly out of scope, before moving to design or implementation.",
+      "assertions": [
+        { "text": "Mentions acceptance criteria", "check": { "contains_any": ["acceptance criteria"] } },
+        { "text": "Mentions out of scope", "check": { "contains_any": ["out of scope"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "quality-gate-blocks-approval-with-caveats",
+      "prompt": "I implemented a feature and found one HIGH severity security issue during self-review, but the acceptance criteria are otherwise met. Per the lifecycle-planner quality gate, can I mark quality_status as 'approved' with a note about the security issue?",
+      "expected_output": "Says no — any CRITICAL or HIGH security issue means the status must be needs_revision, not approved with a caveat.",
+      "assertions": [
+        { "text": "Says this cannot be approved", "check": { "contains_any": ["needs_revision", "needs revision", "cannot be approved", "not approved", "no"] } },
+        { "text": "References the HIGH/CRITICAL security gate condition", "check": { "contains_any": ["HIGH", "CRITICAL", "security"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "go-implementation-conventions",
+      "prompt": "Using the lifecycle-planner skill's Phase 3 rules for a Go service, what should the first parameter of a blocking function be, and how should errors be wrapped?",
+      "expected_output": "Says context.Context should be the first parameter of blocking calls, and errors should be wrapped with fmt.Errorf using %w.",
+      "assertions": [
+        { "text": "Mentions context.Context as first parameter", "check": { "contains_any": ["context.Context", "context.Context)"] } },
+        { "text": "Mentions error wrapping with %w", "check": { "contains_any": ["%w", "fmt.Errorf"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "skill_name": "go-expert",
+  "evals": [
+    {
+      "id": "wg-done-not-deferred",
+      "prompt": "Review this Go code for a concurrency bug:\n\n```go\nfunc processAll(items []Item) {\n    var wg sync.WaitGroup\n    for _, item := range items {\n        wg.Add(1)\n        go func(it Item) {\n            if it.Invalid() {\n                return\n            }\n            process(it)\n            wg.Done()\n        }(item)\n    }\n    wg.Wait()\n}\n```\n\nWhat is wrong and how should it be fixed?",
+      "expected_output": "Flags that wg.Done() is not deferred and is skipped entirely on the early return path when it.Invalid() is true, so wg.Wait() will hang forever whenever any item is invalid; recommends calling defer wg.Done() immediately inside the goroutine, right after entering it.",
+      "assertions": [
+        {
+          "text": "Identifies that Wait() will hang / deadlock because Done is skipped on the early return",
+          "check": { "contains_any": ["hang", "deadlock", "never call", "block forever", "wait forever"] }
+        },
+        {
+          "text": "Recommends defer wg.Done() placed immediately",
+          "check": { "contains_all": ["defer", "wg.Done()"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "mutex-unlock-not-deferred",
+      "prompt": "Review this Go method for a concurrency bug:\n\n```go\nfunc (c *Cache) Set(key string, value int) error {\n    c.mu.Lock()\n    if c.closed {\n        return errors.New(\"cache closed\")\n    }\n    c.data[key] = value\n    c.mu.Unlock()\n    return nil\n}\n```\n\nWhat is wrong and what is the fix?",
+      "expected_output": "Flags that the early return when c.closed is true skips c.mu.Unlock(), leaving the mutex permanently locked and deadlocking every future caller; recommends adding defer c.mu.Unlock() immediately after c.mu.Lock().",
+      "assertions": [
+        {
+          "text": "Identifies the mutex stays locked / deadlocks on the early return path",
+          "check": { "contains_any": ["deadlock", "stays locked", "never unlock", "permanently locked", "remains locked"] }
+        },
+        {
+          "text": "Recommends defer mu.Unlock() right after Lock()",
+          "check": { "contains_all": ["defer", "Unlock"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "goroutine-leak-detection-tooling",
+      "prompt": "A Go test suite passes `go test -race ./...` cleanly, but the team suspects some background goroutines started during tests are never being stopped, accumulating across test runs. What tool should be added to TestMain to catch this, and what does `go test -race` alone fail to detect here?",
+      "expected_output": "Recommends adding go.uber.org/goleak's VerifyTestMain to TestMain to detect leaked goroutines, and explains that -race only detects concurrent unsynchronized data access, not goroutines that simply never terminate, so a clean -race run gives no information about leaks.",
+      "assertions": [
+        {
+          "text": "Recommends goleak",
+          "check": { "contains_all": ["goleak"] }
+        },
+        {
+          "text": "Explains -race detects data races, not leaks",
+          "check": { "contains_any": ["data race", "race detector"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

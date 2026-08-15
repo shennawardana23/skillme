@@ -1,0 +1,53 @@
+{
+  "skill_name": "engineering-onboarding-design",
+  "evals": [
+    {
+      "id": "week-one-real-pr",
+      "prompt": "Design a first-week onboarding plan for a new backend engineer joining our team. What should day 1 and week 1 look like specifically?",
+      "expected_output": "Recommends verifying environment/access on day 1 and shipping a small but real, reviewed production change during week 1 (not just reading docs or shadowing), explaining that this validates the pipeline and access end-to-end.",
+      "assertions": [
+        {
+          "text": "Recommends a real, shipped production change in week one, not just reading/shadowing",
+          "check": { "contains_any": ["ship", "production", "small pr", "real change", "real task"] }
+        },
+        {
+          "text": "Mentions verifying environment/access works on day one",
+          "check": { "contains_any": ["day 1", "day one", "environment", "access"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-shadowing-only-plan",
+      "prompt": "Here's our current onboarding plan draft for new engineers: 'Week 1: read the architecture docs, attend team meetings, shadow a senior engineer on calls. Week 2: shadow more, start reading through the codebase. Week 3: maybe start on a small task if they feel ready.' Review this plan.",
+      "expected_output": "Flags the lack of a real hands-on task in the first two weeks as a warning sign, recommends moving a small real production task into week one rather than deferring it to week three, and explains that pure shadowing/reading doesn't validate access, tooling, or process.",
+      "assertions": [
+        {
+          "text": "Flags the delay of a real task to week 3 as a problem",
+          "check": { "contains_any": ["warning sign", "too late", "should happen sooner", "delay", "week 3 is too late", "push", "move"] }
+        },
+        {
+          "text": "Recommends a real task earlier, ideally week one",
+          "check": { "contains_any": ["week 1", "week one", "first week"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-dogfooding-onboarding-docs",
+      "prompt": "Our onboarding documentation is known to be somewhat outdated — some steps reference tools we no longer use. Who should be responsible for fixing it, and when?",
+      "expected_output": "Recommends having new hires update the onboarding documentation themselves as one of their early tasks, since they are best positioned to notice the stale steps while going through onboarding, rather than deferring the fix to a future dedicated documentation effort.",
+      "assertions": [
+        {
+          "text": "Recommends the new hire update the doc as part of onboarding",
+          "check": { "contains_any": ["new hire", "new engineer", "themselves update", "have them fix", "have them update"] }
+        },
+        {
+          "text": "Explains why the new hire is well positioned to catch this (fresh eyes / stale steps still visible to them)",
+          "check": { "contains_any": ["fresh eyes", "still visible to them", "notice", "gaps are visible"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "skill_name": "defining-done-and-acceptance-criteria",
+  "evals": [
+    {
+      "id": "vague-story-to-gherkin-criteria",
+      "prompt": "Here is a user story: \"As a user, I want search to be fast, so that I don't get frustrated.\" Write proper acceptance criteria for this story, including at least one edge case, and explain what's still missing before this story could be considered ready to build.",
+      "expected_output": "Rewrites the vague story into concrete Given/When/Then acceptance criteria with a specific, testable threshold (e.g. a time limit) instead of the word 'fast', includes at least one edge case such as an empty or no-results query, and flags that the story as written is not testable/estimable until a concrete performance target is defined.",
+      "assertions": [
+        {
+          "text": "Uses Given/When/Then structure for acceptance criteria",
+          "check": { "contains_all": ["Given", "When", "Then"] }
+        },
+        {
+          "text": "Replaces the vague word 'fast' with a concrete, measurable criterion",
+          "check": { "matches_any": ["(?i)\\d+\\s*(ms|milliseconds|seconds|s\\b)"] }
+        },
+        {
+          "text": "Includes a specific non-happy-path scenario (empty/no-results query), not just the word 'edge case'",
+          "check": { "contains_any": ["no results", "empty query", "zero results", "no matches"] }
+        },
+        {
+          "text": "Flags that 'fast' as originally written is not testable",
+          "check": { "contains_any": ["testable", "not measurable", "subjective", "vague"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-gaps-in-proposed-dod",
+      "prompt": "Our team's proposed Definition of Done is: \"Code is merged to main.\" Review this Definition of Done and tell me what's missing before we adopt it, and explain how a Definition of Done is different from acceptance criteria for a specific story.",
+      "expected_output": "Flags that this DoD is far too thin (no tests, no code review, no deployment/staging verification, no documentation update) and are not independently verifiable, and explains that DoD applies to every backlog item as a team-wide quality bar while acceptance criteria are specific to one story's expected behavior.",
+      "assertions": [
+        {
+          "text": "Flags that the proposed DoD is missing testing",
+          "check": { "contains_any": ["test", "tests", "testing"] }
+        },
+        {
+          "text": "Flags that the proposed DoD is missing code review as a distinct gap (not just echoing the word 'review' from the prompt)",
+          "check": { "contains_any": ["code review", "peer review", "pull request"] }
+        },
+        {
+          "text": "Explains DoD applies to every item as a team-wide bar, not just this one story",
+          "check": { "contains_any": ["every story", "every item", "every backlog item", "applies to all", "team-wide", "regardless of the story"] }
+        },
+        {
+          "text": "Explains acceptance criteria are specific to a single story, tying the term to the story-specific scope rather than just naming it",
+          "check": { "matches_any": ["(?i)acceptance criteria[^.\\n]{0,60}(one|a single|this|specific|particular) story", "(?i)(one|a single|this|specific|particular) story[^.\\n]{0,60}acceptance criteria"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "invest-violation-in-story",
+      "prompt": "Review this user story against the INVEST criteria: \"As a developer, I want to refactor the entire payment module to use the new internal caching layer, which depends on the caching team finishing their work first, and which will take about 6 weeks.\" What INVEST properties does it violate, and how would you fix it?",
+      "expected_output": "Identifies that the story violates Independent (blocked on another team's caching work), Small (6 weeks is far too large for a sprint), and likely Valuable (a technical refactor with no stated user-facing benefit), and recommends splitting it into smaller, independently deliverable, user-value-justified stories.",
+      "assertions": [
+        {
+          "text": "Identifies the Independent violation as a named INVEST property, not just quoting the prompt's dependency clause",
+          "check": { "contains_any": ["Independent", "not independent", "blocked", "coupled to another team"] }
+        },
+        {
+          "text": "Identifies the Small violation (6 weeks is too large for a sprint)",
+          "check": { "contains_any": ["Small", "too large", "too big"] }
+        },
+        {
+          "text": "Recommends splitting the story into smaller pieces",
+          "check": { "contains_any": ["split", "break down", "smaller stories", "break it up"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

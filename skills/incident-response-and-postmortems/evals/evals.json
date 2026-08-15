@@ -1,0 +1,57 @@
+{
+  "skill_name": "incident-response-and-postmortems",
+  "evals": [
+    {
+      "id": "rewrites-blameful-language",
+      "prompt": "Rewrite this postmortem root-cause line to be blameless: 'Tom forgot to add the feature flag check before deploying, which caused the outage.' Keep it factual and specific, don't make it vague.",
+      "expected_output": "Rewrites the sentence to describe the process/system gap (missing enforcement of a feature-flag check in the deploy process) rather than naming or blaming the individual, while remaining specific enough to be actionable.",
+      "assertions": [
+        {
+          "text": "Removes the individual's name from the root-cause explanation",
+          "check": { "not_contains": ["Tom forgot", "Tom did not", "Tom failed"] }
+        },
+        {
+          "text": "Reframes around the process/system rather than the person",
+          "check": { "contains_any": ["deploy process", "pipeline", "did not enforce", "no check", "missing check", "process did not"] }
+        },
+        {
+          "text": "Remains specific rather than devolving into vague language",
+          "check": { "not_contains": ["be more careful", "communicate better"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-vague-action-items",
+      "prompt": "Review these postmortem action items and tell me if they're acceptable:\n1. 'Communicate better during incidents.'\n2. 'Be more careful with deploys.'\n3. 'Add a CI check that blocks deploy if the database migration step has not completed successfully.'",
+      "expected_output": "Flags items 1 and 2 as too vague to be verifiable action items and recommends replacing them with specific, ownable, checkable actions, while confirming item 3 is a good example of a concrete action item.",
+      "assertions": [
+        {
+          "text": "Flags the vague items as inadequate",
+          "check": { "contains_any": ["too vague", "not specific", "not actionable", "not a good action item"] }
+        },
+        {
+          "text": "Approves or contrasts favorably the concrete CI-check item",
+          "check": { "contains_any": ["item 3", "CI check", "good example", "concrete"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-postmortem-trigger",
+      "prompt": "We had an incident last night: a background job silently failed to sync reservation data for one hotel for about 6 hours before anyone noticed, and we only found out because a hotel manager called support asking why bookings weren't showing up. No revenue was directly lost since the underlying data was recoverable. Should this get a postmortem, and what should it flag beyond just the immediate bug fix?",
+      "expected_output": "Recommends writing a postmortem despite no direct revenue loss, since it involved a multi-hour undetected data sync failure discovered only via customer report, and flags the detection gap (should have been caught by internal monitoring, not a customer call) as a key finding beyond the code fix itself.",
+      "assertions": [
+        {
+          "text": "Recommends doing a postmortem for this incident",
+          "check": { "contains_any": ["should write a postmortem", "yes, this should", "warrants a postmortem", "this should get a postmortem"] }
+        },
+        {
+          "text": "Flags the detection gap (found via customer report instead of monitoring)",
+          "check": { "contains_any": ["detection gap", "customer report", "monitoring gap", "should have been detected", "alert"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

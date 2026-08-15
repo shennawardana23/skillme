@@ -1,0 +1,57 @@
+{
+  "skill_name": "security-and-hardening",
+  "evals": [
+    {
+      "id": "threat-models-webhook-feature-before-coding",
+      "prompt": "Using the security-and-hardening skill, threat-model a new feature before it's built: users can register a webhook URL that our server will POST order events to. Identify the trust boundary, name at least two STRIDE threats that apply, and state the tier (Always/Ask First/Never) any file-upload-adjacent decision would fall into if we later add attachment support to the webhook payload.",
+      "expected_output": "Identifies the outbound webhook call as a trust boundary/SSRF risk, names STRIDE categories like spoofing or information disclosure or denial of service, and correctly places adding file uploads in the Ask First tier.",
+      "assertions": [
+        {
+          "text": "Identifies SSRF risk from the webhook URL",
+          "check": { "contains_any": ["SSRF", "server-side request forgery"] }
+        },
+        {
+          "text": "Names STRIDE threat categories",
+          "check": { "contains_any": ["Spoofing", "Tampering", "Denial of service", "Information disclosure", "Elevation of privilege"] }
+        },
+        {
+          "text": "Places file upload handling in the Ask First tier",
+          "check": { "contains_any": ["Ask First", "ask first", "human approval"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-ssrf-ip-pinning-for-webhook-url",
+      "prompt": "Using the security-and-hardening skill, harden this Node.js code that lets a server POST to a user-registered webhook URL:\n\nawait fetch(user.webhookUrl, { method: 'POST', body: JSON.stringify(event) });\n\nWhat's wrong and what should replace it?",
+      "expected_output": "Flags the SSRF risk of fetching a raw user-supplied URL and recommends a host allowlist plus checking that all resolved IPs are public/unicast, rejecting private or link-local addresses including the cloud metadata address.",
+      "assertions": [
+        {
+          "text": "Flags SSRF",
+          "check": { "contains_any": ["SSRF", "server-side request forgery"] }
+        },
+        {
+          "text": "Recommends allowlisting and IP validation",
+          "check": { "contains_any": ["allowlist", "private IP", "unicast", "169.254.169.254"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "classifies-dependency-audit-severity",
+      "prompt": "Using the security-and-hardening dependency-audit triage guidance, classify how urgently to act: `npm audit` reports a HIGH severity vulnerability in a devDependency used only in the test runner, with no fix currently available.",
+      "expected_output": "Classifies this as not reachable in production (dev-only), so not an immediate blocker, but recommends tracking it, checking for workarounds, and revisiting when a fix is available or considering a replacement.",
+      "assertions": [
+        {
+          "text": "Recognizes dev-only dependency reduces urgency",
+          "check": { "contains_any": ["dev-only", "not reachable", "not a blocker", "devDependency"] }
+        },
+        {
+          "text": "Recommends tracking or a workaround rather than ignoring it",
+          "check": { "contains_any": ["track", "workaround", "replace", "review date"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

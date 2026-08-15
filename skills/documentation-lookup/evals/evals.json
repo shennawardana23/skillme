@@ -1,0 +1,33 @@
+{
+  "skill_name": "documentation-lookup",
+  "evals": [
+    {
+      "id": "resolves-before-querying",
+      "prompt": "Using the documentation-lookup skill, what must happen before calling query-docs to fetch documentation for a library the user asked about?",
+      "expected_output": "Says resolve-library-id must be called first to get a valid Context7 library ID before query-docs is called.",
+      "assertions": [
+        { "text": "Mentions resolve-library-id must be called first", "check": { "contains_any": ["resolve-library-id"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "respects-three-call-limit",
+      "prompt": "I've called resolve-library-id and query-docs a combined total of 3 times trying to answer a documentation question, and the answer is still unclear. Per the documentation-lookup skill, what should I do now?",
+      "expected_output": "Says to stop, state the uncertainty explicitly, and use the best available information rather than making more calls.",
+      "assertions": [
+        { "text": "Mentions the call limit or stopping", "check": { "contains_any": ["3 calls", "three calls", "limit", "stop"] } },
+        { "text": "Mentions stating uncertainty instead of guessing", "check": { "contains_any": ["uncertainty", "uncertain", "unclear"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "redacts-secrets-before-query",
+      "prompt": "A user's documentation question accidentally includes what looks like an API key. Using the documentation-lookup skill, should that be sent as-is to Context7?",
+      "expected_output": "Says no — secret-shaped text like API keys should be redacted from the query before sending it to Context7.",
+      "assertions": [
+        { "text": "Says to redact the secret before querying", "check": { "contains_any": ["redact"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

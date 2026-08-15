@@ -1,0 +1,35 @@
+{
+  "skill_name": "continuous-learning-v2",
+  "evals": [
+    {
+      "id": "flags-cross-project-contamination",
+      "prompt": "My instinct-learning system stores everything in one global pool with no project scoping. It learned 'use React hooks, not classes' from a frontend project, and now it's suggesting that same instinct while I'm working in an unrelated Go backend service. What went wrong architecturally, and how should the system be structured to prevent this?",
+      "expected_output": "Identifies the lack of project scoping as the root cause and recommends storing instincts per-project by default, promoting to global scope only when the same instinct is independently observed across multiple projects.",
+      "assertions": [
+        { "text": "Identifies missing project scoping as the root cause", "check": { "contains_any": ["project scoping", "scoped to", "no scoping", "global pool", "cross-project"] } },
+        { "text": "Recommends project-scoped storage with a multi-project promotion rule for global", "check": { "contains_any": ["project-scoped", "scope to the project", "promote", "multiple projects", "2+ projects"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-confidence-decay-on-correction",
+      "prompt": "An instinct-learning system I'm designing only ever increases an instinct's confidence score when it's observed again — it never lowers confidence when the user explicitly corrects the behavior. After a few months, several instincts are stuck at high confidence even though users have been correcting them regularly. What's the design flaw and how should confidence scoring work instead?",
+      "expected_output": "Identifies the one-directional confidence update as the flaw and recommends that confidence should decrease on explicit user correction or contradicting evidence, not just increase on repeated observation.",
+      "assertions": [
+        { "text": "Identifies the one-way confidence update as the flaw", "check": { "contains_any": ["only increases", "never lowers", "one-directional", "one-way", "doesn't decay", "never decreases"] } },
+        { "text": "Recommends confidence decay on correction/contradicting evidence", "check": { "contains_any": ["decay", "decrease", "lower confidence", "correction should lower", "contradicting"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "chooses-hooks-over-stop-hook-for-reliability",
+      "prompt": "I'm deciding how to observe a Claude Code session for an instinct-based learning system: use a Stop hook that runs once at session end, or use PreToolUse/PostToolUse hooks that fire on every tool call. I want observation to be as reliable and complete as possible, capturing every relevant behavior even if the session ends abnormally. Which should I choose and why?",
+      "expected_output": "Recommends PreToolUse/PostToolUse hooks because they fire deterministically on every tool call, unlike a Stop hook which only fires once on sessions that end normally and can miss patterns.",
+      "assertions": [
+        { "text": "Recommends PreToolUse/PostToolUse hooks for reliability", "check": { "contains_any": ["PreToolUse", "PostToolUse", "every tool call", "per-tool-call"] } },
+        { "text": "Explains the Stop hook's one-shot / abnormal-ending weakness", "check": { "contains_any": ["only fires once", "session end", "ends normally", "one shot", "abnormal"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "skill_name": "release-management-and-rollback-planning",
+  "evals": [
+    {
+      "id": "flags-global-config-rollout-risk",
+      "prompt": "We want to push a new fraud-detection rule (a config/rule change, not a code deploy) to 100% of production traffic globally in one step, since 'it's just a config change, not real code.' Is this a safe way to roll this out?",
+      "expected_output": "Flags that config/rule changes need the same staged, canary rollout discipline as code changes, warns against deploying globally in one step, and recommends a canary/staged rollout with defined go/no-go metrics instead, citing that config changes have caused major outages when rolled out globally without staging.",
+      "assertions": [
+        {
+          "text": "Pushes back on treating this as safe because it's 'just config'",
+          "check": { "contains_any": ["not safe", "risky", "same discipline", "should not", "shouldn't"] }
+        },
+        {
+          "text": "Recommends a staged/canary rollout instead of global one-step deployment",
+          "check": { "contains_any": ["canary", "staged rollout", "gradual", "percentage of traffic"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "designs-rollback-runbook",
+      "prompt": "We're releasing a new pricing engine behind a feature flag. Write a rollback runbook for this release: what should it include?",
+      "expected_output": "Produces a rollback runbook including defined trigger thresholds/metrics for rolling back, the rollback mechanism (flag flip as the fast path), and a note about testing the rollback path in advance rather than only at incident time.",
+      "assertions": [
+        {
+          "text": "Includes trigger thresholds or specific metrics that decide when to roll back",
+          "check": { "contains_any": ["threshold", "error rate", "trigger"] }
+        },
+        {
+          "text": "Mentions flipping the feature flag as the rollback mechanism",
+          "check": { "contains_any": ["flag flip", "disable the flag", "flip the flag", "turn off the flag"] }
+        },
+        {
+          "text": "Mentions testing the rollback path before the incident, not during it",
+          "check": { "contains_any": ["test the rollback", "tested in staging", "before the release", "in advance"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-migration-rollback-incompatibility",
+      "prompt": "We're planning to roll back a recent deploy that included a database migration which dropped a column the old code version still reads from. The plan is: just redeploy the previous code version if anything goes wrong. Is this rollback plan sound?",
+      "expected_output": "Flags that this rollback plan is unsound because the old code version depends on a column that no longer exists in the new schema, meaning rollback would break rather than fix things, and recommends an expand/contract migration approach so the old code remains schema-compatible.",
+      "assertions": [
+        {
+          "text": "Flags the rollback as unsound/broken given the dropped column",
+          "check": { "contains_any": ["not sound", "unsound", "won't work", "will break", "broken rollback", "would fail"] }
+        },
+        {
+          "text": "Recommends a backward-compatible/expand-contract migration approach",
+          "check": { "contains_any": ["expand", "contract", "backward-compatible", "backward compatible"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

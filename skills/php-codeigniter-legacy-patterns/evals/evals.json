@@ -1,0 +1,31 @@
+{
+  "skill_name": "php-codeigniter-legacy-patterns",
+  "evals": [
+    {
+      "id": "flags-get-instance-implicit-dependency",
+      "prompt": "Write a helper function for classic CodeIgniter (application/ directory, no namespaces) that checks if the current user has admin privilege, using get_instance() to reach the controller.",
+      "expected_output": "Implements the helper but notes/flags that it creates an implicit runtime dependency on the calling controller having loaded the relevant library, which is not enforced at compile time.",
+      "assertions": [
+        {
+          "text": "Uses get_instance()",
+          "check": { "contains_all": ["get_instance"] }
+        },
+        {
+          "text": "Flags the implicit dependency risk",
+          "check": { "contains_any": ["implicit", "depend", "assumes"] }
+        }
+      ]
+    },
+    {
+      "id": "no-namespace-collision-risk",
+      "prompt": "We want to add a new model class called Log_model in our classic CodeIgniter 3 app (no namespaces). Anything to check first?",
+      "expected_output": "Flags that without namespaces, the class name must be unique across the entire loaded application, and recommends checking for existing classes with the same name before adding it.",
+      "assertions": [
+        {
+          "text": "Flags the global class name collision risk",
+          "check": { "contains_any": ["collision", "unique", "global"] }
+        }
+      ]
+    }
+  ]
+}

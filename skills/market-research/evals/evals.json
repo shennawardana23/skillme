@@ -1,0 +1,35 @@
+{
+  "skill_name": "market-research",
+  "evals": [
+    {
+      "id": "flags-unsourced-tam",
+      "prompt": "I'm pitching investors and my slide says 'TAM: $50 billion' with no source or methodology listed. Is this ready to show investors?",
+      "expected_output": "Flags the unsourced TAM figure as a problem and recommends adding a source or a bottom-up cross-check before presenting it.",
+      "assertions": [
+        { "text": "Flags the number as unsourced or unverifiable", "check": { "contains_any": ["unsourced", "no source", "not sourced", "source"] } },
+        { "text": "Recommends a bottom-up cross-check or estimate", "check": { "contains_any": ["bottom-up", "bottom up", "cross-check", "cross check"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "investor-diligence-red-flags",
+      "prompt": "We're about to take a meeting with a VC fund. What should we check about them before the meeting, using the market-research approach to investor diligence?",
+      "expected_output": "Lists diligence items like fund size/stage/check size, portfolio fit, recent public activity, and red flags such as a fund nearing end of life.",
+      "assertions": [
+        { "text": "Mentions checking recent activity or portfolio fit", "check": { "contains_any": ["portfolio", "recent activity", "recent deals", "thesis"] } },
+        { "text": "Mentions checking for red flags", "check": { "contains_any": ["red flag", "red flags"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "separates-fact-from-recommendation",
+      "prompt": "Summarize how a market-research deliverable should be structured so a decision-maker can tell facts, estimates, and recommendations apart.",
+      "expected_output": "Describes an output structure (executive summary, findings, implications, risks, recommendation, sources) that clearly separates facts, inferences/estimates, and the final recommendation.",
+      "assertions": [
+        { "text": "Mentions a recommendation section", "check": { "contains_any": ["recommendation"] } },
+        { "text": "Mentions separating facts from estimates or inference", "check": { "contains_any": ["estimate", "inference", "fact"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

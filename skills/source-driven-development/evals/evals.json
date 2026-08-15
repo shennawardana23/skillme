@@ -1,0 +1,53 @@
+{
+  "skill_name": "source-driven-development",
+  "evals": [
+    {
+      "id": "detect-stack-before-implementing",
+      "prompt": "A project's package.json pins \"react\": \"19.1.0\". Before implementing a form submission handler using React's recommended pattern for pending/loading state, what should happen first, and why shouldn't the implementation just be written from memory?",
+      "expected_output": "States that the exact framework version should be detected from package.json first and the relevant official documentation page fetched, because training data/memory can be outdated relative to the pinned version.",
+      "assertions": [
+        {
+          "text": "Mentions detecting the version from package.json before implementing",
+          "check": { "contains_all": ["package.json"] }
+        },
+        {
+          "text": "Gives a reason tied to memory/training data being potentially outdated",
+          "check": { "contains_any": ["outdated", "training data", "memory", "stale", "deprecated"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "citation-source-hierarchy",
+      "prompt": "I want to implement Django's recommended authentication pattern and I'm about to cite a highly-upvoted Stack Overflow answer as my source in a code comment. Is that an acceptable citation for source-driven development, and if not, what should I cite instead?",
+      "expected_output": "States Stack Overflow is not an acceptable primary citation and that the official Django documentation should be fetched and cited instead.",
+      "assertions": [
+        {
+          "text": "Rejects Stack Overflow as a primary/authoritative source",
+          "check": { "contains_any": ["not authoritative", "not an acceptable", "shouldn't cite", "should not cite", "avoid", "isn't official"] }
+        },
+        {
+          "text": "Recommends official documentation instead",
+          "check": { "contains_any": ["official documentation", "official docs", "docs.djangoproject.com"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "unverified-flag-honesty",
+      "prompt": "I searched but could not find any official documentation covering a specific edge case for a library API I need to use. Should I write the code anyway using what I remember and present it normally, or is there a better way to handle this in the response?",
+      "expected_output": "Recommends implementing with an explicit UNVERIFIED flag noting it's based on training data/memory and may be outdated, rather than presenting it with unearned confidence.",
+      "assertions": [
+        {
+          "text": "Recommends explicitly flagging the pattern as unverified",
+          "check": { "contains_any": ["unverified", "flag it", "explicitly note", "disclose", "call out"] }
+        },
+        {
+          "text": "Warns against presenting it with false confidence",
+          "check": { "contains_any": ["confidence", "confident", "hedg", "honest"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

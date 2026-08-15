@@ -1,0 +1,69 @@
+{
+  "skill_name": "stakeholder-communication-and-status-updates",
+  "evals": [
+    {
+      "id": "rewrite-bullets-surfacing-risk",
+      "prompt": "Rewrite this weekly stakeholder status update as narrative prose that clearly surfaces the buried risk instead of hiding it at the bottom of a bullet list:\n\nProject: Guest Loyalty Points Migration\n\n- Migrated 40% of accounts to new points ledger\n- Team velocity steady at 22 points/sprint\n- New API docs published for partner hotels\n- Vendor's reconciliation API has been returning intermittent 500 errors since Tuesday, root cause unknown, migration cutover is scheduled for the 20th\n- Weekly sync moved to Thursdays\n- Design review completed for redemption UI",
+      "expected_output": "Produces a narrative-style update (full sentences, not a bullet list) that states the vendor API error risk prominently and specifically, naming the trigger (unresolved 500 errors) and the date-based consequence (risk to the 20th cutover), rather than leaving it as one buried bullet among six.",
+      "assertions": [
+        {
+          "text": "Response is written in narrative/paragraph form rather than as a bullet list",
+          "check": { "not_contains": ["\n- ", "\n* "] }
+        },
+        {
+          "text": "Surfaces the vendor API error risk explicitly",
+          "check": { "contains_all": ["500"] }
+        },
+        {
+          "text": "Connects the risk to the cutover date consequence",
+          "check": { "contains_any": ["20th", "cutover"] }
+        },
+        {
+          "text": "Uses risk-oriented framing rather than treating it as routine status",
+          "check": { "contains_any": ["risk", "concern", "at risk", "jeopardize"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "explain-why-bullets-hide-fuzzy-thinking",
+      "prompt": "Explain, for a PM new to writing stakeholder updates, why a bullet-point summary can hide fuzzy or unsupported thinking in a way that full-sentence prose does not. Use a concrete example of two bullet points that imply a causal connection without stating one.",
+      "expected_output": "Explains that bullets juxtapose claims without forcing the writer to state the relationship (e.g. causation) between them, while a sentence structurally requires that relationship to be spelled out and therefore checkable, and illustrates with a concrete two-bullet example implying unstated causation.",
+      "assertions": [
+        {
+          "text": "Explains that bullets allow juxtaposition without stated relationship",
+          "check": { "contains_any": ["juxtapos", "connection", "relationship", "implie", "imply"] }
+        },
+        {
+          "text": "Contrasts with full sentences forcing explicit reasoning",
+          "check": { "contains_any": ["sentence", "narrative", "prose"] }
+        },
+        {
+          "text": "Gives a concrete example with two claims",
+          "check": { "contains_any": ["example", "e.g.", "for instance"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "adapt-6pager-to-weekly-update",
+      "prompt": "We normally write full 6-page narrative memos for quarterly strategy reviews, following Amazon's narrative-memo style. Explain how to adapt that same discipline into a much shorter weekly stakeholder status update without reverting to a bullet-point deck, and what structure the short version should still keep.",
+      "expected_output": "Explains that the weekly update keeps the same narrative sections (context, what happened, data, next steps, risks) compressed to a few sentences each rather than replacing prose with bullets, and that compression should come from cutting detail, not from abandoning sentence structure.",
+      "assertions": [
+        {
+          "text": "States the update should still be narrative/prose, not bullets",
+          "check": { "contains_any": ["narrative", "sentence", "prose"] }
+        },
+        {
+          "text": "Mentions compressing/shortening rather than switching format",
+          "check": { "contains_any": ["compress", "shorten", "condense", "cut"] }
+        },
+        {
+          "text": "Mentions risks as a retained section",
+          "check": { "contains_any": ["risk"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

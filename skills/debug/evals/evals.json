@@ -1,0 +1,57 @@
+{
+  "skill_name": "debug",
+  "evals": [
+    {
+      "id": "requires-root-cause-before-fix",
+      "prompt": "Using the debug skill, respond to this: a teammate says \"I got a nil pointer dereference panic in our Go order-processing code, here's the stack trace: panic: runtime error: invalid memory address or nil pointer dereference ... at pkg/orders/process.go:42 in processOrder ... at pkg/orders/handler.go:15 in HandleOrder\". They ask you to just add a nil check at line 42 immediately. What do you do first?",
+      "expected_output": "Refuses to apply the fix immediately, insisting on reproducing the issue and tracing where the nil value originated before proposing a fix, per the Iron Law.",
+      "assertions": [
+        {
+          "text": "States the do-not-guess iron law or reproduce-first requirement",
+          "check": { "contains_any": ["reproduce", "root cause", "evidence"] }
+        },
+        {
+          "text": "Does not just add the nil check without investigation",
+          "check": { "not_contains": ["I'll add the nil check now", "just add a nil check"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "uses-required-output-format",
+      "prompt": "Using the debug skill, debug this reproducible Go bug: calling Divide(10, 0) returns +Inf instead of an error because the function is `func Divide(a, b float64) float64 { return a / b }` and callers expect an error for b == 0. Produce the full debug output.",
+      "expected_output": "Produces output with Root Cause, Evidence, Fix, and Prevention sections, correctly identifying that dividing by zero for float64 produces +Inf silently instead of an error, and proposes an explicit zero check with a returned error plus a regression test.",
+      "assertions": [
+        {
+          "text": "Uses the required section headers",
+          "check": { "contains_all": ["Root Cause", "Evidence", "Fix", "Prevention"] }
+        },
+        {
+          "text": "Identifies the float64 zero-division behavior",
+          "check": { "contains_any": ["+Inf", "Inf", "zero"] }
+        },
+        {
+          "text": "Includes a regression test in the Prevention section",
+          "check": { "contains_any": ["test", "Test"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "distinguishes-intermittent-from-truly-random",
+      "prompt": "Using the debug skill's guidance on intermittent bugs, a test that iterates over a Go map and asserts a specific output ordering fails about 1 in 5 runs. Is this truly random, and what's the likely cause?",
+      "expected_output": "Explains this is not truly random — Go deliberately randomizes map iteration order — so the test's assumption of a fixed order is the actual bug, not flakiness in the underlying code.",
+      "assertions": [
+        {
+          "text": "Identifies map iteration order randomization as the cause",
+          "check": { "contains_any": ["map iteration", "randomize", "iteration order"] }
+        },
+        {
+          "text": "Clarifies this is not truly random",
+          "check": { "contains_any": ["not truly random", "not random", "deterministic"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

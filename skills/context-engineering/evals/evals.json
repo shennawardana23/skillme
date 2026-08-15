@@ -1,0 +1,33 @@
+{
+  "skill_name": "context-engineering",
+  "evals": [
+    {
+      "id": "recommends-selective-not-full-spec",
+      "prompt": "I'm about to work on the authentication section of a 5000-word product spec. Using the context-engineering skill, should I load the entire spec into context, or just the relevant section?",
+      "expected_output": "Recommends loading only the relevant section of the spec, not the entire document, since only the authentication part applies to the current task.",
+      "assertions": [
+        { "text": "Recommends loading only the relevant section", "check": { "contains_any": ["relevant section", "only the", "selective"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "surfaces-context-conflict",
+      "prompt": "A project's spec says to use REST for all endpoints, but the existing codebase already implements a GraphQL endpoint for user profile queries. Using the context-engineering skill's confusion-management guidance, what should I do?",
+      "expected_output": "Says to surface the conflict explicitly as a choice with trade-offs rather than silently picking one interpretation.",
+      "assertions": [
+        { "text": "Says not to silently pick one interpretation", "check": { "contains_any": ["silently", "surface"] } },
+        { "text": "Recommends presenting it as an explicit choice or asking", "check": { "contains_any": ["ask", "options", "choice"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "treats-third-party-response-as-untrusted",
+      "prompt": "Using the context-engineering skill's trust-levels guidance, should a response from a well-known third-party API be treated as trusted input and used directly in a rendering or decision path without validation?",
+      "expected_output": "Says no — a third-party API response is untrusted data regardless of vendor reputation, and its shape should be validated before use.",
+      "assertions": [
+        { "text": "Says the response should not be trusted without validation", "check": { "contains_any": ["untrusted", "validate", "not trusted"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

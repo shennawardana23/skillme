@@ -1,0 +1,57 @@
+{
+  "skill_name": "erd-expert",
+  "evals": [
+    {
+      "id": "flags-missing-hotel-id-in-primary-key",
+      "prompt": "Review this proposed table for the hotel domain:\n\nCREATE TABLE room_type (\n    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n    hotel_id integer NOT NULL,\n    name text NOT NULL,\n    base_rate numeric(12,2) NOT NULL\n) PARTITION BY LIST (hotel_id);",
+      "expected_output": "Flags that hotel_id is not part of the primary key, which PostgreSQL requires for the partition key on a list-partitioned table, and recommends PRIMARY KEY (hotel_id, id).",
+      "assertions": [
+        {
+          "text": "Flags that hotel_id must be part of the primary key",
+          "check": { "contains_all": ["primary key"] }
+        },
+        {
+          "text": "Recommends the composite primary key form",
+          "check": { "contains_any": ["PRIMARY KEY (hotel_id", "hotel_id, id"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "designs-reservation-with-status-constraint",
+      "prompt": "Design a `reservation` table for the Sentec PMS hotel domain, following this organization's conventions for hotel_id-partitioned tables. It needs a status field representing the reservation lifecycle (pending, confirmed, checked-in, checked-out, cancelled, no-show).",
+      "expected_output": "Produces a table with hotel_id as integer, PRIMARY KEY (hotel_id, id), PARTITION BY LIST (hotel_id), created_at/updated_at as timestamptz, and a CHECK constraint or enum restricting status to the defined lifecycle values.",
+      "assertions": [
+        {
+          "text": "Uses composite primary key including hotel_id",
+          "check": { "contains_any": ["PRIMARY KEY (hotel_id", "hotel_id, id"] }
+        },
+        {
+          "text": "Declares LIST partitioning by hotel_id",
+          "check": { "contains_all": ["PARTITION BY LIST"] }
+        },
+        {
+          "text": "Constrains status to the defined lifecycle values",
+          "check": { "contains_any": ["CHECK", "enum"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-uuid-hotel-id-inconsistency",
+      "prompt": "A teammate proposes a new `loyalty_program` table using `hotel_id uuid NOT NULL` to match a UUID-based microservice they built elsewhere. Is this consistent with how hotel_id is modeled elsewhere in our PostgreSQL schema, and what should we do instead?",
+      "expected_output": "Flags that hotel_id should be integer to stay consistent with the existing partitioning convention across the schema, and recommends using integer instead of introducing a uuid hotel identifier.",
+      "assertions": [
+        {
+          "text": "Flags the inconsistency with the existing integer convention",
+          "check": { "contains_any": ["inconsistent", "consisten"] }
+        },
+        {
+          "text": "Recommends integer hotel_id",
+          "check": { "contains_any": ["integer"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

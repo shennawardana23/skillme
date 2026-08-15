@@ -1,0 +1,65 @@
+{
+  "skill_name": "user-research-synthesis",
+  "evals": [
+    {
+      "id": "affinity-map-raw-observations",
+      "prompt": "Here are 8 raw one-line observations pulled from separate customer interviews about a hotel booking app. Affinity-map them into named themes following the KJ method (atomize, sort without pre-set categories, name clusters after they emerge):\n1. \"I couldn't tell if breakfast was included until I was three screens into checkout.\"\n2. \"The app crashed when I tried to add a second room to the same booking.\"\n3. \"I had no idea the price shown didn't include taxes until the final page.\"\n4. \"Adding a second room for my parents made the app freeze completely.\"\n5. \"I wanted to see the total price with everything included before picking a room.\"\n6. \"When I tried to book 2 rooms under one reservation, the confirm button just spun forever.\"\n7. \"The cancellation policy was buried in a link I almost missed.\"\n8. \"I assumed the price included fees since nothing said otherwise, then got surprised at checkout.\"\n\nGroup these into themes and name each theme based on what the notes have in common, not from a pre-existing list of categories.",
+      "expected_output": "Groups the 8 notes into at least two coherent named themes (e.g. a pricing-transparency theme covering notes 1,3,5,8 and a multi-room-booking-bug theme covering notes 2,4,6), explains the grouping rationale, and does not force notes 7 into either theme just to close it out.",
+      "assertions": [
+        {
+          "text": "Produces named theme clusters rather than a flat list",
+          "check": { "contains_any": ["theme", "cluster"] }
+        },
+        {
+          "text": "Groups the pricing/tax transparency observations together",
+          "check": { "contains_any": ["pricing", "price transparency", "tax", "hidden fees", "hidden cost"] }
+        },
+        {
+          "text": "Groups the multi-room booking crash/freeze observations together",
+          "check": { "contains_any": ["multi-room", "second room", "crash", "freeze", "spin"] }
+        },
+        {
+          "text": "Frames the themes as emerging from the notes rather than being decided in advance",
+          "check": { "contains_any": ["emerge", "emerged", "bottom-up", "bottom up"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "jtbd-vs-feature-request-interview",
+      "prompt": "I'm about to interview 5 customers who recently switched from a competitor's hotel management PMS to ours. My draft question list is: 'What features do you wish our product had?', 'What do you like most about our dashboard?', and 'Would you want a mobile app version?'. Critique this interview plan using Jobs-to-be-Done Switch interview principles and give me a better set of questions.",
+      "expected_output": "Flags that all three draft questions ask about hypothetical future preferences instead of reconstructing the actual switch decision, and recommends anchoring on the specific past event (first thought, passive looking, active looking, consuming) with push/pull/anxiety/habit forces instead.",
+      "assertions": [
+        {
+          "text": "Flags that the draft questions are hypothetical/feature-request rather than reconstructing a real past decision",
+          "check": { "contains_any": ["hypothetical", "feature request", "feature-request"] }
+        },
+        {
+          "text": "References the JTBD timeline structure (first thought / passive / active looking / consuming or the switch moment)",
+          "check": { "contains_any": ["first thought", "passive looking", "active looking", "switch", "timeline"] }
+        },
+        {
+          "text": "Mentions the push/pull/anxiety/habit forces",
+          "check": { "contains_any": ["push", "pull", "anxiety", "habit"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "single-vocal-user-not-a-segment",
+      "prompt": "One customer in our last round of 10 interviews gave a very detailed, articulate 20-minute complaint about our lack of a dark mode, and now the team wants to prioritize building dark mode next sprint based on this feedback. How should I evaluate whether this is representative before we commit engineering time?",
+      "expected_output": "Warns against treating one vocal, articulate interviewee as representative of the whole segment and recommends checking how many independent sources/interviews raised the same theme before prioritizing it.",
+      "assertions": [
+        {
+          "text": "Warns that a single vocal user isn't representative of the segment",
+          "check": { "contains_any": ["one user", "single user", "not representative", "anecdote"] }
+        },
+        {
+          "text": "Recommends checking how many independent sources raised the same issue",
+          "check": { "contains_any": ["how many", "other interviews", "independent sources", "cluster size", "how many customers"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

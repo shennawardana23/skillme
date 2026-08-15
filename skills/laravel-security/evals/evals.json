@@ -1,0 +1,53 @@
+{
+  "skill_name": "laravel-security",
+  "evals": [
+    {
+      "id": "custom-login-session-fixation",
+      "prompt": "A Laravel app has a custom LoginController whose login() method does exactly this:\n\n```php\npublic function login(Request $request)\n{\n    $credentials = $request->validate(['email' => 'required|email', 'password' => 'required']);\n    if (Auth::attempt($credentials)) {\n        Auth::login(Auth::user());\n        return redirect('/dashboard');\n    }\n    return back()->withErrors(['email' => 'Invalid credentials']);\n}\n```\n\nIt bypasses Laravel's built-in AuthenticatesUsers trait. What security issue does this introduce and what line should be added to fix it?",
+      "expected_output": "Flags that this custom login flow skips the automatic session regeneration Laravel's AuthenticatesUsers trait normally performs, leaving the app vulnerable to session fixation, and recommends calling $request->session()->regenerate() after a successful login.",
+      "assertions": [
+        {
+          "text": "Identifies session fixation as the risk",
+          "check": { "contains_any": ["session fixation", "fixation"] }
+        },
+        {
+          "text": "Recommends calling session regenerate",
+          "check": { "contains_all": ["regenerate"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "guarded-empty-mass-assignment",
+      "prompt": "Review this Eloquent model and its usage for a security issue:\n\n```php\nfinal class Project extends Model\n{\n    protected $guarded = [];\n}\n```\n\nUsed as: `Project::create($request->all());`\n\nWhat is wrong, and what should replace `$guarded = []`?",
+      "expected_output": "Flags that $guarded = [] disables mass-assignment protection entirely, so Project::create($request->all()) accepts any field the client sends (e.g. owner_id or hotel_id), and recommends replacing it with an explicit $fillable allowlist of only the intended client-settable fields.",
+      "assertions": [
+        {
+          "text": "Flags mass assignment vulnerability",
+          "check": { "contains_any": ["mass assignment", "mass-assignment"] }
+        },
+        {
+          "text": "Recommends fillable as the fix",
+          "check": { "contains_all": ["fillable"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "signed-url-still-needs-authorization",
+      "prompt": "A Laravel route serves invoice downloads via a signed URL:\n\n```php\nRoute::get('/invoices/{invoice}/download', [InvoiceController::class, 'download'])\n    ->name('downloads.invoice')\n    ->middleware('signed');\n```\n\nThe download() controller method loads the invoice and streams the file, with no other checks. Is the `signed` middleware alone sufficient to ensure only the invoice's owner can download it? Explain what signed URLs do and do not verify, and what should be added.",
+      "expected_output": "Explains that the signed middleware only verifies the URL signature and expiry (that the link wasn't tampered with and hasn't expired), not that the requester is authorized to view this specific invoice, and recommends adding an explicit authorization check such as $this->authorize('view', $invoice) inside the controller.",
+      "assertions": [
+        {
+          "text": "Explains signed middleware only checks signature/expiry, not authorization",
+          "check": { "contains_any": ["signature", "tamper"] }
+        },
+        {
+          "text": "Recommends an explicit authorize call in the controller",
+          "check": { "contains_all": ["authorize"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "skill_name": "roadmapping-and-tradeoff-communication",
+  "evals": [
+    {
+      "id": "respond-to-hard-date-feature-demand",
+      "prompt": "A stakeholder just messaged: \"I need the 'bulk refund' button added to the admin panel, and I need it live by March 1st for the finance team's quarter close. This has to happen.\" Our roadmap currently has 'reduce time finance spends reconciling refunds' sitting in the Next horizon of our Now/Next/Later roadmap, with no detailed scoping done yet. Write a response to this stakeholder.",
+      "expected_output": "Responds using Now/Next/Later horizon language rather than committing to March 1st, names the underlying outcome (reducing refund reconciliation time) already on the roadmap, and states the specific tradeoff/displacement of committing to the date instead of just saying no.",
+      "assertions": [
+        {
+          "text": "Does not commit to the March 1st date as a firm promise",
+          "check": { "not_contains": ["I will have this live by March 1", "guaranteed by March 1", "confirmed for March 1"] }
+        },
+        {
+          "text": "References the horizon-based roadmap language",
+          "check": { "contains_any": ["Now", "Next", "Later", "horizon"] }
+        },
+        {
+          "text": "Names the underlying outcome/problem rather than only the feature",
+          "check": { "contains_any": ["reconcil", "outcome", "problem"] }
+        },
+        {
+          "text": "States a concrete tradeoff of committing (what would be displaced)",
+          "check": { "contains_any": ["tradeoff", "trade-off", "displace", "pull", "delay", "push", "instead of"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "convert-feature-list-to-outcome-roadmap",
+      "prompt": "Convert this feature-list roadmap into an outcome-based Now/Next/Later roadmap:\n\n1. Add bulk CSV export for reservations (planned for Q2)\n2. Build a notifications center for pending approvals (planned for Q3)\n3. Redesign the onboarding flow for new hotel-admin accounts (planned for Q4)",
+      "expected_output": "Rewrites each item as a problem/outcome statement rather than a feature name, removes committed quarter-dates in favor of Now/Next/Later horizons, and keeps the original features only as candidate solutions under each outcome.",
+      "assertions": [
+        {
+          "text": "Uses Now/Next/Later horizon structure",
+          "check": { "contains_all": ["Now", "Next", "Later"] }
+        },
+        {
+          "text": "Reframes at least one item around an outcome/metric rather than just the feature name",
+          "check": { "contains_any": ["reduce", "increase", "improve", "outcome", "metric"] }
+        },
+        {
+          "text": "Does not keep the fixed quarter commitments as the organizing structure",
+          "check": { "not_contains": ["planned for Q2", "planned for Q3", "planned for Q4"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "explain-why-dated-roadmaps-erode-trust",
+      "prompt": "Explain to a new PM why a roadmap that lists specific ship dates for each feature tends to erode stakeholder trust over time, and how the Now/Next/Later format addresses that problem without ever giving a stakeholder a date.",
+      "expected_output": "Explains that date commitments made far in advance are frequently wrong, that slipped dates teach stakeholders the roadmap is unreliable and that distrust compounds across cycles, and that Now/Next/Later instead communicates confidence implicitly through horizon placement rather than through a date.",
+      "assertions": [
+        {
+          "text": "Explains that slipped dates damage trust in future roadmaps",
+          "check": { "contains_any": ["trust", "distrust", "credibility"] }
+        },
+        {
+          "text": "Explains horizon placement communicates confidence instead of a date",
+          "check": { "contains_any": ["confidence", "horizon"] }
+        },
+        {
+          "text": "Mentions the Now/Next/Later terms",
+          "check": { "contains_all": ["Now", "Next", "Later"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "skill_name": "diff-analysis",
+  "evals": [
+    {
+      "id": "flags-removed-authz-check-as-critical",
+      "prompt": "Using diff-analysis, analyze this diff:\n\n--- a/handlers/reservation.go\n+++ b/handlers/reservation.go\n@@ -10,9 +10,6 @@ func DeleteReservation(w http.ResponseWriter, r *http.Request) {\n \tid := r.URL.Query().Get(\"id\")\n \tres, err := repo.Find(id)\n-\tif res.OwnerID != currentUser(r).ID {\n-\t\thttp.Error(w, \"forbidden\", http.StatusForbidden)\n-\t\treturn\n-\t}\n \trepo.Delete(id)\n \tw.WriteHeader(http.StatusNoContent)\n }\n\nGive the risk level and merge verdict.",
+      "expected_output": "Flags the removed ownership/authorization check as a CRITICAL or HIGH security finding under Track C, cites the file:line, and gives a merge verdict of BLOCK or REQUEST_CHANGES.",
+      "assertions": [
+        {
+          "text": "Flags the removed authorization check",
+          "check": { "contains_any": ["authoriz", "ownership", "OwnerID"] }
+        },
+        {
+          "text": "Cites the file",
+          "check": { "contains_all": ["reservation.go"] }
+        },
+        {
+          "text": "Gives a BLOCK or REQUEST_CHANGES verdict",
+          "check": { "contains_any": ["BLOCK", "REQUEST_CHANGES"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "produces-three-track-synthesis-format",
+      "prompt": "Using diff-analysis, analyze this diff:\n\n--- a/pkg/report/build.go\n+++ b/pkg/report/build.go\n@@ -1,4 +1,20 @@\n package report\n \n+func BuildReport(rows []Row) string {\n+\tvar out string\n+\tfor _, r := range rows {\n+\t\tfor _, c := range r.Cells {\n+\t\t\tfor _, v := range c.Values {\n+\t\t\t\tif v.Valid {\n+\t\t\t\t\tout += v.String()\n+\t\t\t\t}\n+\t\t\t}\n+\t\t}\n+\t}\n+\treturn out\n+}\n\nProduce the full risk report using the required synthesis format.",
+      "expected_output": "Produces a report with Risk Level, Risk justification, Key Changes, Required Actions, Recommended Improvements, and a Merge verdict line, noting the triple-nested loop and missing test as findings.",
+      "assertions": [
+        {
+          "text": "Uses the required section headers",
+          "check": { "contains_all": ["Risk Level", "Merge verdict"] }
+        },
+        {
+          "text": "Notes missing tests for new behavior",
+          "check": { "contains_any": ["test", "no tests"] }
+        },
+        {
+          "text": "Notes the nested loop complexity",
+          "check": { "contains_any": ["nested", "complexity"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "treats-goto-fail-style-duplicate-line-as-high-risk",
+      "prompt": "Using diff-analysis (and its guidance that line count and risk are uncorrelated), analyze this diff:\n\n--- a/tls/verify.go\n+++ b/tls/verify.go\n@@ -12,6 +12,7 @@ func verifyChain(cert *x509.Certificate) error {\n \tif err := checkSignature(cert); err != nil {\n \t\tgoto fail\n \t}\n+\tgoto fail\n \tif err := checkExpiry(cert); err != nil {\n \t\tgoto fail\n \t}\n\nWhat's the risk level and why, despite this being a one-line addition?",
+      "expected_output": "Flags this single added line as CRITICAL or HIGH risk because the duplicated unconditional goto fail skips the remaining validation checks (checkExpiry), referencing that diff size does not correlate with risk.",
+      "assertions": [
+        {
+          "text": "Rates this as high risk despite the small diff size",
+          "check": { "contains_any": ["CRITICAL", "HIGH"] }
+        },
+        {
+          "text": "Explains the validation is skipped",
+          "check": { "contains_any": ["skip", "bypass", "unconditional", "always"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

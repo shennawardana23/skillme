@@ -1,0 +1,35 @@
+{
+  "skill_name": "strategic-compact",
+  "evals": [
+    {
+      "id": "recommends-compact-after-planning",
+      "prompt": "I just spent a long session exploring a codebase and finished writing a detailed implementation plan into a todo list. I'm about to start writing code based on that plan. Should I compact the conversation now, and why or why not?",
+      "expected_output": "Recommends compacting now, since the plan is already captured durably in the todo list and the exploration context that produced it is no longer needed for the implementation step ahead.",
+      "assertions": [
+        { "text": "Recommends compacting at this point", "check": { "contains_any": ["compact now", "good time to compact", "yes, compact", "should compact"] } },
+        { "text": "Explains the plan is already captured durably so the exploration context isn't needed", "check": { "contains_any": ["todo list", "already captured", "durable", "written down", "distilled"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "advises-against-mid-implementation-compact",
+      "prompt": "I'm halfway through implementing a feature — I've made changes to three files so far and I'm actively tracking which variable names and file paths I'm using across them in my head, not written anywhere yet. Someone suggests I compact now since the context window is getting large. Is that a good idea right now?",
+      "expected_output": "Advises against compacting mid-implementation, since unwritten details like variable names and file paths would be lost and are costly to reconstruct.",
+      "assertions": [
+        { "text": "Advises against compacting right now", "check": { "contains_any": ["don't compact", "not a good idea", "avoid compacting", "wait", "hold off"] } },
+        { "text": "Explains that unwritten state would be lost", "check": { "contains_any": ["lost", "not written", "unwritten", "reconstruct", "costly"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-unwritten-preference-before-compact",
+      "prompt": "During this conversation I verbally told the assistant a preference — always use table-driven tests for this Go project — but it was never written into any file or config. I'm about to compact the conversation. What will happen to that preference, and what should I do first?",
+      "expected_output": "Warns that the verbally-stated preference will be lost on compaction since it was never written down, and recommends writing it into a durable location (a file or config) before compacting.",
+      "assertions": [
+        { "text": "Warns the preference will be lost", "check": { "contains_any": ["will be lost", "won't survive", "lost", "not persist"] } },
+        { "text": "Recommends writing it down before compacting", "check": { "contains_any": ["write it down", "before compact", "save it", "put it in a file", "record it"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

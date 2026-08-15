@@ -1,0 +1,43 @@
+{
+  "skill_name": "skill-catalog-authoring",
+  "evals": [
+    {
+      "id": "scaffold-new-skill",
+      "prompt": "Scaffold a new skill called \"http-retry-policy\" under skills/http-retry-policy/, following this repository's conventions. Create a real SKILL.md with valid frontmatter (name, description, version) and a real evals/evals.json with skill_name and at least one eval. Write the files to disk.",
+      "expected_output": "Real files created at skills/http-retry-policy/SKILL.md and skills/http-retry-policy/evals/evals.json, with frontmatter/schema fields present — graded against the actual workspace, not the chat response.",
+      "assertions": [
+        {
+          "text": "SKILL.md exists at the expected path",
+          "check": { "files_exist": ["skills/http-retry-policy/SKILL.md"] }
+        },
+        {
+          "text": "evals.json exists at the expected path",
+          "check": { "files_exist": ["skills/http-retry-policy/evals/evals.json"] }
+        },
+        {
+          "text": "SKILL.md frontmatter names the skill",
+          "check": { "file_contains": [{ "path": "skills/http-retry-policy/SKILL.md", "contains": "name: http-retry-policy" }] }
+        },
+        {
+          "text": "evals.json declares the matching skill_name",
+          "check": { "file_contains": [{ "path": "skills/http-retry-policy/evals/evals.json", "contains": "http-retry-policy" }] }
+        }
+      ]
+    },
+    {
+      "id": "author-eval-case",
+      "prompt": "Add an eval case to an evals/evals.json file for a skill that reviews Go database code, verifying the reviewed skill flags SQL built via fmt.Sprintf/string concatenation as unsafe. Show the full JSON eval object (id, prompt, expected_output, assertions).",
+      "expected_output": "A schema-conformant eval object with id/prompt/expected_output/assertions, using deterministic contains/matches checks rather than reaching for an LLM judge for a mechanically-checkable assertion.",
+      "assertions": [
+        {
+          "text": "Includes the required id/prompt/expected_output/assertions fields",
+          "check": { "contains_all": ["\"id\"", "\"prompt\"", "\"expected_output\"", "\"assertions\""] }
+        },
+        {
+          "text": "Uses a deterministic check rather than an LLM judge for this mechanically-checkable assertion",
+          "check": { "contains_any": ["contains_all", "contains_any", "not_contains", "matches_any", "not_matches"] }
+        }
+      ]
+    }
+  ]
+}

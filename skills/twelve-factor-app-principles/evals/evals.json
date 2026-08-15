@@ -1,0 +1,53 @@
+{
+  "skill_name": "twelve-factor-app-principles",
+  "evals": [
+    {
+      "id": "flags-hardcoded-db-connection",
+      "prompt": "Review this Go service for twelve-factor compliance: the database connection string, including hostname and password, is hardcoded as a string literal in db.go, and switching between staging and production requires editing that file and rebuilding. What's wrong here, and what should change?",
+      "expected_output": "Flags the hardcoded connection string as a config-in-code violation and recommends moving it to an environment variable or secrets manager so environments differ only by config, not by code changes.",
+      "assertions": [
+        {
+          "text": "Identifies this as a config-in-environment violation",
+          "check": { "contains_any": ["config", "environment variable"] }
+        },
+        {
+          "text": "Recommends moving the value out of code",
+          "check": { "contains_any": ["environment variable", "secrets manager", "env var"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-local-file-state",
+      "prompt": "Our API service saves uploaded guest ID scans to a local directory on the server's disk (/var/app/uploads), and relies on that directory persisting across deploys and restarts. We plan to run 3 replicas behind a load balancer for scaling. Will this design work, and why or why not?",
+      "expected_output": "Flags local disk storage as violating statelessness/disposability — uploads on one replica won't be visible to requests served by another replica or after a restart — and recommends moving uploads to a shared backing store like object storage.",
+      "assertions": [
+        {
+          "text": "Flags the local-disk storage as a statelessness problem",
+          "check": { "contains_any": ["stateless", "local disk", "state"] }
+        },
+        {
+          "text": "Recommends a shared backing store (object storage/S3-like) instead",
+          "check": { "contains_any": ["object storage", "s3", "backing service", "shared storage"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "logs-as-streams-review",
+      "prompt": "Our new service writes its own rotating log files to /var/log/myapp/ using a custom log-rotation library bundled in the app, instead of writing to stdout. Is this consistent with twelve-factor app principles, and what would you change?",
+      "expected_output": "Flags self-managed log file rotation as inconsistent with treating logs as an unbuffered event stream, and recommends writing to stdout/stderr and letting the execution environment handle routing and rotation.",
+      "assertions": [
+        {
+          "text": "Flags the self-managed log rotation as a problem",
+          "check": { "contains_any": ["stdout", "stderr", "event stream", "log stream"] }
+        },
+        {
+          "text": "Recommends letting the environment handle log routing/rotation",
+          "check": { "contains_any": ["execution environment", "log aggregator", "container runtime", "let the environment"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

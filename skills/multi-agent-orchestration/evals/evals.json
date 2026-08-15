@@ -1,0 +1,31 @@
+{
+  "skill_name": "multi-agent-orchestration",
+  "evals": [
+    {
+      "id": "diagnoses-vague-brief-not-subagent-skill",
+      "prompt": "I dispatched three research subagents with the brief 'research the semiconductor shortage.' Two of them came back with nearly identical findings about the same 2025 supply issue, and the third researched an unrelated 2021 shortage. What went wrong?",
+      "expected_output": "Identifies the vague, under-specified brief as the root cause (missing explicit scope/boundary per subagent), not subagent incompetence, and recommends giving each subagent a distinct objective and boundary.",
+      "assertions": [
+        {
+          "text": "Identifies the brief/specification as the cause, not the subagents",
+          "check": { "contains_any": ["vague", "under-specified", "brief"] }
+        },
+        {
+          "text": "Recommends distinct scope/boundary per subagent",
+          "check": { "contains_any": ["boundary", "distinct objective", "scope"] }
+        }
+      ]
+    },
+    {
+      "id": "flags-pipeline-stage-decomposition-risk",
+      "prompt": "For a new feature, I'm planning to use three subagents in sequence: one to write the plan, one to implement it, and one to write tests - each handing off to the next. Good decomposition?",
+      "expected_output": "Flags this as the intuitive but often-wrong decomposition boundary (splitting by pipeline stage causes a handoff/fidelity-loss chain) and recommends decomposing by independent context instead, or reconsidering whether this needs multiple agents at all.",
+      "assertions": [
+        {
+          "text": "Flags the pipeline-stage split as a common failure pattern",
+          "check": { "contains_any": ["handoff", "telephone", "pipeline stage"] }
+        }
+      ]
+    }
+  ]
+}

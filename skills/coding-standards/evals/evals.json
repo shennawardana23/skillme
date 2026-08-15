@@ -1,0 +1,53 @@
+{
+  "skill_name": "coding-standards",
+  "evals": [
+    {
+      "id": "coverage-not-a-universal-law",
+      "prompt": "My teammate says '80% test coverage is the industry standard, every codebase must hit it.' According to the coding-standards skill's view on coverage thresholds, is this framing correct? What's the more accurate way to think about coverage targets, and what's a common blind spot even when coverage is high?",
+      "expected_output": "States 80% is a threshold a specific project chooses and enforces in CI, not a universal law, and notes that high line coverage can still hide tests with no real assertions.",
+      "assertions": [
+        {
+          "text": "Pushes back on the universal-standard framing",
+          "check": { "contains_any": ["not a universal", "not an industry standard", "project-specific", "each project", "not a law"] }
+        },
+        {
+          "text": "Notes that coverage percentage can hide untested behavior",
+          "check": { "contains_any": ["no assertions", "measures what ran", "doesn't guarantee", "can still pass", "hide"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "magic-number-refactor",
+      "prompt": "Refactor this TypeScript snippet to remove the magic numbers by extracting named constants: `if (retryCount > 3) { } \\n setTimeout(callback, 500)`. Show the refactored code.",
+      "expected_output": "Introduces named constants such as MAX_RETRIES = 3 and DEBOUNCE_DELAY_MS = 500 (or similarly named) and uses them in place of the bare literals.",
+      "assertions": [
+        {
+          "text": "Introduces a named constant for the retry count",
+          "check": { "matches_any": ["(?i)const\\s+\\w*retr\\w*\\s*="] }
+        },
+        {
+          "text": "Introduces a named constant for the delay",
+          "check": { "matches_any": ["(?i)const\\s+\\w*(delay|debounce|timeout)\\w*\\s*="] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "any-type-tradeoff",
+      "prompt": "In TypeScript, a function is declared as `function getMarket(id: any): Promise<any> { }`. Explain what using 'any' here actually costs, per the coding-standards skill, and rewrite the signature with concrete types assuming id is a string and the return is a Market object with id, name, and status fields.",
+      "expected_output": "Explains 'any' defers type checking from compile time to runtime for every caller, and rewrites the signature using a concrete Market interface and a string id parameter.",
+      "assertions": [
+        {
+          "text": "Explains the compile-time vs runtime cost of any",
+          "check": { "contains_any": ["compile time", "compile-time", "runtime"] }
+        },
+        {
+          "text": "Rewritten signature avoids 'any' and uses a concrete Market type",
+          "check": { "contains_all": ["Market"], "not_matches": ["(?i):\\s*any\\b"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

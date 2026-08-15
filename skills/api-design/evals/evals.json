@@ -1,0 +1,53 @@
+{
+  "skill_name": "api-design",
+  "evals": [
+    {
+      "id": "flags-missing-pagination",
+      "prompt": "Review this API design: GET /api/reservations returns a bare JSON array of every reservation, with no query parameters. Is this a good design for production use?",
+      "expected_output": "Flags the lack of pagination as a problem that will surface once the dataset grows, and recommends adding it before shipping rather than later.",
+      "assertions": [
+        {
+          "text": "Flags missing pagination",
+          "check": { "contains_all": ["pagination"] }
+        },
+        {
+          "text": "Frames it as a design defect worth fixing now, not later",
+          "check": { "contains_any": ["from the start", "day one", "now", "before"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-inconsistent-error-shapes",
+      "prompt": "Our API has three endpoints: POST /users returns {error: {code, message}} on failure, POST /orders throws an unhandled exception that becomes a raw 500 HTML page, and POST /payments returns {success: false, reason: string}. Is this consistent? What should change?",
+      "expected_output": "Flags the three different error shapes as inconsistent and recommends standardizing on one shape across all endpoints.",
+      "assertions": [
+        {
+          "text": "Flags the inconsistency across endpoints",
+          "check": { "contains_any": ["inconsistent", "consistency", "consistent"] }
+        },
+        {
+          "text": "Recommends a single unified error shape",
+          "check": { "contains_any": ["one shape", "single", "standardize", "unified"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "identifies-breaking-vs-additive-change",
+      "prompt": "We want to change the `status` field on our Reservation API response from a string like \"confirmed\" to an object like {type: \"confirmed\", confirmedAt: \"...\"}. Is this a breaking or additive change, and how should we roll it out?",
+      "expected_output": "Correctly identifies this as a breaking change (existing consumers expect a string) and recommends versioning or an additive new field rather than an in-place type change.",
+      "assertions": [
+        {
+          "text": "Identifies this as a breaking change",
+          "check": { "contains_all": ["breaking"] }
+        },
+        {
+          "text": "Recommends versioning or an additive approach instead of in-place change",
+          "check": { "contains_any": ["version", "new field", "new endpoint", "additive"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

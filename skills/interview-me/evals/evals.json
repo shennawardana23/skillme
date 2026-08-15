@@ -1,0 +1,34 @@
+{
+  "skill_name": "interview-me",
+  "evals": [
+    {
+      "id": "rejects-whatever-you-think",
+      "prompt": "I restated a user's intent using the interview-me format and they replied 'whatever you think is best.' According to the interview-me skill, is this a valid confirmation, and what should I do next?",
+      "expected_output": "Says this is not a valid confirmation because it's delegation rather than a decision, and recommends re-asking with two concrete options.",
+      "assertions": [
+        { "text": "Says it is not a valid yes/confirmation", "check": { "contains_any": ["not a yes", "not confirmation", "delegat", "not valid"] } },
+        { "text": "Recommends re-asking with concrete options", "check": { "contains_any": ["two concrete options", "re-ask", "re ask"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "one-question-with-guess-attached",
+      "prompt": "Using the interview-me skill, how should questions be asked during the interview — all at once, or one at a time, and should a guess be attached?",
+      "expected_output": "Says questions should be asked one at a time, each with the agent's own guess/hypothesis attached, waiting for the user's reaction before the next.",
+      "assertions": [
+        { "text": "Says one question at a time, not a batch", "check": { "contains_any": ["one at a time", "one question"] } },
+        { "text": "Mentions attaching a guess", "check": { "contains_any": ["guess"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "restate-includes-out-of-scope",
+      "prompt": "What fields must be included when restating a user's confirmed intent, according to the interview-me skill, and why is 'out of scope' considered non-negotiable?",
+      "expected_output": "Lists Outcome, User, Why now, Success, Constraint, and Out of scope, and explains that omitting out-of-scope leaves silent disagreement about what won't be built.",
+      "assertions": [
+        { "text": "Mentions out of scope explicitly", "check": { "contains_any": ["out of scope"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "skill_name": "planning",
+  "evals": [
+    {
+      "id": "vague-to-concrete-goal",
+      "prompt": "Turn this vague request into a concrete, one-sentence plan Goal following the planning skill's format: 'Fix the bug where sometimes user profiles crash the app.' Assume the crash is a nil pointer dereference in a function called GetProfile when a user has no profile record. Write just the Goal sentence.",
+      "expected_output": "A single concrete sentence naming the specific function (GetProfile) and the specific condition (nil pointer / no profile record), not a vague restatement like 'fix the crash'.",
+      "assertions": [
+        {
+          "text": "Names the specific function",
+          "check": { "contains_any": ["GetProfile"] }
+        },
+        {
+          "text": "Names the specific failure condition, not a vague restatement",
+          "check": { "contains_any": ["nil pointer", "no profile", "missing profile"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "plan-has-five-sections",
+      "prompt": "Using the planning skill's plan structure, write a full plan document for this request: 'Add a Redis-backed rate limiter to our public API that returns HTTP 429 when a client exceeds 100 requests per minute.' Include all five required sections with their standard headings.",
+      "expected_output": "A markdown plan document containing Goal, Context, Acceptance Criteria, Steps, and Risks sections, with sized steps (S/M/L).",
+      "assertions": [
+        {
+          "text": "Contains all five required section headings",
+          "check": { "contains_all": ["Goal", "Context", "Acceptance Criteria", "Steps", "Risks"] }
+        },
+        {
+          "text": "Steps carry a size estimate (S, M, or L)",
+          "check": { "matches_any": ["\\[(S|M|L)\\]"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "unfalsifiable-acceptance-criterion",
+      "prompt": "I wrote this acceptance criterion for a plan: '1. The search feature works correctly.' Is this a good acceptance criterion under the planning skill's standards? If not, explain what's wrong and rewrite it as a falsifiable, checkable statement for a search feature that should return results matching a query within 500ms.",
+      "expected_output": "States the original criterion is unfalsifiable/not checkable, and rewrites it as a specific measurable statement (e.g. results returned within 500ms, correct matches for a given query).",
+      "assertions": [
+        {
+          "text": "Identifies the original criterion as vague/unfalsifiable/not testable",
+          "check": { "contains_any": ["unfalsifiable", "not testable", "not checkable", "too vague", "vague", "can't verify", "cannot verify"] }
+        },
+        {
+          "text": "Rewrites with a measurable time bound",
+          "check": { "matches_any": ["500\\s?ms|0\\.5\\s?s"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

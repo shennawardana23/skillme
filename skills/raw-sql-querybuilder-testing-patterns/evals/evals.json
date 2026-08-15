@@ -1,0 +1,31 @@
+{
+  "skill_name": "raw-sql-querybuilder-testing-patterns",
+  "evals": [
+    {
+      "id": "nullable-column-scan",
+      "prompt": "We added a new nullable display_name column to an existing rooms table. Write the Go repository code to scan a room row that includes this new column.",
+      "expected_output": "Scans the nullable column into sql.NullString (or an equivalent nullable/Scanner type), not a bare string, since existing rows will have NULL in this column.",
+      "assertions": [
+        {
+          "text": "Uses a nullable scan type for the new column",
+          "check": { "contains_any": ["sql.NullString", "sql.Null", "Scanner"] }
+        }
+      ]
+    },
+    {
+      "id": "narrow-mockable-interface",
+      "prompt": "We need to unit-test a repository method that currently calls methods directly on *sql.DB. What's the right way to make it mockable?",
+      "expected_output": "Recommends defining a narrow interface exposing only the methods the repository actually calls (e.g. QueryRowContext, ExecContext), not the full *sql.DB surface, and generating a mock for that interface.",
+      "assertions": [
+        {
+          "text": "Recommends a narrow interface over the full sql.DB surface",
+          "check": { "contains_any": ["narrow interface", "interface"] }
+        },
+        {
+          "text": "Mentions mock generation for the interface",
+          "check": { "contains_any": ["mock", "mockgen"] }
+        }
+      ]
+    }
+  ]
+}

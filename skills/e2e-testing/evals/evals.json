@@ -1,0 +1,53 @@
+{
+  "skill_name": "e2e-testing",
+  "evals": [
+    {
+      "id": "flags-arbitrary-timeout",
+      "prompt": "Review this Playwright test for flakiness risk:\n\nawait page.waitForTimeout(3000);\nawait page.click('[data-testid=\"submit\"]');",
+      "expected_output": "Flags the arbitrary waitForTimeout as a flakiness risk and recommends waiting on a specific condition (visibility, network response) instead.",
+      "assertions": [
+        {
+          "text": "Flags waitForTimeout as the problem",
+          "check": { "contains_all": ["waitForTimeout"] }
+        },
+        {
+          "text": "Recommends waiting on a real condition instead",
+          "check": { "contains_any": ["waitFor(", "locator", "condition", "waitForResponse"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "diagnoses-ci-only-flakiness",
+      "prompt": "Our Playwright test passes 100% of the time locally but fails intermittently in CI, about 1 in 10 runs. What should we check before assuming it's a CI environment bug?",
+      "expected_output": "Recommends reproducing with --repeat-each to check for timing-based flakiness rather than assuming a CI environment misconfiguration; points to resource contention and race conditions as the likely cause.",
+      "assertions": [
+        {
+          "text": "Recommends reproducing/repeating the test to isolate flakiness",
+          "check": { "contains_any": ["repeat-each", "reproduce", "repeat"] }
+        },
+        {
+          "text": "Points to a race condition / timing cause, not just 'CI is broken'",
+          "check": { "contains_any": ["race", "timing", "resource"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-unreferenced-test-skip",
+      "prompt": "Review this test file change: a previously-passing test now has `test.skip(true, 'flaky')` added with no other explanation. Is this an acceptable way to handle a flaky test long-term?",
+      "expected_output": "Flags that skipping without an attached tracking issue/reference silently removes coverage and recommends attaching an issue reference or fixing the root cause instead of leaving it permanently skipped.",
+      "assertions": [
+        {
+          "text": "Flags the lack of a tracking reference/issue",
+          "check": { "contains_any": ["issue", "tracking", "reference"] }
+        },
+        {
+          "text": "Notes this removes/hides test coverage",
+          "check": { "contains_any": ["coverage", "no longer run", "stops running", "silently"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

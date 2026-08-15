@@ -1,0 +1,35 @@
+{
+  "skill_name": "continuous-learning",
+  "evals": [
+    {
+      "id": "recommends-review-before-auto-approve",
+      "prompt": "I'm setting up session-end pattern extraction so Claude Code saves reusable skills from past sessions automatically. I want to set auto_approve to true so every extracted pattern immediately becomes a saved skill with no review step. Is that a good default? What's the risk?",
+      "expected_output": "Recommends against auto-approving extracted patterns by default, explaining that an unusual or low-quality extraction from one session can misdirect future sessions if not reviewed first.",
+      "assertions": [
+        { "text": "Recommends against auto-approving by default", "check": { "contains_any": ["against", "not recommend", "risky", "keep it off", "should stay off"] } },
+        { "text": "Explains the risk of an unreviewed pattern misdirecting future sessions", "check": { "contains_any": ["misdirect", "wrong direction", "unusual session", "review before", "quality"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-stale-workaround-extraction",
+      "prompt": "During a session, an external payment API was down for a few minutes and I had to work around it temporarily. The Stop hook extracted this as a 'workaround' skill that will be loaded in future sessions. Is this a good candidate to keep as a permanent learned skill? Why or why not?",
+      "expected_output": "Flags that a workaround for a temporary external outage is not a durable pattern and will likely produce a stale, misleading skill once the outage is resolved, and recommends filtering this kind of one-off pattern out or removing it.",
+      "assertions": [
+        { "text": "Flags this as not durable / a poor candidate to keep", "check": { "contains_any": ["not a good candidate", "stale", "one-off", "temporary", "outage", "shouldn't keep"] } },
+        { "text": "Recommends filtering it out or removing it", "check": { "contains_any": ["remove", "filter", "ignore_pattern", "exclude", "don't keep"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "explains-stop-hook-tradeoff",
+      "prompt": "I'm choosing between extracting learned patterns via a Stop hook (fires once at session end) versus a per-tool-call hook (fires on every tool use). What's the tradeoff, and when would a Stop hook alone be insufficient?",
+      "expected_output": "Explains that a Stop hook is lightweight and sees the full transcript but only fires on sessions that end normally and only gets one extraction pass, whereas per-tool-call observation is more reliable and finer-grained but adds overhead to every call.",
+      "assertions": [
+        { "text": "Explains the Stop hook only fires on normally-ending sessions / one-shot", "check": { "contains_any": ["ends normally", "one shot", "only fires", "session end", "crashed"] } },
+        { "text": "Contrasts with more reliable per-call observation", "check": { "contains_any": ["every tool call", "per-tool-call", "more reliable", "finer-grained", "PreToolUse", "PostToolUse"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

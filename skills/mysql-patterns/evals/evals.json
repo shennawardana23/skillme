@@ -1,0 +1,50 @@
+{
+  "skill_name": "mysql-patterns",
+  "evals": [
+    {
+      "id": "flags-uuid-primary-key",
+      "prompt": "We're designing a new InnoDB table for guest_sessions and want to use a randomly generated UUID as the primary key so IDs aren't guessable. Any concerns?",
+      "expected_output": "Flags that a random UUID as the InnoDB clustering primary key causes page splits/index fragmentation across the whole table (worse than the equivalent Postgres tradeoff) and recommends a monotonic key with the UUID as a separate unique-indexed column instead.",
+      "assertions": [
+        {
+          "text": "Flags fragmentation/page-split concern for InnoDB clustered index",
+          "check": { "contains_any": ["fragment", "page split", "clustered"] }
+        },
+        {
+          "text": "Recommends a monotonic/auto-increment key or UUID as a separate column",
+          "check": { "contains_any": ["auto_increment", "auto-increment", "monotonic", "separate"] }
+        }
+      ]
+    },
+    {
+      "id": "does-not-claim-skip-locked-on-mysql-57",
+      "prompt": "We're running MySQL 5.7 for our job queue table. Can we use SELECT ... FOR UPDATE SKIP LOCKED to let multiple workers pull jobs concurrently?",
+      "expected_output": "Correctly states SKIP LOCKED is not available on MySQL 5.7 (added in MySQL 8.0) and either recommends upgrading or an alternative concurrency-safe approach for 5.7.",
+      "assertions": [
+        {
+          "text": "States SKIP LOCKED is unavailable on MySQL 5.7",
+          "check": { "contains_all": ["5.7"] }
+        },
+        {
+          "text": "Does not claim SKIP LOCKED works on 5.7",
+          "check": { "not_matches": ["(?i)5\\.7[^.]{0,80}(supports|works|available)\\s+skip\\s*locked"] }
+        }
+      ]
+    },
+    {
+      "id": "utf8mb4-not-utf8",
+      "prompt": "Write the CREATE TABLE statement for a MySQL guests table with a name column that needs to store any Unicode text including emoji.",
+      "expected_output": "Uses utf8mb4 charset, not the legacy 3-byte utf8 charset which cannot store most emoji.",
+      "assertions": [
+        {
+          "text": "Uses utf8mb4",
+          "check": { "contains_all": ["utf8mb4"] }
+        },
+        {
+          "text": "Does not specify plain legacy utf8 as the charset",
+          "check": { "not_matches": ["(?i)charset\\s*=\\s*['\"]?utf8($|[^m])"] }
+        }
+      ]
+    }
+  ]
+}

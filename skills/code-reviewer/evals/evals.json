@@ -1,0 +1,61 @@
+{
+  "skill_name": "code-reviewer",
+  "evals": [
+    {
+      "id": "flags-waitgroup-add-inside-goroutine",
+      "prompt": "Scan this Go code with the code-reviewer skill:\n\nfunc processAll(items []Item) {\n\tvar wg sync.WaitGroup\n\tfor _, it := range items {\n\t\tgo func(it Item) {\n\t\t\twg.Add(1)\n\t\t\tdefer wg.Done()\n\t\t\tprocess(it)\n\t\t}(it)\n\t}\n\twg.Wait()\n}",
+      "expected_output": "Flags wg.Add(1) called inside the goroutine as a race with Wait, rated CRITICAL or HIGH, with a fix moving Add before the go statement.",
+      "assertions": [
+        {
+          "text": "Flags the Add/Wait race",
+          "check": { "contains_any": ["race", "Add"] }
+        },
+        {
+          "text": "Recommends moving Add before the go statement",
+          "check": { "contains_any": ["before the go", "before calling go", "move wg.Add", "Add(1) before"] }
+        },
+        {
+          "text": "Uses a severity level from the required scale",
+          "check": { "contains_any": ["CRITICAL", "HIGH"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-goroutine-panic-and-swallowed-error",
+      "prompt": "Scan this Go code with the code-reviewer skill:\n\nfunc FetchAll(urls []string) {\n\tfor _, u := range urls {\n\t\tgo func(u string) {\n\t\t\tresp, _ := http.Get(u)\n\t\t\tdefer resp.Body.Close()\n\t\t\tprocessResponse(resp)\n\t\t}(u)\n\t}\n}",
+      "expected_output": "Flags the swallowed error from http.Get (nil resp used, panic risk) and the lack of any goroutine completion/cancellation signal, categorized as Error handling and Concurrency findings with fixes.",
+      "assertions": [
+        {
+          "text": "Flags the swallowed error from http.Get",
+          "check": { "contains_any": ["_ = err", "swallow", "ignored error", "error is ignored", "err is discarded"] }
+        },
+        {
+          "text": "Flags the missing goroutine completion signal",
+          "check": { "contains_any": ["leak", "WaitGroup", "context", "done channel"] }
+        },
+        {
+          "text": "Includes the required output sections",
+          "check": { "contains_any": ["Quality Score", "Critical Issues", "Improvements"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recognizes_clean_concurrent_code",
+      "prompt": "Scan this Go code with the code-reviewer skill:\n\nfunc processAll(ctx context.Context, items []Item) error {\n\tvar wg sync.WaitGroup\n\terrCh := make(chan error, len(items))\n\tfor _, it := range items {\n\t\twg.Add(1)\n\t\tgo func(it Item) {\n\t\t\tdefer wg.Done()\n\t\t\tif err := process(ctx, it); err != nil {\n\t\t\t\terrCh <- fmt.Errorf(\"process %v: %w\", it.ID, err)\n\t\t\t}\n\t\t}(it)\n\t}\n\twg.Wait()\n\tclose(errCh)\n\tfor err := range errCh {\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t}\n\treturn nil\n}",
+      "expected_output": "Recognizes wg.Add is correctly placed before the goroutine, errors are wrapped and propagated, and does not report a CRITICAL finding.",
+      "assertions": [
+        {
+          "text": "Does not flag a WaitGroup race here",
+          "check": { "not_contains": ["Add/Wait race", "race between Add and Wait"] }
+        },
+        {
+          "text": "Acknowledges correct pattern or gives a low/no critical severity",
+          "check": { "contains_any": ["correctly", "properly", "good", "no critical", "0 critical"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "skill_name": "frontend-ui-engineering",
+  "evals": [
+    {
+      "id": "flags-ai-aesthetic-defaults",
+      "prompt": "Review this component plan for a task dashboard: \"I'll use a purple-to-indigo gradient background, rounded-2xl on every card, a big generic hero section at the top with placeholder lorem ipsum text, and drop-shadow-xl on all cards.\" What issues should I fix before this looks production-quality instead of AI-generated?",
+      "expected_output": "Flags the purple/indigo gradient, uniform rounded-2xl corners, generic hero section, lorem ipsum placeholder text, and heavy shadows as recognizable AI-aesthetic defaults, recommending the project's actual design system and realistic content instead.",
+      "assertions": [
+        {
+          "text": "Flags the purple/gradient default",
+          "check": { "contains_any": ["purple", "gradient"] }
+        },
+        {
+          "text": "Flags lorem ipsum placeholder content",
+          "check": { "contains_any": ["lorem ipsum", "placeholder", "realistic content"] }
+        },
+        {
+          "text": "Recommends using the project's actual design system",
+          "check": { "contains_any": ["design system", "actual palette", "project's"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-state-tool-for-sharing-radius",
+      "prompt": "In a Vue 3 app, I have a boolean 'sidebar collapsed' state used only by a Sidebar component and its own toggle button (both children of the same parent). I also have user auth/session info needed by nearly every page. What's the appropriate state-management approach for each, and why shouldn't I just put both in a global Pinia store?",
+      "expected_output": "Recommends local/lifted state (ref in the parent, or component-local state) for the sidebar toggle since it's narrowly scoped, and provide/inject or a Pinia store for the read-heavy, widely-shared auth/session info, explaining that escalating the narrow case to global state makes it harder to trace.",
+      "assertions": [
+        {
+          "text": "Recommends lifted/local state for the narrowly-scoped sidebar toggle",
+          "check": { "contains_any": ["lift", "local state", "parent"] }
+        },
+        {
+          "text": "Recommends provide/inject or a store for the widely-shared auth state",
+          "check": { "contains_any": ["provide", "inject", "pinia", "store"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-missing-empty-and-keyboard-access",
+      "prompt": "Review this Vue component for accessibility and completeness issues:\n\n<template>\n  <ul>\n    <li v-for=\"task in tasks\" :key=\"task.id\">\n      <div @click=\"toggle(task.id)\">{{ task.title }}</div>\n    </li>\n  </ul>\n</template>\n\ntasks can be an empty array.",
+      "expected_output": "Flags that a clickable div is not keyboard-accessible (should be a button or have role/tabindex/keydown handling) and that there is no empty state shown when tasks is empty.",
+      "assertions": [
+        {
+          "text": "Flags the non-keyboard-accessible clickable div",
+          "check": { "contains_any": ["keyboard", "tabindex", "button"] }
+        },
+        {
+          "text": "Flags the missing empty state",
+          "check": { "contains_any": ["empty state", "no tasks", "empty array"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

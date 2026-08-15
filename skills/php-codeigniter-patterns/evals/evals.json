@@ -1,0 +1,39 @@
+{
+  "skill_name": "php-codeigniter-patterns",
+  "evals": [
+    {
+      "id": "model-not-orm",
+      "prompt": "In our CodeIgniter 4 app, I want to fetch a Reservation and eager-load its related Guest, the way Laravel's ->with('guest') does. Show me how.",
+      "expected_output": "Explains CI4's Model has no relationship methods or eager loading (it wraps Query Builder, not an ORM), and shows either a second findAll() keyed by ID or a manual JOIN instead of inventing a ->with() call.",
+      "assertions": [
+        {
+          "text": "States CI4 Model is not an ORM / has no eager loading",
+          "check": { "contains_any": ["not an ORM", "no eager loading", "no relationship method"] }
+        },
+        {
+          "text": "Does not invent a Laravel-style ->with() call as if CI4 supported it",
+          "check": { "not_contains": ["->with(['guest'"] }
+        },
+        {
+          "text": "Shows a real alternative: JOIN or a second keyed query",
+          "check": { "contains_any": ["join(", "JOIN", "whereIn"] }
+        }
+      ]
+    },
+    {
+      "id": "mass-assignment-guard",
+      "prompt": "Add an is_admin field to our CodeIgniter 4 User model so an admin can be flagged. Show the Model changes needed to accept it from a request.",
+      "expected_output": "Does not blindly add is_admin to $allowedFields on a model that accepts request-derived data; flags that a client-settable is_admin field is a privilege-escalation risk and recommends setting it out-of-band from validated request data, not via the general-purpose allowedFields array.",
+      "assertions": [
+        {
+          "text": "Flags is_admin as a mass-assignment / privilege-escalation risk if added to allowedFields",
+          "check": { "contains_any": ["privilege", "escalation", "risk", "should not", "never allow"] }
+        },
+        {
+          "text": "Does not simply add is_admin to allowedFields without any caveat",
+          "check": { "not_matches": ["(?i)allowedFields\\s*=\\s*\\[[^\\]]*is_admin[^\\]]*\\];\\s*$"] }
+        }
+      ]
+    }
+  ]
+}

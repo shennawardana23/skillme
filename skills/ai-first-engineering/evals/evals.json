@@ -1,0 +1,35 @@
+{
+  "skill_name": "ai-first-engineering",
+  "evals": [
+    {
+      "id": "flags-unchanged-review-checklist",
+      "prompt": "Our engineering org now has AI agents writing roughly 70% of new code, but our PR review checklist is unchanged from three years ago: variable naming, indentation consistency, comment style, and whether imports are alphabetized. Is this checklist still the right one for reviewing AI-generated PRs? What should change?",
+      "expected_output": "Flags that the checklist targets issues already covered by automated formatting/lint and misses the higher-risk areas (behavior regressions, security assumptions, data integrity, failure handling) that matter more for agent-authored code.",
+      "assertions": [
+        { "text": "Flags that the checklist covers issues automation already handles", "check": { "contains_any": ["lint", "formatting", "automated", "already covered", "style"] } },
+        { "text": "Recommends shifting focus to behavior/security/data integrity", "check": { "contains_any": ["behavior", "security", "data integrity", "edge case", "regression"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "identifies-implicit-convention-risk",
+      "prompt": "Our Go service has an unwritten convention: every database query against the reservations table must filter by hotel_id because the table is partitioned, but this isn't documented anywhere or enforced by a linter — engineers just learn it by getting burned once. We're about to let an AI agent implement several new endpoints against this table. What's the risk here and what should we do about it before handing off the work?",
+      "expected_output": "Identifies that an agent has no way to learn an undocumented convention the way a human picks it up over time, and recommends making the hotel_id filtering requirement explicit (documented, enforced, or made structurally hard to violate) before delegating work that touches this table.",
+      "assertions": [
+        { "text": "Identifies that undocumented conventions are invisible to an agent", "check": { "contains_any": ["undocumented", "unwritten", "no way to know", "won't know", "implicit"] } },
+        { "text": "Recommends making the convention explicit or enforced before handoff", "check": { "contains_any": ["document", "enforce", "explicit", "before handing off", "before delegating"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-ci-passed-as-insufficient",
+      "prompt": "A teammate says: \"The agent's PR passed CI, so it's fine to merge without a human reading the diff.\" Is that reasoning sound for an AI-first team? Explain why or why not.",
+      "expected_output": "Explains that CI only catches what it was built to catch, and that an agent's failure modes are systematically different from a human's, so passing CI is not equivalent to independent review and should not replace it.",
+      "assertions": [
+        { "text": "Rejects treating CI pass as equivalent to human review", "check": { "contains_any": ["not equivalent", "not sufficient", "not the same", "still needs review", "not a substitute"] } },
+        { "text": "Explains CI only catches what it was built to catch / agent blind spots differ", "check": { "contains_any": ["blind spot", "built to catch", "doesn't catch", "misses", "different failure"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "skill_name": "error-handling-philosophy",
+  "evals": [
+    {
+      "id": "flags-panic-on-user-input",
+      "prompt": "Review this Go handler: func ParseReservation(body []byte) Reservation { var r Reservation; if err := json.Unmarshal(body, &r); err != nil { panic(err) }; return r }. This function parses the raw HTTP request body from a client. Is panicking here appropriate?",
+      "expected_output": "Flags panicking on malformed request input as wrong since it's an external/expected failure, not a broken invariant, and recommends returning an error instead.",
+      "assertions": [
+        {
+          "text": "Flags panic on external/user input as inappropriate",
+          "check": { "contains_any": ["external", "user input", "should not panic", "shouldn't panic"] }
+        },
+        {
+          "text": "Recommends returning an error instead",
+          "check": { "contains_any": ["return an error", "return error", "error return"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-string-matching-errors",
+      "prompt": "Review this Go code: if err != nil && strings.Contains(err.Error(), \"not found\") { return handleMissing() }. Is this a robust way to detect a not-found condition? What would you recommend instead?",
+      "expected_output": "Flags string-matching on error text as fragile since it breaks when message wording changes, and recommends errors.Is or errors.As against a defined sentinel or typed error.",
+      "assertions": [
+        {
+          "text": "Flags string matching on Error() as fragile",
+          "check": { "contains_any": ["fragile", "breaks", "brittle"] }
+        },
+        {
+          "text": "Recommends errors.Is or errors.As",
+          "check": { "contains_any": ["errors.is", "errors.as"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "correctly-uses-wrapping-and-panic",
+      "prompt": "In our Go inventory service, we have a function LoadHotelConfig(id int) that reads a config file bundled at compile time using a package-level var compiled with regexp.MustCompile on a hardcoded pattern string. Separately, a function ParseGuestEmail(input string) validates an email address supplied by a guest during checkout. Which of these two should use panic vs return an error, and why?",
+      "expected_output": "Explains that regexp.MustCompile on a hardcoded, compile-time-constant pattern is fine to panic on since failure only indicates a programmer bug in that code, while ParseGuestEmail must return an error since guest input is external and expected to sometimes be invalid.",
+      "assertions": [
+        {
+          "text": "Approves panic-style MustCompile for compile-time-constant pattern as a programmer-error case",
+          "check": { "contains_any": ["mustcompile", "programmer error", "compile-time"] }
+        },
+        {
+          "text": "Requires ParseGuestEmail to return an error since it handles external input",
+          "check": { "contains_any": ["return an error", "return error"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

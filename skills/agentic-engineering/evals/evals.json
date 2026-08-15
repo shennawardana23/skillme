@@ -1,0 +1,35 @@
+{
+  "skill_name": "agentic-engineering",
+  "evals": [
+    {
+      "id": "splits-bundled-task",
+      "prompt": "I want to hand this task to a coding agent in one shot: \"Add a new refund endpoint to the payments service, migrate the payments table to add a refund_status column, and refactor the existing charge endpoint to share validation logic with the new refund endpoint.\" Is this one good unit of work to hand off, or should I split it? Explain your reasoning.",
+      "expected_output": "Identifies that this bundles three distinct risks (schema migration, new endpoint, refactor of existing code) and recommends splitting into independently verifiable units, each with its own done condition.",
+      "assertions": [
+        { "text": "Recommends splitting into smaller units rather than one handoff", "check": { "contains_any": ["split", "break", "decompose", "separate task", "separate unit"] } },
+        { "text": "Names multiple distinct risks bundled together", "check": { "contains_any": ["migration", "refactor", "risk"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "diagnoses-repeated-escalation-failure",
+      "prompt": "I asked a mid-size model to fix a failing test in our Go booking service, it failed twice with the same wrong assumption about how hotel_id partitioning works, so I escalated to a frontier-tier model with the exact same prompt — it made the identical mistake a third time. What does this suggest about the right next step, and what should I have done differently before escalating?",
+      "expected_output": "Diagnoses this as a missing-fact / under-specification problem rather than a reasoning-capability problem, and recommends supplying the missing context (how hotel_id partitioning works) instead of escalating model tier again.",
+      "assertions": [
+        { "text": "Identifies this as a missing information/context problem, not a model-capability problem", "check": { "contains_any": ["missing fact", "missing context", "under-specified", "not a reasoning", "lacked information", "didn't know"] } },
+        { "text": "Recommends supplying the missing context rather than escalating again", "check": { "contains_any": ["provide the context", "supply", "explain how", "give it", "add context", "clarify"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-eval-first-not-post-hoc",
+      "prompt": "An agent just finished implementing a new discount-code feature for our checkout flow and reports \"done, all tests pass.\" I have no separate capability or regression eval defined — I was planning to just read the diff and decide if it looks right. Is that a sound way to confirm the task is actually complete? What should I do differently next time?",
+      "expected_output": "Explains that reading the diff and trusting the agent's own completion claim is not a reliable completion signal, and recommends defining capability and regression evals before implementation starts next time, then running them to verify.",
+      "assertions": [
+        { "text": "Flags trusting the agent's self-report as insufficient verification", "check": { "contains_any": ["not reliable", "insufficient", "not enough", "can't trust", "self-report", "own claim"] } },
+        { "text": "Recommends defining evals before implementation, for next time", "check": { "contains_any": ["before implementation", "before starting", "define done", "eval-first", "up front"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "skill_name": "autonomous-loops",
+  "evals": [
+    {
+      "id": "recommends-sequential-over-dag",
+      "prompt": "I need to fix a single failing test in one Go file — no other files are involved, and there's no written spec or RFC for this. A colleague suggests setting up a full RFC-driven multi-agent DAG with a merge queue for this. Is that the right pattern? What would you use instead and why?",
+      "expected_output": "Recommends against the DAG pattern for a single-file, single-unit change and suggests a simple sequential pipeline instead, since the coordination overhead of a DAG only pays off with genuinely interdependent parallel work.",
+      "assertions": [
+        { "text": "Rejects the DAG pattern as overkill for this case", "check": { "contains_any": ["overkill", "too much", "not necessary", "not needed", "simpler"] } },
+        { "text": "Recommends a sequential pipeline or equivalent simple pattern instead", "check": { "contains_any": ["sequential", "simple pipeline", "single step"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-missing-exit-condition",
+      "prompt": "I wrote a bash script that loops forever, invoking a coding agent each iteration to keep 'improving' a codebase, with no maximum iteration count, no cost limit, no time limit, and no way for the agent to signal it's done. Is this a safe way to run an autonomous loop? What's missing and why does it matter?",
+      "expected_output": "Flags the lack of any exit condition as a serious risk and recommends adding a stop mechanism such as a max iteration count, cost ceiling, time box, or completion signal before running the loop unattended.",
+      "assertions": [
+        { "text": "Flags the missing exit/stop condition as the core problem", "check": { "contains_any": ["exit condition", "stop condition", "no limit", "runaway", "kill switch"] } },
+        { "text": "Recommends a concrete stop mechanism", "check": { "contains_any": ["max iteration", "cost limit", "cost ceiling", "time box", "completion signal", "max runs"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-separate-cleanup-pass",
+      "prompt": "I told my coding agent's implementation prompt: 'Write tests, but don't test framework internals, don't add excessive error handling, and don't write pointless assertions.' Now it's being oddly hesitant and skipping legitimate edge-case tests too. What went wrong and what should I do instead in my autonomous pipeline?",
+      "expected_output": "Explains that negative instructions bleed into unrelated judgment and cause the model to under-test broadly, and recommends letting the implementer be thorough while adding a separate de-sloppify/cleanup pass in its own context afterward.",
+      "assertions": [
+        { "text": "Identifies negative instructions as the cause of the over-hesitancy", "check": { "contains_any": ["negative instruction", "don't", "hesitant", "bleed"] } },
+        { "text": "Recommends a separate cleanup pass instead of constraining the implementer", "check": { "contains_any": ["separate pass", "cleanup pass", "de-sloppify", "separate step", "cleanup step"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

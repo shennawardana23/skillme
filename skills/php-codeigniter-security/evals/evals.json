@@ -1,0 +1,35 @@
+{
+  "skill_name": "php-codeigniter-security",
+  "evals": [
+    {
+      "id": "add-field-does-not-widen-mass-assignment",
+      "prompt": "Add a new 'notes' text field to our CodeIgniter 4 Reservation form. Show what needs to change in the Model and Controller so users can submit it.",
+      "expected_output": "Adds notes to $allowedFields deliberately (a legitimate, low-risk field), without suggesting widening allowedFields broadly or removing validation, and does not touch CSRF protection as part of this unrelated change.",
+      "assertions": [
+        {
+          "text": "Adds the field to allowedFields explicitly rather than removing/bypassing the guard",
+          "check": { "contains_all": ["allowedFields"] }
+        },
+        {
+          "text": "Does not suggest disabling CSRF protection to make the form work",
+          "check": { "not_contains": ["disable csrf", "csrfProtection = false", "remove csrf"] }
+        }
+      ]
+    },
+    {
+      "id": "cookie-csrf-with-sessions-flagged",
+      "prompt": "Our CodeIgniter 4 app uses session-based authentication and currently has Config\\Security::$csrfProtection set to 'cookie' (the default). Is this fine?",
+      "expected_output": "Flags that cookie-based CSRF does not protect against same-site attacks and recommends switching to 'session'-based CSRF protection since the app already maintains server-side sessions for auth.",
+      "assertions": [
+        {
+          "text": "Recommends session-based CSRF protection",
+          "check": { "contains_all": ["session"] }
+        },
+        {
+          "text": "Explains the same-site weakness of cookie-based CSRF",
+          "check": { "contains_any": ["same-site", "same site"] }
+        }
+      ]
+    }
+  ]
+}

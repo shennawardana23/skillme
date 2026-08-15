@@ -1,0 +1,61 @@
+{
+  "skill_name": "bug-triage-and-severity-classification",
+  "evals": [
+    {
+      "id": "distinguishes-severity-from-priority",
+      "prompt": "A customer-facing dashboard shows a wrong currency symbol (dollar sign instead of the local currency) for one small, deprecated internal reporting tool that only two people still use. A junior engineer says this should be Sev1 because 'it's customer facing and about money.' Evaluate their classification.",
+      "expected_output": "Explains that severity should be based on actual blast radius and impact (cosmetic display issue, tiny deprecated tool, two users) rather than surface-level association with money, classifies this as low severity (Sev3/Sev4), and distinguishes severity from priority as separate axes.",
+      "assertions": [
+        {
+          "text": "Disagrees with classifying this as Sev1",
+          "check": { "contains_any": ["not sev1", "not a sev1", "isn't sev1", "shouldn't be sev1", "too high", "overclassif"] }
+        },
+        {
+          "text": "Explains severity is about actual impact/blast radius, not surface association",
+          "check": { "contains_any": ["blast radius", "actual impact", "few users", "deprecated", "cosmetic"] }
+        },
+        {
+          "text": "Mentions severity and priority as distinct concepts",
+          "check": { "contains_all": ["severity", "priority"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "high-severity-low-priority-case",
+      "prompt": "We found a bug: an internal admin tool used only during month-end reconciliation (once a month, by two finance staff) sometimes corrupts a data export file it generates. It's currently the second week of the month, so nobody will use this tool for another three weeks. How should this be classified and handled?",
+      "expected_output": "Classifies this as high severity due to data corruption impact, but notes priority can reasonably be lower given the three-week runway before it's actually used, explaining severity and priority as independent decisions rather than forcing them to match.",
+      "assertions": [
+        {
+          "text": "Classifies severity as high given data corruption",
+          "check": { "contains_any": ["high severity", "sev1", "sev2", "data corrupt"] }
+        },
+        {
+          "text": "Explains priority can differ from severity given the timeline",
+          "check": { "contains_any": ["priority", "three weeks", "before it's needed", "runway"] }
+        },
+        {
+          "text": "Does not tell them to ignore or downgrade the underlying severity just because it's not urgent yet",
+          "check": { "not_contains": ["ignore this bug", "not worth fixing"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-severity-gaming",
+      "prompt": "A team lead asks: 'Can we just mark this Sev2 outage as Sev3 so it doesn't count against our SLA metrics for this quarter?' What's wrong with this request and what should happen instead?",
+      "expected_output": "Flags this as gaming/manipulating the severity taxonomy rather than legitimate reclassification, explains severity must reflect actual impact independent of SLA/reporting pressure, and recommends keeping the severity accurate while handling any legitimate priority or timeline discussion separately.",
+      "assertions": [
+        {
+          "text": "Flags this as inappropriate manipulation of severity for SLA/metrics reasons",
+          "check": { "contains_any": ["gaming", "manipulat", "should not", "shouldn't", "not appropriate", "inappropriate"] }
+        },
+        {
+          "text": "States severity should reflect actual impact, not SLA optics",
+          "check": { "contains_any": ["actual impact", "objective", "regardless of", "independent of"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

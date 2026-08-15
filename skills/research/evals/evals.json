@@ -1,0 +1,34 @@
+{
+  "skill_name": "research",
+  "evals": [
+    {
+      "id": "checks-internal-sources-first",
+      "prompt": "Using the research skill's process, what is the very first thing to check before searching the web to answer 'does our pinned HTTP client library support automatic retries?'",
+      "expected_output": "States that internal sources (go.mod/manifest, docs, ADRs, existing skills, source comments) should be checked before any external search.",
+      "assertions": [
+        { "text": "Mentions checking internal/local sources before external search", "check": { "contains_any": ["go.mod", "docs/", "internal", "already known", "before searching externally"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-low-confidence-finding",
+      "prompt": "I found one five-year-old forum post claiming a library behaves a certain way, and I couldn't verify it against the source code. Using the research skill's format, how should I record this finding, and should I act on it immediately?",
+      "expected_output": "Records the finding with LOW confidence and recommends follow-up verification before acting on it, rather than treating it as settled.",
+      "assertions": [
+        { "text": "Labels the finding as low confidence", "check": { "contains_any": ["LOW", "low confidence"] } },
+        { "text": "Recommends further verification before acting", "check": { "contains_any": ["verify", "verification", "follow-up", "follow up"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "stops-after-three-iterations",
+      "prompt": "I've searched three separate times trying to determine whether a Go package handles context cancellation correctly, and I still can't find a definitive answer. What does the research skill say I should do now?",
+      "expected_output": "Says to stop after 3 iterations, state what's known vs unknown, propose a safe default, and flag it for expert input rather than continuing to search indefinitely.",
+      "assertions": [
+        { "text": "Says to stop searching after the iteration limit", "check": { "contains_any": ["stop", "3 iterations", "three iterations"] } },
+        { "text": "Recommends proposing a safe default or flagging for expert input", "check": { "contains_any": ["safe default", "expert input", "expert"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "skill_name": "code-ownership-and-boundaries",
+  "evals": [
+    {
+      "id": "diagnoses-conways-law-friction",
+      "prompt": "Every time we ship a change to our hotel-booking feature, three separate teams (pricing, availability, and guest-profile) each have to review and approve, because the logic for all three lives in one shared 'booking-core' module. Releases routinely take two weeks of cross-team coordination for changes that are logically independent. What's the underlying problem here, and what should we do?",
+      "expected_output": "Diagnoses this as a Conway's Law mismatch between the module boundary (one shared module) and team boundaries (three teams), and recommends splitting booking-core along the same lines as the team structure rather than adding more coordination process.",
+      "assertions": [
+        {
+          "text": "References Conway's Law or the module/team boundary mismatch",
+          "check": { "contains_any": ["conway", "boundary mismatch", "module boundary"] }
+        },
+        {
+          "text": "Recommends splitting the module rather than adding process",
+          "check": { "contains_any": ["split", "separate module", "redraw the boundary"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-individual-codeowner",
+      "prompt": "Our CODEOWNERS file has this entry: `/services/payments/ @jsmith`. jsmith is a specific engineer, not a team alias. Is this a good practice for a CODEOWNERS entry, and what would you recommend instead?",
+      "expected_output": "Flags naming an individual as fragile since ownership breaks silently if that person leaves or changes teams, and recommends naming a team alias instead.",
+      "assertions": [
+        {
+          "text": "Flags naming an individual person as fragile",
+          "check": { "contains_any": ["fragile", "breaks", "leaves", "changes teams"] }
+        },
+        {
+          "text": "Recommends using a team, not an individual",
+          "check": { "contains_any": ["team", "team alias"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recognizes-legitimate-cross-team-change",
+      "prompt": "We're making a breaking change to our internal reservation-status enum, which requires the reservations team and the two teams that consume the enum (front-desk-app team and reporting team) to coordinate a synchronized rollout for this one release. This is the first time in a year we've needed this kind of coordination. Does this indicate a Conway's Law boundary problem we should fix by restructuring modules or teams?",
+      "expected_output": "Explains this is normal, occasional coordination for a genuine breaking/cross-cutting change, not a recurring pattern indicating a boundary mismatch, and recommends against restructuring based on a single occurrence.",
+      "assertions": [
+        {
+          "text": "Distinguishes occasional legitimate coordination from a recurring boundary problem",
+          "check": { "contains_any": ["occasional", "single", "not a recurring", "isolated"] }
+        },
+        {
+          "text": "Does not recommend restructuring modules/teams based on this single event",
+          "check": { "not_contains": ["split the module", "split booking-core", "restructure the team", "restructure the module"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

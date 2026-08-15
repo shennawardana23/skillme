@@ -1,0 +1,32 @@
+{
+  "skill_name": "search-first",
+  "evals": [
+    {
+      "id": "recommends-adopt-for-exact-match",
+      "prompt": "I need a Go linter for my project. Before writing a custom linting script, what does the search-first decision matrix say I should check, and what's the likely recommended action given that golangci-lint already exists and is well-maintained?",
+      "expected_output": "Recommends checking for an existing well-maintained match first and choosing Adopt (using golangci-lint directly) rather than building a custom linter.",
+      "assertions": [
+        { "text": "Recommends adopting an existing well-maintained tool", "check": { "contains_any": ["adopt", "golangci-lint"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "checks-repo-before-external-search",
+      "prompt": "Using the search-first quick-mode checklist, what should I check before searching npm or PyPI for a new utility function?",
+      "expected_output": "Says to check whether the functionality already exists in the repo (via grep) before searching external package registries.",
+      "assertions": [
+        { "text": "Mentions checking the repo first", "check": { "contains_any": ["grep", "already exist in the repo", "repo"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "warns-about-dependency-bloat",
+      "prompt": "Using the search-first anti-patterns, what's the risk of installing a large, heavyweight package just to get access to one small helper function within it?",
+      "expected_output": "Identifies this as the dependency bloat anti-pattern — installing a large package for a small feature it happens to contain.",
+      "assertions": [
+        { "text": "Names the dependency bloat anti-pattern", "check": { "contains_any": ["dependency bloat", "bloat"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

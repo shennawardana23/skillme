@@ -1,0 +1,57 @@
+{
+  "skill_name": "code-review",
+  "evals": [
+    {
+      "id": "detects-sql-injection",
+      "prompt": "Review this Go snippet for issues:\n\nfunc GetUser(db *sql.DB, email string) (*User, error) {\n\tquery := \"SELECT id, email FROM users WHERE email = '\" + email + \"'\"\n\trow := db.QueryRow(query)\n\tvar u User\n\terr := row.Scan(&u.ID, &u.Email)\n\treturn &u, err\n}",
+      "expected_output": "Flags string-concatenated SQL as a SQL injection risk at CRITICAL or HIGH severity and recommends a parameterized query.",
+      "assertions": [
+        {
+          "text": "Flags SQL injection",
+          "check": { "contains_any": ["SQL injection", "injection"] }
+        },
+        {
+          "text": "Recommends a parameterized query",
+          "check": { "contains_any": ["parameterized", "placeholder", "$1", "prepared statement"] }
+        },
+        {
+          "text": "Uses the required risk assessment output format",
+          "check": { "contains_any": ["Risk Assessment", "CRITICAL", "HIGH"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "detects-missing-partition-filter",
+      "prompt": "This organization's PostgreSQL tables are partitioned by hotel_id. Review this query for issues:\n\nSELECT * FROM reservations WHERE guest_email = $1;",
+      "expected_output": "Flags the missing hotel_id filter as both a correctness and performance defect (scans all partitions).",
+      "assertions": [
+        {
+          "text": "Flags the missing hotel_id filter",
+          "check": { "contains_all": ["hotel_id"] }
+        },
+        {
+          "text": "Explains the partition-scan consequence",
+          "check": { "contains_any": ["partition", "scan"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recognizes_good_code",
+      "prompt": "Review this Go snippet:\n\nfunc GetUser(ctx context.Context, db *sql.DB, hotelID, email string) (*User, error) {\n\trow := db.QueryRowContext(ctx, \"SELECT id, email FROM users WHERE hotel_id = $1 AND email = $2\", hotelID, email)\n\tvar u User\n\tif err := row.Scan(&u.ID, &u.Email); err != nil {\n\t\treturn nil, fmt.Errorf(\"scan user: %w\", err)\n\t}\n\treturn &u, nil\n}",
+      "expected_output": "Recognizes the parameterized query, hotel_id filter, context propagation, and wrapped error as correct — includes at least one positive observation and a low risk score.",
+      "assertions": [
+        {
+          "text": "Includes a positive observation section",
+          "check": { "contains_any": ["What's good", "good"] }
+        },
+        {
+          "text": "Does not falsely flag this as a SQL injection risk",
+          "check": { "not_contains": ["SQL injection risk", "vulnerable to SQL injection"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

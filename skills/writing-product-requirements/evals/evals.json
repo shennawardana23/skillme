@@ -1,0 +1,61 @@
+{
+  "skill_name": "writing-product-requirements",
+  "evals": [
+    {
+      "id": "generate-prfaq-from-vague-idea",
+      "prompt": "We have a vague idea: let hotel guests check in and unlock their room using their phone instead of a physical key card. Write a PR-FAQ for this before we commit any engineering resources.",
+      "expected_output": "Produces a press release (headline, sub-headline, summary, problem, solution, a company spokesperson quote, and a specific customer quote) plus a two-part FAQ covering both external/customer questions and internal/technical questions.",
+      "assertions": [
+        {
+          "text": "Includes a press release headline",
+          "check": { "contains_all": ["Headline"] }
+        },
+        {
+          "text": "Includes a customer quote attributed to a named guest/customer, not just a spokesperson line",
+          "check": { "matches_any": ["(?i)said\\s+[^.\\n]{0,60}(guest|customer|traveler)"] }
+        },
+        {
+          "text": "Includes distinct External and Internal FAQ sections, not just the phrase PR-FAQ",
+          "check": { "contains_all": ["FAQ", "External", "Internal"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "critique-prfaq-missing-customer-quote-and-faq",
+      "prompt": "Review this draft PR-FAQ and tell me what's wrong with it before we bring it to the approval meeting:\n\n---\nHEADLINE: New Platform Capability Launched\n\nToday we are launching a new capability on our platform that gives users more flexibility and control. This has been a top priority for the team and represents a significant investment in our infrastructure.\n\n\"We're thrilled to bring this new capability to our users,\" said a company spokesperson. \"This is exactly what our customers have been asking for.\"\n\nGet started today by visiting our website.\n---",
+      "expected_output": "Flags that the headline is vague/generic, that there is no real customer quote (only a generic spokesperson line), and that the FAQ section is missing entirely, and recommends rewriting before approval rather than approving as-is.",
+      "assertions": [
+        {
+          "text": "Flags the vague/generic headline",
+          "check": { "contains_any": ["vague", "generic"] }
+        },
+        {
+          "text": "Flags the missing or weak customer quote",
+          "check": { "contains_any": ["customer quote", "no customer", "missing customer", "lacks a customer"] }
+        },
+        {
+          "text": "Flags that the FAQ section is missing entirely from the draft",
+          "check": { "matches_any": ["(?i)(missing|no|lacks?|absent|without|doesn't include|does not include)[^.\\n]{0,40}FAQ"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommend-lighter-prd-over-prfaq",
+      "prompt": "We need to add a 'sort by price' dropdown to an existing internal admin table that already has sort-by-date and sort-by-name. Should we write a full PR-FAQ for this, or something else? Explain your recommendation.",
+      "expected_output": "Recommends a lighter one-page PRD instead of a full PR-FAQ, explaining that the feature is a well-understood extension with no real customer-value ambiguity, so a press release exercise would be unnecessary overhead.",
+      "assertions": [
+        {
+          "text": "Recommends against a full PR-FAQ for this case",
+          "check": { "contains_any": ["lighter", "not need", "don't need", "overkill", "unnecessary"] }
+        },
+        {
+          "text": "Mentions PRD or a simpler alternative",
+          "check": { "contains_any": ["PRD", "one-page", "simpler"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

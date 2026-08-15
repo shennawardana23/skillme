@@ -1,0 +1,68 @@
+{
+  "skill_name": "go-service-idioms",
+  "evals": [
+    {
+      "id": "error-wrapping",
+      "prompt": "Write a Go function `func loadConfig(path string) (*Config, error)` that reads a JSON file at `path` and unmarshals it into a `Config` struct. Show the full function body.",
+      "expected_output": "Wraps the failing read/unmarshal call with fmt.Errorf and %w plus contextual detail, never a bare 'return err' or a panic.",
+      "assertions": [
+        {
+          "text": "Uses fmt.Errorf with %w to wrap the underlying error",
+          "check": { "contains_all": ["%w", "fmt.Errorf"] }
+        },
+        {
+          "text": "Does not panic on the error path",
+          "check": { "not_contains": ["panic(err)", "log.Fatal(err)"] }
+        },
+        {
+          "text": "Does not just return the bare error on its own line",
+          "check": { "not_matches": ["(?im)^\\s*return err\\s*$"] }
+        }
+      ]
+    },
+    {
+      "id": "context-cancellation",
+      "prompt": "Write a Go function that fetches a Reservation by ID from a database using database/sql, bounded by a caller-supplied deadline. Show the full function signature and body.",
+      "expected_output": "Threads context.Context as the first parameter and uses a *Context-suffixed database/sql method, rather than polling with time.Sleep.",
+      "assertions": [
+        {
+          "text": "Accepts and uses context.Context",
+          "check": {
+            "contains_all": ["context.Context", "ctx"],
+            "contains_any": ["ctx.Done()", "ctx.Err()", "QueryRowContext", "QueryContext", "ExecContext"]
+          }
+        },
+        {
+          "text": "Does not busy-poll with time.Sleep",
+          "check": { "not_contains": ["time.Sleep"] }
+        }
+      ]
+    },
+    {
+      "id": "table-driven-test",
+      "prompt": "Write a Go test for this function:\n\n```go\nfunc Add(a, b int) int {\n    return a + b\n}\n```\n\nCover at least a positive, a negative, and a zero case. Write the test to a file named `add_test.go` in the workspace.",
+      "expected_output": "A table-driven test in add_test.go using t.Run per case, not a flat sequence of standalone assertions.",
+      "assertions": [
+        {
+          "text": "Writes add_test.go containing a Test function with per-case t.Run subtests",
+          "check": {
+            "files_exist": ["add_test.go"],
+            "file_contains": [
+              { "path": "add_test.go", "contains": "func Test" },
+              { "path": "add_test.go", "contains": "t.Run(" }
+            ]
+          }
+        },
+        {
+          "text": "Iterates a table of cases with a for-range loop, not flat repeated assertions",
+          "check": {
+            "file_contains": [
+              { "path": "add_test.go", "contains": "range" },
+              { "path": "add_test.go", "contains": "[]struct" }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

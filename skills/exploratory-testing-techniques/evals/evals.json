@@ -1,0 +1,61 @@
+{
+  "skill_name": "exploratory-testing-techniques",
+  "evals": [
+    {
+      "id": "writes-a-charter",
+      "prompt": "We just built a new feature that lets hotel staff apply a manual discount override to a reservation at checkout. It's ambiguous exactly how it should interact with existing automatic promo codes since the spec didn't cover that combination. Write a session-based exploratory testing charter for this, and describe how you'd structure the session.",
+      "expected_output": "Produces a charter in the 'Explore <area> with <resources> to discover <information>' format targeting the discount override + promo code interaction, and describes time-boxing the session plus taking notes and logging bugs during the session.",
+      "assertions": [
+        {
+          "text": "Produces a charter naming the specific area to explore (discount override interacting with promo codes)",
+          "check": { "contains_all": ["charter"] }
+        },
+        {
+          "text": "Mentions time-boxing the session",
+          "check": { "contains_any": ["time-box", "time box", "minutes", "60", "90", "120"] }
+        },
+        {
+          "text": "Mentions a session report or notes as part of the process",
+          "check": { "contains_any": ["session report", "notes", "debrief"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "distinguishes-et-from-random-clicking",
+      "prompt": "A teammate says: 'I did exploratory testing on the new feature yesterday — I just clicked around for an hour and didn't find anything wrong.' Is this a valid exploratory testing session? What's missing, if anything?",
+      "expected_output": "Points out that unstructured clicking without a charter and without notes/a session report does not meet the bar for session-based exploratory testing, and explains what's missing (a charter defining scope/goal, and a report documenting what was covered).",
+      "assertions": [
+        {
+          "text": "Flags that this lacks a charter",
+          "check": { "contains_any": ["charter"] }
+        },
+        {
+          "text": "Flags missing notes or a session report as the traceable record",
+          "check": { "contains_any": ["notes", "session report", "report", "traceab"] }
+        },
+        {
+          "text": "Does not simply validate 'clicking around' as sufficient exploratory testing",
+          "check": { "not_contains": ["that's a valid exploratory test", "sounds like good exploratory testing"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "applies-an-oracle-heuristic",
+      "prompt": "During exploratory testing of a booking confirmation page, a tester notices the confirmation email is sent in English even though the guest selected Bahasa Indonesia as their language preference during booking. There's no explicit spec line saying which language the confirmation email must be in. Is this a bug, and how would you justify that judgment without a spec to point to?",
+      "expected_output": "Identifies this as a bug using an oracle heuristic such as user expectations or consistency with the rest of the product (the guest set a language preference, so the email should honor it), rather than concluding it can't be a bug just because no spec line covers it explicitly.",
+      "assertions": [
+        {
+          "text": "Concludes this is a bug despite no explicit spec",
+          "check": { "contains_any": ["is a bug", "should be considered a bug", "this is a defect"] }
+        },
+        {
+          "text": "Justifies using an oracle-style heuristic (user expectations / consistency / HICCUPPS)",
+          "check": { "contains_any": ["user expectation", "consisten", "hiccupps", "oracle"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

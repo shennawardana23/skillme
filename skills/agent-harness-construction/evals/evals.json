@@ -1,0 +1,35 @@
+{
+  "skill_name": "agent-harness-construction",
+  "evals": [
+    {
+      "id": "flags-bare-string-observation",
+      "prompt": "I'm building the tool interface for a Go-based coding agent. One of my tools, apply_patch, currently returns just the raw string \"done\" on success and the raw Go error text (e.g. \"open reservation.go: no such file or directory\") on failure — nothing else. The agent using this tool sometimes assumes a failed patch succeeded. Review this tool's observation design and tell me what's wrong and how to fix it.",
+      "expected_output": "Identifies that a bare string forces the model to infer success/failure from prose, recommends a structured response with an explicit status field plus a summary, next steps, and error classification.",
+      "assertions": [
+        { "text": "Identifies the bare-string/ambiguous-status problem", "check": { "contains_any": ["bare string", "ambiguous", "infer", "guess", "no status"] } },
+        { "text": "Recommends a structured response with an explicit status field", "check": { "contains_any": ["status field", "structured", "status\":", "explicit status"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-overlapping-tool-names",
+      "prompt": "My agent harness exposes both update_reservation and modify_reservation as separate tools — they take nearly identical parameters and both change fields on a reservation record, but were added by different engineers at different times. The agent inconsistently picks one or the other for the same kind of request. What's the problem here and what should I do about it?",
+      "expected_output": "Identifies the overlapping-semantics problem as the root cause of inconsistent tool selection and recommends consolidating into one clearly-scoped tool rather than maintaining both.",
+      "assertions": [
+        { "text": "Names overlapping/duplicate semantics as the root cause", "check": { "contains_any": ["overlap", "duplicate", "same semantics", "redundant"] } },
+        { "text": "Recommends consolidating to a single tool", "check": { "contains_any": ["consolidate", "merge", "single tool", "remove one", "one tool"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "designs-error-recovery-contract",
+      "prompt": "I have a tool called charge_payment that calls a third-party payment API. Right now, on failure it just returns {\"error\": \"payment failed\"} with no other detail, and my agent sometimes retries it in an infinite loop when the card is genuinely declined. Design a proper error recovery contract for this tool's failure responses — what fields should be in the error response and what rule should stop the retry loop?",
+      "expected_output": "Recommends including an error-class/root-cause hint distinguishing retryable failures (e.g. rate limiting) from non-retryable ones (e.g. card declined), plus an explicit stop condition so the agent does not retry indefinitely on a non-retryable failure.",
+      "assertions": [
+        { "text": "Distinguishes retryable vs non-retryable failure classes", "check": { "contains_any": ["retryable", "non-retryable", "declined", "root cause", "error class", "error_class"] } },
+        { "text": "Specifies an explicit stop condition to prevent infinite retry", "check": { "contains_any": ["stop condition", "stop retrying", "do not retry", "give up", "surface"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

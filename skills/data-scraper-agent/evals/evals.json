@@ -1,0 +1,53 @@
+{
+  "skill_name": "data-scraper-agent",
+  "evals": [
+    {
+      "id": "flags-per-item-llm-calls",
+      "prompt": "I'm building a scraper that collects 40 job listings and calls a free-tier LLM API once per listing to score its relevance. Is this a good approach for staying within a free API tier?",
+      "expected_output": "Flags calling the LLM once per item as a mistake that will exhaust free-tier rate limits, and recommends batching multiple items into each LLM call instead.",
+      "assertions": [
+        {
+          "text": "Flags one-call-per-item as a rate-limit risk",
+          "check": { "contains_any": ["rate limit", "quota"] }
+        },
+        {
+          "text": "Recommends batching items into fewer calls",
+          "check": { "contains_any": ["batch", "batching"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-dedup-before-storage",
+      "prompt": "My scraper runs every 3 hours via a cron schedule and pushes every collected item straight into my Notion database without checking what's already there. After a few days I have hundreds of duplicate rows for the same listings. What's wrong and how do I fix it?",
+      "expected_output": "Identifies the missing deduplication step before storage and recommends checking an existing unique key like the item's URL against already-stored records before pushing new items.",
+      "assertions": [
+        {
+          "text": "Identifies the missing dedup step",
+          "check": { "contains_any": ["dedup", "deduplicat"] }
+        },
+        {
+          "text": "Recommends checking URL or a similar unique key before pushing",
+          "check": { "contains_any": ["url", "unique key", "existing"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-js-rendered-scraping-with-plain-http",
+      "prompt": "I'm trying to scrape a product listing page with Python's requests library and BeautifulSoup, but the response HTML is basically empty even though the page clearly shows listings in my browser. What's likely going wrong?",
+      "expected_output": "Identifies that the page content is likely rendered client-side by JavaScript, which a plain HTTP client won't execute, and recommends using a headless browser (e.g. Playwright) or finding the underlying API instead.",
+      "assertions": [
+        {
+          "text": "Identifies JavaScript rendering as the likely cause",
+          "check": { "contains_any": ["javascript", "js-rendered", "client-side"] }
+        },
+        {
+          "text": "Recommends a headless browser or the underlying API as the fix",
+          "check": { "contains_any": ["playwright", "headless", "underlying api"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

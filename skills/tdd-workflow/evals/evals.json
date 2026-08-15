@@ -1,0 +1,57 @@
+{
+  "skill_name": "tdd-workflow",
+  "evals": [
+    {
+      "id": "jest-user-visible-behavior",
+      "prompt": "In a React + Jest + Testing Library project, write a unit test for a component <Counter initialCount={5} /> that renders a 'Count: 5' text and increments it to 'Count: 6' when a button with the text 'Increment' is clicked. Assert on what the user sees, not on internal component state. Write the test to a file named Counter.test.tsx.",
+      "expected_output": "A Testing Library test that uses screen.getByText for 'Count: 5' and 'Count: 6' and fireEvent.click on the Increment button, without asserting on component.state.",
+      "assertions": [
+        {
+          "text": "Test file exists and asserts on rendered text, not internal state",
+          "check": {
+            "files_exist": ["Counter.test.tsx"],
+            "file_contains": [{ "path": "Counter.test.tsx", "contains": "getByText" }],
+            "not_matches": ["\\.state\\.count"]
+          }
+        },
+        {
+          "text": "Uses fireEvent or userEvent to click the increment button",
+          "check": { "contains_any": ["fireEvent", "userEvent"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "playwright-flaky-wait",
+      "prompt": "This Playwright E2E test waits for search results after typing into a search box: `await page.fill('input', 'election'); await page.waitForTimeout(600); const results = page.locator('[data-testid=\"market-card\"]'); await expect(results).toHaveCount(5);`. It's flaky in CI under load. What's the problem with page.waitForTimeout(600) here and what should replace it?",
+      "expected_output": "Explains that a fixed timeout doesn't adapt to slower CI load and recommends relying on toHaveCount's built-in retrying/polling assertion instead of a fixed sleep.",
+      "assertions": [
+        {
+          "text": "Identifies the fixed-timeout/flakiness problem",
+          "check": { "contains_any": ["flaky", "flake", "fixed", "hardcoded", "arbitrary"] }
+        },
+        {
+          "text": "Recommends relying on the assertion's own retry/polling instead of waitForTimeout",
+          "check": { "contains_any": ["retry", "retries", "polling", "poll", "auto-wait", "toHaveCount"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "coverage-gate-in-ci",
+      "prompt": "Our team says 'we should have good test coverage' but nobody enforces it, and coverage has quietly dropped over the last few months. How do we turn this into something CI actually enforces, and what's a common gap even when coverage numbers look high?",
+      "expected_output": "Recommends configuring a coverage threshold (e.g. Jest coverageThresholds) that fails the CI build below the target, and notes that high line coverage can still hide untested assertions/behavior.",
+      "assertions": [
+        {
+          "text": "Recommends a coverage threshold enforced in CI",
+          "check": { "contains_any": ["threshold", "coverageThreshold", "fail the build", "CI"] }
+        },
+        {
+          "text": "Notes that coverage percentage alone can be misleading",
+          "check": { "contains_any": ["doesn't mean", "isn't the same", "can still", "not the same as", "doesn't guarantee", "measures what ran"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

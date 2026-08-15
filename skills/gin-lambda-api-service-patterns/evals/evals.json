@@ -1,0 +1,31 @@
+{
+  "skill_name": "gin-lambda-api-service-patterns",
+  "evals": [
+    {
+      "id": "flags-dual-runtime-difference",
+      "prompt": "I added graceful shutdown handling to our Gin service's main.go and tested it locally with `go run .` - it works. Is that enough to confirm it works once deployed to Lambda?",
+      "expected_output": "Flags that the local http.Server path and the Lambda/serverless adapter path are genuinely different code paths, and that graceful shutdown logic tested only locally may not apply or run at all in the deployed serverless path.",
+      "assertions": [
+        {
+          "text": "Flags the local vs serverless path as genuinely different",
+          "check": { "contains_any": ["different code path", "not interchangeable", "serverless path"] }
+        },
+        {
+          "text": "States local testing alone doesn't confirm deployed behavior",
+          "check": { "contains_any": ["not enough", "does not confirm", "may not"] }
+        }
+      ]
+    },
+    {
+      "id": "checks-all-version-sources-before-fixing",
+      "prompt": "Our Go build is failing in CI with a version-related error. go.mod says go 1.24. Should I just update the CI config to use Go 1.24 and call it fixed?",
+      "expected_output": "Recommends checking all places the Go version is declared (go.mod, Dockerfile, CI config, README) before assuming go.mod is the single source of truth, since they can disagree.",
+      "assertions": [
+        {
+          "text": "Recommends checking multiple version sources, not just go.mod",
+          "check": { "contains_any": ["Dockerfile", "README"] }
+        }
+      ]
+    }
+  ]
+}

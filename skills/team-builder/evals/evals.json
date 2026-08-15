@@ -1,0 +1,35 @@
+{
+  "skill_name": "team-builder",
+  "evals": [
+    {
+      "id": "chooses-team-builder-over-single-route-for-launch-review",
+      "prompt": "I want to review my e-commerce site before launch, and I want security, performance, and UX perspectives all weighed in together, not just one. I have persona files for a Security Engineer, a Performance Engineer, and a UX Designer available. Should I route this to a single specialist skill, or use a different approach? Explain.",
+      "expected_output": "Recommends composing a parallel team of the three relevant agent personas and dispatching them simultaneously, rather than routing to a single specialist, since the task explicitly benefits from multiple independent perspectives.",
+      "assertions": [
+        { "text": "Recommends a multi-agent parallel team rather than a single specialist", "check": { "contains_any": ["multiple agents", "team", "parallel", "several perspectives", "more than one"] } },
+        { "text": "Names the three relevant personas or domains", "check": { "contains_any": ["security", "performance", "ux"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "surfaces-conflict-rather-than-silently-resolving",
+      "prompt": "I dispatched a Security Engineer persona and a SEO Specialist persona in parallel against the same task. The Security Engineer recommends a strict Content-Security-Policy that blocks all inline styles. The SEO Specialist recommends inline structured-data markup for search visibility, which a strict CSP would block. How should the synthesized report handle this disagreement?",
+      "expected_output": "Recommends explicitly surfacing the conflict between the two recommendations as a tension for the user to resolve, rather than silently picking one agent's recommendation over the other.",
+      "assertions": [
+        { "text": "Recommends explicitly surfacing the conflict/tension", "check": { "contains_any": ["surface the conflict", "tension", "conflict", "disagreement", "flag this"] } },
+        { "text": "Does not recommend silently picking a side", "check": { "contains_any": ["not silently", "don't just pick", "resolve", "user needs to", "up to the user"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-hardcoded-agent-list-as-wrong",
+      "prompt": "I'm implementing a team-builder-style feature and I'm considering hardcoding the list of available agent personas directly in the skill's instructions, so I don't have to scan a directory every time. Is that a good approach? What's the downside?",
+      "expected_output": "Flags hardcoding the agent list as a design flaw, since new persona files added later would never appear, and recommends dynamic discovery from the actual directory instead.",
+      "assertions": [
+        { "text": "Flags hardcoding as a problem", "check": { "contains_any": ["hardcod", "not a good", "bad idea", "downside", "problem"] } },
+        { "text": "Recommends dynamic discovery instead", "check": { "contains_any": ["dynamic", "scan the directory", "discover", "auto-discover", "discover them"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

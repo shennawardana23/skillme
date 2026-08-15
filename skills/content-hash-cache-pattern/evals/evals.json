@@ -1,0 +1,53 @@
+{
+  "skill_name": "content-hash-cache-pattern",
+  "evals": [
+    {
+      "id": "recommends-content-hash-over-path",
+      "prompt": "I'm building a PDF text-extraction pipeline in Go. I want to cache results so we don't re-run expensive OCR on the same files every run. My first instinct is to use the file path as the cache key, stored in a map[string]Result. Is this a good approach?",
+      "expected_output": "Recommends hashing file content (e.g. SHA-256) instead of using the file path as the cache key, explaining that path-based caching breaks when a file is renamed or moved.",
+      "assertions": [
+        {
+          "text": "Recommends a content hash instead of the file path",
+          "check": { "contains_any": ["SHA-256", "content hash", "hash the file"] }
+        },
+        {
+          "text": "Explains the path-based caching weakness",
+          "check": { "contains_any": ["rename", "moved", "move"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-cache-logic-inside-pure-function",
+      "prompt": "Here's my Go function: func ExtractText(path string, cacheEnabled bool, cacheDir string) (Document, error) — it checks the cache itself before doing extraction. Is this a good design?",
+      "expected_output": "Flags mixing caching logic into the extraction function as a single-responsibility violation and recommends a separate service-layer wrapper that keeps the extraction function pure.",
+      "assertions": [
+        {
+          "text": "Flags the mixed responsibility",
+          "check": { "contains_any": ["single responsibility", "pure function", "separate", "SRP"] }
+        },
+        {
+          "text": "Recommends a wrapper/service layer approach",
+          "check": { "contains_any": ["wrapper", "service layer"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "handles-corrupted-cache-entry",
+      "prompt": "In my Go content-hash cache, what should happen if a cache file on disk exists but its JSON is corrupted or unreadable when I try to load it?",
+      "expected_output": "Recommends treating the corrupted or unreadable cache entry as a cache miss and reprocessing the file, rather than returning an error or crashing.",
+      "assertions": [
+        {
+          "text": "Recommends treating corruption as a cache miss",
+          "check": { "contains_any": ["cache miss", "miss", "reprocess"] }
+        },
+        {
+          "text": "Rules out crashing on corrupted cache data",
+          "check": { "contains_any": ["not crash", "without crashing", "graceful", "shouldn't crash", "don't crash"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

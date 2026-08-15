@@ -1,0 +1,33 @@
+{
+  "skill_name": "idea-refine",
+  "evals": [
+    {
+      "id": "generates-bounded-variations",
+      "prompt": "Using the idea-refine skill's Phase 1 approach, how many idea variations should I generate for a raw idea, and should I generate as many as possible?",
+      "expected_output": "Recommends 5-8 well-considered variations rather than generating 20 or more shallow ones.",
+      "assertions": [
+        { "text": "Gives a bounded range like 5-8", "check": { "matches_any": ["5[- ]?(to|-)?\\s*8"] } },
+        { "text": "Warns against generating too many shallow ideas", "check": { "contains_any": ["20", "shallow"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "requires-not-doing-list",
+      "prompt": "According to the idea-refine skill, what is the most valuable section of the final one-page brief, and why does it matter?",
+      "expected_output": "Identifies the 'Not Doing' list as the most valuable section, because it makes scope trade-offs explicit.",
+      "assertions": [
+        { "text": "Names the Not Doing list", "check": { "contains_any": ["not doing"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "surfaces-assumptions-before-shipping",
+      "prompt": "A user has picked a direction for their idea in an idea-refine session. What must happen before producing the final one-pager, according to the skill's Phase 2?",
+      "expected_output": "Says hidden assumptions must be surfaced explicitly (what's being bet on, what could kill the idea) before moving to the final brief.",
+      "assertions": [
+        { "text": "Mentions surfacing assumptions", "check": { "contains_any": ["assumption", "assumptions"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

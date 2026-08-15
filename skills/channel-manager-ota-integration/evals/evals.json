@@ -1,0 +1,35 @@
+{
+  "skill_name": "channel-manager-ota-integration",
+  "evals": [
+    {
+      "id": "sync-lag-not-automatic-bug",
+      "prompt": "Our monitoring fires an alert every time an OTA's shown availability differs from our PMS's availability, even for a few seconds. Is this the right alerting approach?",
+      "expected_output": "Explains that a brief mismatch during the normal sync window is expected/eventually-consistent, and recommends alerting only when a mismatch persists past the expected sync latency, not on every observed difference.",
+      "assertions": [
+        {
+          "text": "States sync lag/mismatch during the sync window is normal",
+          "check": { "contains_any": ["eventually consistent", "sync window", "normal", "expected"] }
+        },
+        {
+          "text": "Recommends alerting only on persistent mismatch, not every difference",
+          "check": { "contains_any": ["persist", "sustained"] }
+        }
+      ]
+    },
+    {
+      "id": "rejected-push-oversell-risk",
+      "prompt": "Write the logic for pushing an updated room rate to an OTA channel manager. Assume the push can fail.",
+      "expected_output": "Treats a rejected/failed push as requiring retry and alerting on sustained failure, since a silently-dropped push leaves the OTA selling against stale data - not a simple fire-and-forget call.",
+      "assertions": [
+        {
+          "text": "Includes retry or failure handling for the push",
+          "check": { "contains_any": ["retry", "failure", "alert"] }
+        },
+        {
+          "text": "Does not treat the push as fire-and-forget with no error handling",
+          "check": { "not_contains": ["fire-and-forget", "fire and forget"] }
+        }
+      ]
+    }
+  ]
+}

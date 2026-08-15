@@ -1,0 +1,53 @@
+{
+  "skill_name": "frontend-patterns",
+  "evals": [
+    {
+      "id": "flags-lazy-loading-lcp-image",
+      "prompt": "My homepage's largest above-the-fold hero image is the page's Largest Contentful Paint element. I added loading=\"lazy\" to every image on the page including this one, thinking it would improve performance. Was that a good idea for this specific image?",
+      "expected_output": "Explains that lazy-loading the LCP candidate image actively hurts the LCP metric by deferring the load of the exact image that most needs to load first, and recommends removing loading=\"lazy\" from that image.",
+      "assertions": [
+        {
+          "text": "Identifies this as harmful to LCP specifically",
+          "check": { "contains_all": ["LCP"] }
+        },
+        {
+          "text": "Recommends not lazy-loading the LCP image",
+          "check": { "contains_any": ["remove loading", "should not be lazy", "don't lazy-load", "not lazy"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "explains-virtualization-mechanics",
+      "prompt": "I have a scrollable list rendering 8,000 rows and scrolling is janky. Someone suggested 'list virtualization' as the fix. Explain what virtualization actually does to the DOM and why it fixes jank caused by a large row count, in concrete terms rather than just saying 'it optimizes performance.'",
+      "expected_output": "Explains that virtualization renders only the DOM nodes currently visible in the viewport (plus a small overscan buffer) and repositions/recycles that fixed pool as the user scrolls, keeping DOM node count roughly constant regardless of total list length.",
+      "assertions": [
+        {
+          "text": "Explains only visible items are rendered",
+          "check": { "contains_any": ["visible", "viewport"] }
+        },
+        {
+          "text": "Explains DOM node count stays constant/small regardless of list length",
+          "check": { "contains_any": ["constant", "fixed pool", "regardless of", "small number of"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "distinguishes-preload-vs-prefetch",
+      "prompt": "What's the difference between <link rel=\"preload\"> and <link rel=\"prefetch\">, and when would using preload for the wrong resource actually hurt page performance?",
+      "expected_output": "Explains preload fetches a resource at high priority because the current page needs it now, while prefetch fetches at low priority for a likely-future need, and that misusing preload for non-critical resources competes with genuinely critical requests for bandwidth.",
+      "assertions": [
+        {
+          "text": "Explains preload is for current-page-critical resources",
+          "check": { "contains_any": ["current page", "needed now", "critical"] }
+        },
+        {
+          "text": "Explains prefetch is for likely future navigation",
+          "check": { "contains_any": ["future", "next", "likely to navigate"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "skill_name": "observability-and-instrumentation",
+  "evals": [
+    {
+      "id": "flags-cardinality-bomb-label",
+      "prompt": "We're adding a Prometheus metric for our reservations API in Go: a histogram labeled by `route`, `status_class`, and `guest_id`. Is labeling by guest_id safe?",
+      "expected_output": "Flags that guest_id as a metric label creates unbounded cardinality (a cardinality bomb) that can overwhelm the metrics backend, and recommends putting guest-specific identifiers in logs or traces instead of metric labels.",
+      "assertions": [
+        {
+          "text": "Flags the cardinality problem",
+          "check": { "contains_any": ["cardinality"] }
+        },
+        {
+          "text": "Recommends removing guest_id from the metric label and using logs/traces instead",
+          "check": { "contains_any": ["logs", "traces", "trace"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-symptom-based-alert-over-cpu",
+      "prompt": "Our on-call team wants to add a PagerDuty alert that pages a human whenever any server's CPU exceeds 85%, to catch problems early. Is this a good alerting strategy?",
+      "expected_output": "Flags that CPU is a cause-based metric, not a symptom users feel, and recommends alerting on symptom-based signals instead (like error rate or latency), keeping CPU as a dashboard/ticket-level signal rather than a page.",
+      "assertions": [
+        {
+          "text": "Distinguishes cause-based vs symptom-based alerting",
+          "check": { "contains_any": ["symptom", "cause"] }
+        },
+        {
+          "text": "Recommends alerting on user-facing signals like error rate or latency instead",
+          "check": { "contains_any": ["error rate", "latency"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-unstructured-log-interpolation",
+      "prompt": "Review this Go logging call in a payment cancellation handler:\n\nlog.Printf(\"reservation %s cancel failed for hotel %d: %v\", id, hotelID, err)",
+      "expected_output": "Flags that this is unstructured string interpolation which is hard to query, correlate, or alert on, and recommends structured logging with stable field names (e.g. using slog) and a request/correlation ID.",
+      "assertions": [
+        {
+          "text": "Flags the unstructured logging issue",
+          "check": { "contains_any": ["unstructured", "structured"] }
+        },
+        {
+          "text": "Mentions a correlation or request ID",
+          "check": { "contains_any": ["correlation", "request id", "request ID"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

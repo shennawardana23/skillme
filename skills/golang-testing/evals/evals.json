@@ -1,0 +1,53 @@
+{
+  "skill_name": "golang-testing",
+  "evals": [
+    {
+      "id": "benchmem-required-for-alloc-regression",
+      "prompt": "A teammate ran `go test -bench=BenchmarkEncode ./...` (without -benchmem) before and after a change, saw ns/op improve, and concluded the change is a pure win with no downsides. What might this benchmark run be missing, and what flag should be added to check for it?",
+      "expected_output": "Explains that ns/op alone doesn't show allocation counts or bytes allocated per operation, so a change could be faster in time but allocate more (increasing GC pressure), and recommends re-running with -benchmem to see B/op and allocs/op alongside ns/op.",
+      "assertions": [
+        {
+          "text": "Flags that allocation/GC pressure isn't visible from ns/op alone",
+          "check": { "contains_any": ["alloc", "GC pressure", "garbage collect"] }
+        },
+        {
+          "text": "Recommends -benchmem",
+          "check": { "contains_all": ["-benchmem"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "write-fuzz-test-for-parser",
+      "prompt": "Write a Go native fuzz test (using testing.F, Go 1.18+ style) for this function:\n\n```go\nfunc ParseDuration(s string) (time.Duration, error) {\n    return time.ParseDuration(s)\n}\n```\n\nSeed it with at least two real example inputs, and assert a property that should hold for any input that parses successfully (for example, that formatting the parsed duration back and reparsing it produces the same value), rather than a fixed table of expected outputs.",
+      "expected_output": "Defines a FuzzParseDuration(f *testing.F) function, seeds it with f.Add calls using real duration strings like \"1s\" or \"500ms\", and inside f.Fuzz(func(t *testing.T, s string) {...}) asserts a round-trip or consistency property for successfully parsed durations rather than a hardcoded expected value.",
+      "assertions": [
+        {
+          "text": "Defines a Fuzz function with testing.F and seeds it with f.Add",
+          "check": { "contains_all": ["testing.F", "f.Add("] }
+        },
+        {
+          "text": "Uses f.Fuzz with a testing.T callback",
+          "check": { "matches_any": ["f\\.Fuzz\\(func\\(t \\*testing\\.T" ] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "single-run-benchmark-comparison-is-noisy",
+      "prompt": "Someone wants to prove that a refactored function is faster than the original by running each benchmark exactly once and comparing the printed ns/op by eye. Why is this unreliable, and what command-line workflow (tool and flags) should be used instead to get a statistically defensible comparison?",
+      "expected_output": "Explains that a single benchmark run is noisy due to factors like CPU scaling, background load, and GC timing, so a single-run eyeball comparison can show a 'win' that's just noise, and recommends running each version multiple times with go test -bench -count=10 (or similar) piped to files, then comparing them with benchstat to get a statistically meaningful result.",
+      "assertions": [
+        {
+          "text": "Explains single-run comparisons are noisy",
+          "check": { "contains_any": ["noisy", "noise", "variance"] }
+        },
+        {
+          "text": "Recommends benchstat with multiple runs (-count)",
+          "check": { "contains_all": ["benchstat", "-count"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

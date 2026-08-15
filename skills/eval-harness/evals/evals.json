@@ -1,0 +1,57 @@
+{
+  "skill_name": "eval-harness",
+  "evals": [
+    {
+      "id": "defines-capability-and-regression-evals-before-coding",
+      "prompt": "Using the eval-harness skill, define the evals (before any code is written) for a new feature: users can reset their password via an emailed link that expires after 1 hour. Write out the Capability Evals and Regression Evals sections.",
+      "expected_output": "Produces a CAPABILITY EVAL block and a REGRESSION EVAL block with explicit success criteria such as link expiry enforcement and existing login flow being unaffected.",
+      "assertions": [
+        {
+          "text": "Includes a capability eval section",
+          "check": { "contains_any": ["CAPABILITY EVAL", "Capability Evals"] }
+        },
+        {
+          "text": "Includes a regression eval section",
+          "check": { "contains_any": ["REGRESSION EVAL", "Regression Evals"] }
+        },
+        {
+          "text": "Covers the 1-hour expiry as a criterion",
+          "check": { "contains_any": ["expire", "1 hour", "expiry"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-code-grader-over-model-grader",
+      "prompt": "Using the eval-harness grader-type guidance, which grader type should be used to check whether a new Go function returns a specific error type on invalid input, and why is it preferred over a model grader for this criterion?",
+      "expected_output": "Recommends a code grader (deterministic test/assertion) over a model grader because the criterion is mechanically checkable, citing the preference order of code grader over model grader over human grader.",
+      "assertions": [
+        {
+          "text": "Recommends a code grader",
+          "check": { "contains_any": ["code grader", "deterministic"] }
+        },
+        {
+          "text": "Explains why it's preferred for this mechanically-checkable criterion",
+          "check": { "contains_any": ["mechanically checkable", "deterministic beats", "prefer"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-non-independent-trials-for-pass-k",
+      "prompt": "Using the eval-harness skill's gotchas about pass^k, a teammate reports \"pass^3 = 100%\" for a critical eval, but all three runs reused the same warm test-database snapshot and the same memoized model response cache. Is this a trustworthy pass^3 result? Why or why not?",
+      "expected_output": "Flags the result as untrustworthy because the three trials were not independent (shared warm cache and memoized response), so the reported reliability is unmeasured rather than confirmed.",
+      "assertions": [
+        {
+          "text": "Flags the result as not trustworthy/independent",
+          "check": { "contains_any": ["not independent", "not trustworthy", "unreliable", "invalid"] }
+        },
+        {
+          "text": "Identifies the shared cache/state as the problem",
+          "check": { "contains_any": ["cache", "shared state", "warm", "memoized"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "skillme",
+  "owner": {
+    "name": "shennawardana23"
+  },
+  "description": "A testable knowledge base of real engineering practice for Go, PHP, PostgreSQL/MySQL, Vue/Nuxt, and beyond, checked automatically with this repository's own eval runner (smeval).",
+  "plugins": [
+    {
+      "name": "skillme",
+      "source": "./",
+      "description": "A testable knowledge base of real engineering practice, spanning Go, PHP, PostgreSQL/MySQL, Vue/Nuxt, hotel-domain modeling, QA, product management, and agentic engineering — each entry checked automatically with smeval, this repository's own eval runner.",
+      "category": "engineering",
+      "keywords": ["go", "php", "postgresql", "mysql", "vue", "nuxt", "smeval", "eval"]
+    }
+  ]
+}

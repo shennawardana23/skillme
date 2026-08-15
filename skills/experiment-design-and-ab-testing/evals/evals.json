@@ -1,0 +1,69 @@
+{
+  "skill_name": "experiment-design-and-ab-testing",
+  "evals": [
+    {
+      "id": "flags-peeking-problem-early-stop",
+      "prompt": "We launched an A/B test on our new booking confirmation page two days ago. It was sized for two weeks of traffic to hit 80% power, but this morning the dashboard shows the variant crossed p<0.05 over the control. The team wants to call it a win and ship the variant today to move faster. Should we stop the test now and ship?",
+      "expected_output": "Recommends against stopping early, explains that repeatedly checking and stopping as soon as p<0.05 is hit (the peeking/optional stopping problem) inflates the false-positive rate well above the nominal 5%, and recommends running to the pre-registered sample size/duration instead.",
+      "assertions": [
+        {
+          "text": "Recommends not stopping the test early",
+          "check": { "contains_any": ["don't stop", "do not stop", "should not stop", "keep running", "continue running"] }
+        },
+        {
+          "text": "Names the peeking / optional stopping problem",
+          "check": { "contains_any": ["peeking", "optional stopping"] }
+        },
+        {
+          "text": "Explains the false-positive rate inflation consequence",
+          "check": { "contains_any": ["false positive", "false-positive"] }
+        },
+        {
+          "text": "References the pre-registered sample size or planned duration",
+          "check": { "contains_any": ["pre-registered", "planned duration", "pre-planned", "originally sized", "two weeks"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "guardrail-metric-regression",
+      "prompt": "Our A/B test on a redesigned hotel checkout flow just finished. The variant increased checkout conversion rate by 4% (statistically significant, matched our pre-registered sample size and duration). However, we also tracked page load time as a guardrail metric, and the variant's median load time is 900ms slower than control on mobile. Product wants to ship immediately based on the conversion win. What should we do?",
+      "expected_output": "Explains that a guardrail metric regression means the primary metric win may be coming at the expense of another important dimension, recommends not shipping automatically just because the primary metric won, and calls for an explicit tradeoff discussion or investigation into the load time regression before shipping.",
+      "assertions": [
+        {
+          "text": "Identifies the load time increase as a guardrail metric regression",
+          "check": { "contains_any": ["guardrail"] }
+        },
+        {
+          "text": "Advises against shipping purely on the primary metric win",
+          "check": { "contains_any": ["not ship", "shouldn't ship", "should not ship", "don't ship", "before shipping", "investigate"] }
+        },
+        {
+          "text": "Calls for weighing the tradeoff rather than an automatic decision",
+          "check": { "contains_any": ["tradeoff", "trade-off", "root cause"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "novelty-effect-early-spike",
+      "prompt": "We're running a 4-week A/B test on a new onboarding flow. In week 1, the variant showed a 15% lift in activation rate over control. By week 3, the lift has shrunk to 2% and is no longer statistically significant. A stakeholder is confused and wants to know which number is 'the real result' so they can report it to leadership this week.",
+      "expected_output": "Explains this pattern is consistent with the novelty effect (early spike from the change being new, decaying as novelty wears off), recommends trusting the later, more stable weeks over the early spike, and recommends letting the test run its full planned duration before reporting a final number.",
+      "assertions": [
+        {
+          "text": "Names the novelty effect",
+          "check": { "contains_any": ["novelty"] }
+        },
+        {
+          "text": "Recommends trusting later/stable weeks over the early spike",
+          "check": { "contains_any": ["later week", "week 3", "stabilize", "stabilized", "more reliable", "trust the later"] }
+        },
+        {
+          "text": "Recommends letting the test run its full planned duration before reporting",
+          "check": { "contains_any": ["full duration", "let it run", "complete the test", "finish the test", "planned duration", "week 4", "run to completion", "remaining week", "finish the week"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

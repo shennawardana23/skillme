@@ -1,0 +1,53 @@
+{
+  "skill_name": "idempotency-and-retry-safety",
+  "evals": [
+    {
+      "id": "flags-decrement-retry-bug",
+      "prompt": "Our booking API has an endpoint that runs `UPDATE room_inventory SET rooms_available = rooms_available - 1 WHERE room_type_id = $1`. A client's HTTP request times out after this succeeds server-side, so the client's retry logic automatically resends the exact same POST request. What happens, and how should we fix the design?",
+      "expected_output": "Explains that a relative decrement is not naturally idempotent, so the retry double-decrements inventory, and recommends either a client-supplied idempotency key checked before applying the effect, or a unique-constraint-backed hold record checked atomically before decrementing.",
+      "assertions": [
+        {
+          "text": "Identifies the double-decrement problem from the retry",
+          "check": { "contains_any": ["double", "twice", "decremented twice", "decrements it twice"] }
+        },
+        {
+          "text": "Recommends an idempotency key or unique constraint-based fix",
+          "check": { "contains_any": ["idempotency key", "unique constraint", "idempotent"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-inconsistent-replay-response",
+      "prompt": "We implemented idempotency keys for our POST /reservations endpoint. On the first request we return 201 Created with the reservation body. On a retried request with the same idempotency key, our code currently just returns 200 OK with an empty body, since 'the reservation already exists so there's nothing more to do.' Is this correct behavior?",
+      "expected_output": "Flags this as incorrect since a retry should replay the exact original response (same status code and body), not a different status/body, because clients branching on status code would behave inconsistently between the first attempt and the retry.",
+      "assertions": [
+        {
+          "text": "Flags returning a different status/body on retry as wrong",
+          "check": { "contains_any": ["same response", "same status", "original response", "replay"] }
+        },
+        {
+          "text": "Recommends storing and replaying the exact original response",
+          "check": { "contains_any": ["store the", "stored response", "replay the original"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "webhook-dedup-by-event-id",
+      "prompt": "We consume webhooks from a payment provider that explicitly documents at-least-once delivery, meaning the same event can be delivered more than once. Our current handler processes every webhook payload it receives without checking for duplicates. What's the risk, and how should we fix it?",
+      "expected_output": "Flags the risk of double-processing a duplicate webhook delivery (e.g., double-crediting a payment) and recommends deduping on the event's own unique ID rather than assuming single delivery.",
+      "assertions": [
+        {
+          "text": "Flags the duplicate-processing risk from at-least-once delivery",
+          "check": { "contains_any": ["duplicate", "at-least-once", "processed twice", "double-process"] }
+        },
+        {
+          "text": "Recommends deduping on the event's unique ID",
+          "check": { "contains_any": ["event id", "event's id", "unique id", "dedupe"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

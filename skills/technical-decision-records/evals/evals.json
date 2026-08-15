@@ -1,0 +1,61 @@
+{
+  "skill_name": "technical-decision-records",
+  "evals": [
+    {
+      "id": "writes-nygard-format-adr",
+      "prompt": "We decided to partition our reservations PostgreSQL table by hotel_id instead of by date range, because most queries filter by a single hotel and this keeps hotel-scoped queries fast without cross-partition scans, at the cost of making cross-hotel reporting queries more expensive. Write an ADR for this decision.",
+      "expected_output": "Produces an ADR following the Context/Decision/Consequences structure with a Status field, stating the decision actively ('We will partition by hotel_id'), and including the honest downside (cross-hotel reporting queries become more expensive) in Consequences rather than only listing benefits.",
+      "assertions": [
+        {
+          "text": "Includes a Status section",
+          "check": { "contains_any": ["## Status", "Status:"] }
+        },
+        {
+          "text": "Includes a Context section and a Decision section",
+          "check": { "contains_all": ["Context", "Decision"] }
+        },
+        {
+          "text": "Includes Consequences with the honest downside about cross-hotel reporting",
+          "check": { "contains_any": ["Consequences"] }
+        },
+        {
+          "text": "States the actual downside about cross-hotel reporting cost, not just benefits",
+          "check": { "contains_any": ["cross-hotel", "reporting quer", "more expensive"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-editing-accepted-adr",
+      "prompt": "We have an Accepted ADR from a year ago that says we chose MySQL for a new service. We've since migrated that service to PostgreSQL. Someone suggests just editing the old ADR's Decision section to say PostgreSQL instead, so it matches current reality. Is that the right move?",
+      "expected_output": "Recommends against editing the old ADR's Decision in place, and instead recommends writing a new ADR that supersedes the old one, marking the old one's status as Superseded and linking to the new ADR, to preserve the historical record of what was actually decided at the time.",
+      "assertions": [
+        {
+          "text": "Recommends against editing the old ADR's decision content directly",
+          "check": { "contains_any": ["should not edit", "don't edit", "avoid editing", "not edit the old"] }
+        },
+        {
+          "text": "Recommends creating a new ADR that supersedes the old one",
+          "check": { "contains_any": ["supersede", "new adr"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "distinguishes-adr-from-design-doc",
+      "prompt": "A teammate wants to write a 10-page ADR exploring five different possible database options with pros/cons for each, before any decision has been made yet, calling it 'ADR-0007: Database Options.' Is this the right use of an ADR?",
+      "expected_output": "Explains this is better suited to a design doc since no decision has been made yet, and that an ADR should record the decision that results from that exploration concisely, rather than being the exploration itself.",
+      "assertions": [
+        {
+          "text": "Distinguishes this from proper ADR use, pointing to a design doc instead",
+          "check": { "contains_any": ["design doc", "not an adr", "not what an adr", "isn't an adr"] }
+        },
+        {
+          "text": "Notes an ADR should record a decision already made, concisely",
+          "check": { "contains_any": ["decision that was made", "already made", "concise", "briefly"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

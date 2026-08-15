@@ -1,0 +1,33 @@
+{
+  "skill_name": "deep-research",
+  "evals": [
+    {
+      "id": "decomposes-into-subquestions",
+      "prompt": "Using the deep-research workflow, what should happen before I start searching the web for 'the current state of quantum computing'?",
+      "expected_output": "Says to break the topic into 3-5 research sub-questions before searching, rather than searching the broad topic directly.",
+      "assertions": [
+        { "text": "Mentions breaking into sub-questions", "check": { "contains_any": ["sub-question", "sub question"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-single-source-claim",
+      "prompt": "While researching a topic I found one blog post claiming a surprising statistic, and no other source mentions it. Per the deep-research quality rules, how should I handle this in the final report?",
+      "expected_output": "Says to flag the claim as unverified or single-sourced rather than presenting it as an established fact.",
+      "assertions": [
+        { "text": "Flags it as unverified or single-sourced", "check": { "contains_any": ["unverified", "single source", "single-sourced", "flag"] } }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "report-includes-sources-section",
+      "prompt": "What sections must a deep-research report include, according to the deep-research skill's report template?",
+      "expected_output": "Lists sections including an executive summary, themed findings sections with citations, key takeaways, a sources list, and methodology.",
+      "assertions": [
+        { "text": "Mentions executive summary", "check": { "contains_any": ["executive summary"] } },
+        { "text": "Mentions a sources section", "check": { "contains_any": ["sources"] } }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "skill_name": "scaffold",
+  "evals": [
+    {
+      "id": "mandatory-files-go-service",
+      "prompt": "I'm starting a brand-new Go microservice called 'billing' from an empty directory, using PostgreSQL. Per the scaffold skill, list the mandatory files/directories that must exist in the generated scaffold before it's considered complete.",
+      "expected_output": "Lists the entry point (cmd/billing/main.go), a config file, a Makefile, a README, a .env.example, and go.mod as mandatory.",
+      "assertions": [
+        {
+          "text": "Mentions the entry point under cmd/",
+          "check": { "contains_any": ["cmd/billing/main.go", "cmd/billing", "main.go"] }
+        },
+        {
+          "text": "Mentions Makefile, README, and .env.example",
+          "check": { "contains_all": ["Makefile", "README", ".env.example"] }
+        },
+        {
+          "text": "Mentions go.mod",
+          "check": { "contains_all": ["go.mod"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "graceful-shutdown-required",
+      "prompt": "In a scaffolded Go service's cmd/app/main.go, why does the scaffold skill require handling SIGINT and SIGTERM instead of letting the process exit immediately on those signals? What should happen when the signal is received?",
+      "expected_output": "Explains the entry point should catch SIGINT/SIGTERM and shut down gracefully, draining in-flight requests, rather than exiting immediately.",
+      "assertions": [
+        {
+          "text": "Names both signals",
+          "check": { "contains_all": ["SIGINT", "SIGTERM"] }
+        },
+        {
+          "text": "Describes graceful shutdown / draining in-flight work rather than immediate exit",
+          "check": { "contains_any": ["graceful", "drain", "in-flight", "finish", "complete pending"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "no-global-state-di",
+      "prompt": "A generated Go scaffold has a package-level 'var db *sql.DB' that every handler file reaches into directly. Does this follow the scaffold skill's guidance on dependency injection, and what's wrong with this pattern?",
+      "expected_output": "States this violates the dependency-injection guidance -- dependencies should be passed in via constructors, not accessed as global state -- and explains it makes handlers hard to test in isolation.",
+      "assertions": [
+        {
+          "text": "Identifies the global variable pattern as a problem",
+          "check": { "contains_any": ["global state", "global variable", "package-level", "anti-pattern"] }
+        },
+        {
+          "text": "Recommends dependency injection via constructor instead",
+          "check": { "contains_any": ["dependency injection", "constructor", "inject", "pass it in", "pass in"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

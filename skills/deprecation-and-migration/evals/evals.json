@@ -1,0 +1,53 @@
+{
+  "skill_name": "deprecation-and-migration",
+  "evals": [
+    {
+      "id": "recommends-deprecated-comment-and-tracking",
+      "prompt": "We're replacing a Go function `LegacyCharge` with a new `Charge` function, but 40 call sites across the codebase still use LegacyCharge. It works fine and isn't a security risk. How should we mark it deprecated, and should we force an immediate rewrite of all 40 call sites?",
+      "expected_output": "Recommends an advisory deprecation using the standard `// Deprecated:` Go doc comment convention with a tracking reference, migrating call sites incrementally rather than forcing an immediate rewrite since it's not a security or maintenance emergency.",
+      "assertions": [
+        {
+          "text": "Recommends the Deprecated doc comment convention",
+          "check": { "contains_all": ["Deprecated:"] }
+        },
+        {
+          "text": "Recommends advisory/incremental migration, not forcing an immediate rewrite",
+          "check": { "contains_any": ["advisory", "incremental", "gradually", "own timeline", "own schedule"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-deletion-without-usage-verification",
+      "prompt": "We think all consumers of our old `NotificationServiceV1` have migrated to V2, based on the team's recollection from standup discussions. We're planning to delete V1 today. Is this sufficient verification before deletion?",
+      "expected_output": "Flags that team memory is not sufficient verification, and recommends confirming zero active usage via actual metrics, logs, or a dependency/import graph scan before deleting the code.",
+      "assertions": [
+        {
+          "text": "Flags that memory/recollection is not sufficient",
+          "check": { "contains_any": ["not sufficient", "not enough", "memory", "recollection", "assume"] }
+        },
+        {
+          "text": "Recommends verifying via metrics/logs/usage data",
+          "check": { "contains_any": ["metrics", "logs", "usage data", "dependency"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-compulsory-deprecation-without-tooling",
+      "prompt": "We announced that our internal SearchAPI v1 will be shut down in 30 days due to a security vulnerability, and sent an email to consuming teams telling them to migrate to v2 themselves. Is this a sufficient deprecation plan?",
+      "expected_output": "Flags that compulsory deprecation requires providing migration tooling and documentation, not just an announcement, and that the owning team is responsible for helping migrate consumers (the Churn Rule), not just leaving it to them.",
+      "assertions": [
+        {
+          "text": "Flags that an announcement alone is insufficient",
+          "check": { "contains_any": ["not sufficient", "not enough", "insufficient"] }
+        },
+        {
+          "text": "Mentions providing migration tooling/support or owning the migration",
+          "check": { "contains_any": ["migration tooling", "migration guide", "responsible for migrating", "Churn Rule"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

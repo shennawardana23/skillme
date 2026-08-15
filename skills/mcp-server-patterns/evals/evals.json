@@ -1,0 +1,53 @@
+{
+  "skill_name": "mcp-server-patterns",
+  "evals": [
+    {
+      "id": "flags-stdout-logging-in-stdio-server",
+      "prompt": "Our Go MCP server uses stdio transport, and a teammate added `fmt.Println(\"handling search request\")` for debugging inside a tool handler. Is this safe, and if not, what should they use instead?",
+      "expected_output": "Flags that writing to stdout corrupts the MCP JSON-RPC protocol stream over stdio transport, and recommends logging to stderr instead.",
+      "assertions": [
+        {
+          "text": "Flags that stdout is reserved for the protocol / corrupts it",
+          "check": { "contains_any": ["corrupt", "stdout"] }
+        },
+        {
+          "text": "Recommends logging to stderr",
+          "check": { "contains_all": ["stderr"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "distinguishes-tool-vs-resource-for-side-effect",
+      "prompt": "We're building an MCP server feature that, when fetched, sends an email notification and then returns some data. Should this be modeled as an MCP resource or an MCP tool?",
+      "expected_output": "Recommends modeling it as a tool, not a resource, because resources should be read-only/side-effect-free and this action has a side effect (sending an email).",
+      "assertions": [
+        {
+          "text": "Recommends using a tool rather than a resource",
+          "check": { "contains_any": ["tool, not", "should be a tool", "use a tool"] }
+        },
+        {
+          "text": "Explains resources must be side-effect-free / read-only",
+          "check": { "contains_any": ["side effect", "read-only", "read only"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-idempotency-for-mutating-tool",
+      "prompt": "We're adding a `create_reservation` MCP tool that inserts a new reservation row. A model might retry the tool call after a network timeout without knowing if the first call succeeded. What should we design into the tool to handle this safely?",
+      "expected_output": "Recommends making the tool idempotent, such as accepting a client-supplied idempotency key or using an upsert, so a retried call doesn't create a duplicate reservation.",
+      "assertions": [
+        {
+          "text": "Recommends idempotency",
+          "check": { "contains_all": ["idempoten"] }
+        },
+        {
+          "text": "Suggests a concrete mechanism (idempotency key or upsert)",
+          "check": { "contains_any": ["idempotency key", "upsert"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

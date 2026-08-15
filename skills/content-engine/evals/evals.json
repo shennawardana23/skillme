@@ -1,0 +1,53 @@
+{
+  "skill_name": "content-engine",
+  "evals": [
+    {
+      "id": "flags-identical-cross-posting",
+      "prompt": "I wrote one 280-character post about our product launch and I'm planning to post the exact same text on X, LinkedIn, and as a TikTok video caption. Is that a good idea?",
+      "expected_output": "Flags posting identical copy across all three platforms as a mistake and recommends adapting the hook, length, and structure per platform instead.",
+      "assertions": [
+        {
+          "text": "Flags cross-posting identical copy as a problem",
+          "check": { "contains_any": ["cross-post", "same copy", "identical"] }
+        },
+        {
+          "text": "Recommends platform-native adaptation instead",
+          "check": { "contains_any": ["adapt", "native", "platform-specific"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-repurposing-cascade",
+      "prompt": "I just published a 2000-word blog post about how we reduced our API's p95 latency from 800ms to 120ms. I want to turn this into content for X, LinkedIn, and a newsletter. Walk me through how to approach this.",
+      "expected_output": "Recommends extracting a handful of atomic ideas from the source article and writing distinct platform-native variants for each platform rather than simply cutting the article down.",
+      "assertions": [
+        {
+          "text": "Mentions extracting atomic ideas from the source",
+          "check": { "contains_any": ["atomic idea", "extract"] }
+        },
+        {
+          "text": "Treats each platform as needing its own variant",
+          "check": { "contains_all": ["LinkedIn"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "critiques-weak-hook",
+      "prompt": "Here's the opening line of a LinkedIn post I'm about to publish: \"Today we're excited to announce our new feature.\" Is this a strong opening line? What would you change?",
+      "expected_output": "Identifies the opening as a generic, low-attention hook and recommends replacing it with something specific and attention-earning rather than a standard announcement phrase.",
+      "assertions": [
+        {
+          "text": "Flags the opening as weak or generic",
+          "check": { "contains_any": ["generic", "weak", "hook"] }
+        },
+        {
+          "text": "Recommends a more specific or concrete opening",
+          "check": { "contains_any": ["specific", "concrete", "rewrite", "instead"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}
