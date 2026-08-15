@@ -65,9 +65,11 @@ installing both leaves you with every skill twice.
 ### Claude Code plugin (managed bundle)
 
 ```bash
-# Register this repo as its own marketplace, then install by name —
-# a later `git pull` + reinstall picks up new/changed skills without
-# re-pointing anything:
+# Straight from GitHub — no clone needed:
+claude plugin marketplace add shennawardana23/skillme
+claude plugin install skillme@skillme
+
+# Already have it cloned locally? Point at the path instead:
 claude plugin marketplace add /path/to/skillme
 claude plugin install skillme@skillme
 
@@ -78,7 +80,8 @@ claude --plugin-dir /path/to/skillme
 `skillme` isn't (yet) in Anthropic's official plugin marketplace, so
 `claude plugin install skillme` on its own won't resolve it — `marketplace
 add` above is what registers this repo's own `.claude-plugin/marketplace.json`
-(`source: "./"`) so `install` has something to find.
+(`source: "./"`) so `install` has something to find. To pick up later
+changes: `claude plugin update skillme` (restart the session to apply).
 
 ### Any agent, as editable files (via skills.sh)
 
