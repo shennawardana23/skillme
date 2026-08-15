@@ -122,6 +122,15 @@ func attempt(ctx context.Context, opts Options, model string) (*Result, error) {
 		"--output-format", "json",
 		"--permission-mode", opts.PermissionMode,
 		"--model", model,
+		// Exclude "user" (the tester's own global ~/.claude/CLAUDE.md and
+		// settings) so a case only ever reflects the skill under test (or,
+		// for a without_skill baseline, the total absence of one) — not
+		// whatever the machine running the eval happens to have configured
+		// globally. Without this, a benchmark run on a machine whose global
+		// CLAUDE.md already documents the same fact a skill teaches shows a
+		// false "no difference" result, because both conditions silently
+		// inherit that fact from outside the harness.
+		"--setting-sources", "project,local",
 	}
 	if opts.FallbackModel != "" && opts.FallbackModel != model {
 		args = append(args, "--fallback-model", opts.FallbackModel)

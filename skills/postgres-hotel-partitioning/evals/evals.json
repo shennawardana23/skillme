@@ -40,16 +40,27 @@
     },
     {
       "id": "partition-migration",
-      "prompt": "Write the PostgreSQL DDL to create a new `stays` table partitioned by hotel_id, with example child partitions for hotel_id 101 and 102.",
-      "expected_output": "PARTITION BY LIST (hotel_id) on the parent, with PARTITION OF ... FOR VALUES IN child partitions.",
+      "prompt": "Write the PostgreSQL DDL to create a new `stays` table partitioned by hotel_id, with example child partitions for hotel_id 101 and 102. Write it to a file named stays_partitioned.sql in the workspace.",
+      "expected_output": "stays_partitioned.sql declares PARTITION BY LIST (hotel_id) on the parent, with PARTITION OF ... FOR VALUES IN child partitions.",
       "assertions": [
         {
           "text": "Declares the parent with PARTITION BY LIST (hotel_id)",
-          "check": { "contains_all": ["PARTITION BY LIST", "hotel_id"] }
+          "check": {
+            "files_exist": ["stays_partitioned.sql"],
+            "file_contains": [
+              { "path": "stays_partitioned.sql", "contains": "PARTITION BY LIST" },
+              { "path": "stays_partitioned.sql", "contains": "hotel_id" }
+            ]
+          }
         },
         {
           "text": "Creates child partitions with PARTITION OF ... FOR VALUES IN",
-          "check": { "contains_all": ["PARTITION OF", "FOR VALUES IN"] }
+          "check": {
+            "file_contains": [
+              { "path": "stays_partitioned.sql", "contains": "PARTITION OF" },
+              { "path": "stays_partitioned.sql", "contains": "FOR VALUES IN" }
+            ]
+          }
         }
       ]
     }
