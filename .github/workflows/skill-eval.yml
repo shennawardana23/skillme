@@ -58,7 +58,14 @@ jobs:
               done | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "skills=$skills_json" >> "$GITHUB_OUTPUT"
 
-  eval:
+  # Schema/spec validation only — no model calls, no API key needed.
+  # This intentionally does NOT run `smeval run` (which calls a live model):
+  # at catalog scale, re-running every skill's live eval on every push would
+  # mean real API cost and ~30+ minutes of matrix time for a one-line change
+  # to a single skill. `smeval run` stays a local/manual step — see the
+  # Contributing section in README.md — required before opening a PR, not
+  # a CI gate.
+  validate:
     needs: [test, discover]
     if: needs.discover.outputs.skills != '[]'
     runs-on: ubuntu-latest
@@ -66,17 +73,12 @@ jobs:
       fail-fast: false
       matrix:
         skill: ${{ fromJson(needs.discover.outputs.skills) }}
-    env:
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: go.mod
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-
-      - name: Install claude CLI
-        run: npm install -g @anthropic-ai/claude-code@2.1.233
 
       - name: Build smeval
         run: go build -o smeval ./cmd/smeval
@@ -86,14 +88,3 @@ jobs:
 
       - name: Validate ${{ matrix.skill }}
         run: ./smeval validate "skills/${{ matrix.skill }}"
-
-      - name: Evaluate ${{ matrix.skill }}
-        run: ./smeval run "skills/${{ matrix.skill }}" -output-dir "smeval-workspace/${{ matrix.skill }}"
-
-      - name: Upload report
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: smeval-report-${{ matrix.skill }}
-          path: smeval-workspace/${{ matrix.skill }}/**
-          if-no-files-found: ignore

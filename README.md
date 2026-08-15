@@ -154,12 +154,20 @@ Before opening a PR:
 1. `go build ./... && go vet ./... && gofmt -l .`
 2. `uvx --from skills-ref agentskills validate skills/<name>` and
    `smeval validate skills/<name>` for anything you added or changed
-3. `smeval run skills/<name>` — a passing schema is not the same as a
-   working skill; run it against a real model before opening the PR
+3. `smeval run skills/<name>` — **do this yourself, it's not a CI gate.**
+   A passing schema is not the same as a working skill; CI only checks
+   spec compliance and schema (no API key, no live model calls, on
+   purpose — see below). Actually running the eval against a real model
+   is the step that catches real bugs, and it's on you to do it before
+   opening the PR.
 
 CI (`.github/workflows/skill-eval.yml`) discovers any skill directory
 under `skills/` that contains an `evals/evals.json` automatically — no
-workflow edits are needed to pick up a new skill.
+workflow edits are needed to pick up a new skill. It deliberately stops at
+`agentskills validate` + `smeval validate` (schema/spec only): re-running
+every skill's live eval on every push would mean real API cost and
+significant runtime at catalog scale for even a one-line change to a
+single skill.
 
 ## License
 
