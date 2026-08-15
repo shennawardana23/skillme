@@ -131,7 +131,9 @@ errors after editing `evals.json`, nothing more. `smeval run` is the one
 that actually proves a skill works: it executes each case against the
 local `claude` CLI (headless, `--output-format json`) and grades the real
 output. Results land in `<skill-dir>-workspace/iteration-N/`, including a
-styled `report.html`.
+styled `report.html`. See [`TESTING.md`](TESTING.md) for how to read a
+failure's evidence, iterate on a single case, and interpret a
+`-benchmark` comparison.
 
 ### Provider/model fallback
 
