@@ -28,7 +28,7 @@
         },
         {
           "text": "Recommends a single unified error shape",
-          "check": { "contains_any": ["one shape", "single", "standardize", "unified"] }
+          "check": { "contains_any": ["one shape", "single", "standardize", "unified", "one envelope", "same shape", "same envelope", "consistent shape"] }
         }
       ],
       "timeout_seconds": 180

@@ -46,14 +46,14 @@ against that case's assertions.
 
 Console output while it runs:
 
-```
+```text
 ⏳ safe-query-write: Binds hotel_id as an actual query parameter alongside status, not just...
    ✅ PASS safe-query-write: 3/3 assertions
 ```
 
 or on failure:
 
-```
+```text
    ❌ FAIL safe-query-write: 2/3 assertions
 ```
 
@@ -121,6 +121,32 @@ output varies run to run — a case that shows 3/3 without the skill once
 and 2/3 the next run is ordinary variance, not a regression to chase.
 Look for a consistent pattern across a couple of runs before concluding
 anything from a single number.
+
+## Testing every skill in the catalog
+
+```bash
+scripts/test-all-skills.sh              # test every skill, resuming from prior results
+scripts/test-all-skills.sh -fresh       # discard prior results, test everything again
+scripts/test-all-skills.sh -only=<name> # just one skill
+```
+
+This is slow and makes real API calls — one skill at a time, real model
+calls per case, at catalog scale that's real time and real cost. It's
+resumable: results accumulate in
+`smeval-workspace/test-all-results/summary.txt`, and a skill already
+recorded there is skipped on the next invocation, so an interrupted run
+just needs to be re-invoked, not restarted from scratch. The script prints
+a "Needs attention" list of every skill that errored or partially failed
+when it finishes (or is interrupted and re-run to completion).
+
+An `ERROR` result (as opposed to a partial pass) means the engine itself
+failed — a timeout, a non-zero exit, unparseable output — not that an
+assertion failed. Check
+`skills/<name>-workspace/iteration-N/<case-id>/with_skill/outputs/engine-error.txt`
+for the reason before assuming anything about the skill's content; a
+timeout on a case with an unusually long, thorough response may just need
+a longer `timeout_seconds` in that case's `evals.json` entry, not a
+content fix.
 
 ## Provider/model fallback
 
