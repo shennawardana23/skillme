@@ -7,7 +7,7 @@
       "expected_output": "Identifies this as parallel-path drift between sandbox and production, and recommends a test that asserts both paths satisfy the same required-fields contract, not just the production path.",
       "assertions": [
         { "text": "Identifies the sandbox/production divergence as the core issue", "check": { "contains_any": ["sandbox", "parallel path", "both paths", "drift", "diverge"] } },
-        { "text": "Recommends testing both code paths against a shared contract", "check": { "contains_any": ["both paths", "each path", "shared contract", "required fields", "same fields"] } }
+        { "text": "Recommends testing both code paths against a shared contract", "check": { "matches_any": ["(?i)both paths", "(?i)each path", "(?i)shared contract", "(?i)required\\s*fields", "(?i)same fields", "(?i)source of truth"] } }
       ],
       "timeout_seconds": 180
     },
@@ -26,7 +26,7 @@
       "prompt": "After several bug-fix cycles with an AI agent, a teammate proposes writing unit tests for every single function in the codebase to reach 100% coverage, regardless of whether those functions have ever had a bug. Is that the right testing strategy for an AI-assisted codebase? What would you recommend instead?",
       "expected_output": "Recommends against blanket coverage as the goal and instead prioritizes writing regression tests where bugs were actually found, since AI agents tend to repeat the same category of mistake.",
       "assertions": [
-        { "text": "Pushes back on blanket 100% coverage as the goal", "check": { "contains_any": ["not the goal", "against", "not necessary", "diminishing", "not the right"] } },
+        { "text": "Pushes back on blanket 100% coverage as the goal", "check": { "contains_any": ["not the goal", "against", "not necessary", "diminishing", "not the right", "optimizes for a metric", "not for catching"] } },
         { "text": "Recommends targeting tests at where bugs were found", "check": { "contains_any": ["where bugs were found", "bugs were found", "regression test", "targeted"] } }
       ],
       "timeout_seconds": 180

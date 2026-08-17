@@ -44,7 +44,7 @@
       "assertions": [
         {
           "text": "Recommends separating the two changes",
-          "check": { "contains_any": ["separate change", "separate PR", "separate commit", "split"] }
+          "check": { "matches_any": ["(?i)separate.{0,25}change", "(?i)separate PR", "(?i)separate commit", "(?i)split"] }
         },
         {
           "text": "Warns against unscoped drive-by refactoring",

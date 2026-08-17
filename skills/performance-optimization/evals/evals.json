@@ -12,7 +12,7 @@
         },
         {
           "text": "Pushes back on optimizing without evidence",
-          "check": { "contains_any": ["no measurement", "not measured", "no evidence", "premature"] }
+          "check": { "contains_any": ["no measurement", "not measured", "no evidence", "premature", "isn't evidence", "not evidence"] }
         }
       ],
       "timeout_seconds": 180

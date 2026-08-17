@@ -40,11 +40,11 @@
         },
         {
           "text": "Explains DoD applies to every item as a team-wide bar, not just this one story",
-          "check": { "contains_any": ["every story", "every item", "every backlog item", "applies to all", "team-wide", "regardless of the story"] }
+          "check": { "matches_any": ["(?i)every story", "(?i)every\\*{0,2}\\s*(backlog )?item", "(?i)applies to all", "(?i)team-wide", "(?i)regardless of the story", "(?i)uniformly"] }
         },
         {
           "text": "Explains acceptance criteria are specific to a single story, tying the term to the story-specific scope rather than just naming it",
-          "check": { "matches_any": ["(?i)acceptance criteria[^.\\n]{0,60}(one|a single|this|specific|particular) story", "(?i)(one|a single|this|specific|particular) story[^.\\n]{0,60}acceptance criteria"] }
+          "check": { "matches_any": ["(?i)acceptance criteria[^.\\n]{0,60}(one|a single|this|specific|particular)\\*{0,2}\\s*story", "(?i)(one|a single|this|specific|particular)\\*{0,2}\\s*story[^.\\n]{0,60}acceptance criteria", "(?i)per story"] }
         }
       ],
       "timeout_seconds": 180

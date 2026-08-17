@@ -8,7 +8,7 @@
       "assertions": [
         {
           "text": "Computes the top-ranked feature's RICE score correctly and names it as top priority",
-          "check": { "contains_all": ["6000", "Dark mode"] }
+          "check": { "matches_any": ["(?i)6,?000"] , "contains_all": ["Dark mode"] }
         },
         {
           "text": "Computes the bottom-ranked feature's RICE score correctly and names it as lowest priority",

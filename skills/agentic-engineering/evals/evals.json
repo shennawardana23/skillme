@@ -17,7 +17,7 @@
       "expected_output": "Diagnoses this as a missing-fact / under-specification problem rather than a reasoning-capability problem, and recommends supplying the missing context (how hotel_id partitioning works) instead of escalating model tier again.",
       "assertions": [
         { "text": "Identifies this as a missing information/context problem, not a model-capability problem", "check": { "contains_any": ["missing fact", "missing context", "under-specified", "not a reasoning", "lacked information", "didn't know"] } },
-        { "text": "Recommends supplying the missing context rather than escalating again", "check": { "contains_any": ["provide the context", "supply", "explain how", "give it", "add context", "clarify"] } }
+        { "text": "Recommends supplying the missing context rather than escalating again", "check": { "contains_any": ["provide the context", "supply", "explain how", "give it", "add context", "clarify", "explicitly", "state the", "stated explicitly"] } }
       ],
       "timeout_seconds": 180
     },

@@ -12,7 +12,7 @@
         },
         {
           "text": "Recommends returning an error instead",
-          "check": { "contains_any": ["return an error", "return error", "error return"] }
+          "check": { "matches_any": ["(?i)return (the |an )?error"] }
         }
       ],
       "timeout_seconds": 180

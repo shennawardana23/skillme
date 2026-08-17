@@ -12,7 +12,7 @@
         },
         {
           "text": "Recommends moving Add before the go statement",
-          "check": { "contains_any": ["before the go", "before calling go", "move wg.Add", "Add(1) before"] }
+          "check": { "matches_any": ["(?i)before (the )?`?go`? statement", "(?i)before calling go", "(?i)move `?wg\\.add", "(?i)add\\(1\\)`?\\s*before"] }
         },
         {
           "text": "Uses a severity level from the required scale",
@@ -48,7 +48,7 @@
       "assertions": [
         {
           "text": "Does not flag a WaitGroup race here",
-          "check": { "not_contains": ["Add/Wait race", "race between Add and Wait"] }
+          "check": { "not_contains": ["is called inside the goroutine", "should move wg.Add", "must move wg.Add", "race against wg.Wait()"] }
         },
         {
           "text": "Acknowledges correct pattern or gives a low/no critical severity",

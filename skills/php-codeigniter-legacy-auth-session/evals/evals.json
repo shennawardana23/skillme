@@ -30,7 +30,7 @@
       "assertions": [
         {
           "text": "States CSRF is off by default in classic CodeIgniter",
-          "check": { "contains_any": ["off by default", "disabled by default", "not enabled by default", "= FALSE", "=FALSE", "default false", "default. FALSE", "default (FALSE"] }
+          "check": { "matches_any": ["(?i)off by default", "(?i)disabled by default", "(?i)not enabled by default", "(?i)=\\s*FALSE", "(?i)default(s)?\\s*(to)?\\s*`?FALSE"] }
         }
       ]
     }

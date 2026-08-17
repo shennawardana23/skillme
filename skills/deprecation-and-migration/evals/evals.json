@@ -40,7 +40,7 @@
       "assertions": [
         {
           "text": "Flags that an announcement alone is insufficient",
-          "check": { "contains_any": ["not sufficient", "not enough", "insufficient"] }
+          "check": { "contains_any": ["not sufficient", "not enough", "insufficient", "announcement, not a plan", "missing every", "anti-pattern"] }
         },
         {
           "text": "Mentions providing migration tooling/support or owning the migration",

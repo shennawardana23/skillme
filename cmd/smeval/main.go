@@ -13,6 +13,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -74,6 +75,22 @@ Flags for run:
 
 func evalsPath(skillDir string) string {
 	return filepath.Join(skillDir, "evals", "evals.json")
+}
+
+// isolateWorkspace makes dir its own empty git repository. dir already
+// lives inside this repo's own working tree (skills/<name>-workspace/,
+// gitignored but not outside the tree), so any tool that discovers its
+// "project root" by walking up to the nearest .git — rather than trusting
+// its own process working directory — would otherwise walk straight past
+// dir and land on this actual repo's root. That escape was proven live: a
+// case whose prompt asked the model to write files "under skills/<name>/"
+// wrote them into this repo's real skills/ directory instead of into dir,
+// leaving the intended workspace empty. Best-effort: a missing git binary
+// or a failed init just leaves dir without this extra guard, it does not
+// fail the run.
+func isolateWorkspace(dir string) {
+	cmd := exec.Command("git", "init", "-q", dir)
+	_ = cmd.Run()
 }
 
 func runValidate(args []string) error {
@@ -150,6 +167,7 @@ func runRun(args []string) error {
 		if err := os.MkdirAll(wsWorkDir, 0o755); err != nil {
 			return fmt.Errorf("create workspace for %s: %w", ev.ID, err)
 		}
+		isolateWorkspace(wsWorkDir)
 		wsOutcome := runOne(ctx, ev, engine.Options{
 			Prompt:        ev.Prompt,
 			PrimaryModel:  *primaryModel,
@@ -172,6 +190,7 @@ func runRun(args []string) error {
 			if err := os.MkdirAll(woWorkDir, 0o755); err != nil {
 				return fmt.Errorf("create baseline workspace for %s: %w", ev.ID, err)
 			}
+			isolateWorkspace(woWorkDir)
 			woOutcome := runOne(ctx, ev, engine.Options{
 				Prompt:        ev.Prompt,
 				PrimaryModel:  *primaryModel,

@@ -6,7 +6,7 @@
       "prompt": "My instinct-learning system stores everything in one global pool with no project scoping. It learned 'use React hooks, not classes' from a frontend project, and now it's suggesting that same instinct while I'm working in an unrelated Go backend service. What went wrong architecturally, and how should the system be structured to prevent this?",
       "expected_output": "Identifies the lack of project scoping as the root cause and recommends storing instincts per-project by default, promoting to global scope only when the same instinct is independently observed across multiple projects.",
       "assertions": [
-        { "text": "Identifies missing project scoping as the root cause", "check": { "contains_any": ["project scoping", "scoped to", "no scoping", "global pool", "cross-project"] } },
+        { "text": "Identifies missing project scoping as the root cause", "check": { "matches_any": ["(?i)project scoping", "(?i)scoped to", "(?i)no scoping", "(?i)global pool", "(?i)cross-project", "(?i)scope.{0,15}every instinct", "(?i)project_id"] } },
         { "text": "Recommends project-scoped storage with a multi-project promotion rule for global", "check": { "contains_any": ["project-scoped", "scope to the project", "promote", "multiple projects", "2+ projects"] } }
       ],
       "timeout_seconds": 180

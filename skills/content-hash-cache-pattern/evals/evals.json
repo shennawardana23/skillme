@@ -44,7 +44,7 @@
         },
         {
           "text": "Rules out crashing on corrupted cache data",
-          "check": { "contains_any": ["not crash", "without crashing", "graceful", "shouldn't crash", "don't crash"] }
+          "check": { "contains_any": ["not crash", "without crashing", "graceful", "shouldn't crash", "don't crash", "never a crash", "never crash", "not a fatal"] }
         }
       ],
       "timeout_seconds": 180

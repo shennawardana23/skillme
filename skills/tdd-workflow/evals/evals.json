@@ -48,7 +48,7 @@
         },
         {
           "text": "Notes that coverage percentage alone can be misleading",
-          "check": { "contains_any": ["doesn't mean", "isn't the same", "can still", "not the same as", "doesn't guarantee", "measures what ran"] }
+          "check": { "matches_any": ["(?i)doesn't mean", "(?i)isn't the same", "(?i)can still", "(?i)not the same as", "(?i)doesn't guarantee", "(?i)measures? (what ran|whether.{0,20}(executed|ran))"] }
         }
       ],
       "timeout_seconds": 180

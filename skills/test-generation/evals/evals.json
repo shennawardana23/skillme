@@ -3,36 +3,36 @@
   "evals": [
     {
       "id": "generates-table-driven-test-with-error-content-assertion",
-      "prompt": "Using the test-generation skill, generate Go tests for this function:\n\npackage validate\n\nimport \"errors\"\n\nvar ErrTooLong = errors.New(\"title too long\")\n\nfunc Title(s string) error {\n\tif len(s) == 0 {\n\t\treturn errors.New(\"title required\")\n\t}\n\tif len(s) > 100 {\n\t\treturn ErrTooLong\n\t}\n\treturn nil\n}\n\nProduce the full test file.",
-      "expected_output": "Produces a full _test.go file with package and imports, a table-driven test covering empty input, over-100-char input, and valid input, asserting on specific error content (e.g. errors.Is(err, ErrTooLong)) rather than just err != nil.",
+      "prompt": "Using the test-generation skill, generate Go tests for this function:\n\npackage validate\n\nimport \"errors\"\n\nvar ErrTooLong = errors.New(\"title too long\")\n\nfunc Title(s string) error {\n\tif len(s) == 0 {\n\t\treturn errors.New(\"title required\")\n\t}\n\tif len(s) > 100 {\n\t\treturn ErrTooLong\n\t}\n\treturn nil\n}\n\nProduce the full test file. Write it to a file named title_test.go in the workspace.",
+      "expected_output": "Produces title_test.go with package and imports, a table-driven test covering empty input, over-100-char input, and valid input, asserting on specific error content (e.g. errors.Is(err, ErrTooLong)) rather than just err != nil.",
       "assertions": [
         {
-          "text": "Includes package declaration",
-          "check": { "contains_any": ["package validate", "package validate_test"] }
+          "text": "Includes package declaration, in title_test.go",
+          "check": { "files_exist": ["title_test.go"], "file_contains": [{ "path": "title_test.go", "contains": "package validate" }] }
         },
         {
-          "text": "Uses a table-driven test structure",
-          "check": { "contains_any": ["tests := []struct", "t.Run"] }
+          "text": "Uses a table-driven test structure, in title_test.go",
+          "check": { "file_contains": [{ "path": "title_test.go", "contains": "t.Run" }] }
         },
         {
-          "text": "Asserts on specific error content, not just non-nil",
-          "check": { "contains_any": ["ErrTooLong", "errors.Is"] }
+          "text": "Asserts on specific error content, not just non-nil, in title_test.go",
+          "check": { "file_contains": [{ "path": "title_test.go", "contains": "ErrTooLong" }] }
         }
       ],
       "timeout_seconds": 180
     },
     {
       "id": "generates-race-safe-concurrency-test",
-      "prompt": "Using the test-generation skill, generate a concurrency test for this Go counter type:\n\ntype Counter struct {\n\tmu sync.Mutex\n\tn  int\n}\n\nfunc (c *Counter) Inc() {\n\tc.mu.Lock()\n\tdefer c.mu.Unlock()\n\tc.n++\n}\n\nfunc (c *Counter) Value() int {\n\tc.mu.Lock()\n\tdefer c.mu.Unlock()\n\treturn c.n\n}\n\nWrite the test and note how it must be run.",
-      "expected_output": "Generates a test that increments the counter from many goroutines using a sync.WaitGroup, asserts the final value equals the expected total, and explicitly notes it must be run with go test -race.",
+      "prompt": "Using the test-generation skill, generate a concurrency test for this Go counter type:\n\ntype Counter struct {\n\tmu sync.Mutex\n\tn  int\n}\n\nfunc (c *Counter) Inc() {\n\tc.mu.Lock()\n\tdefer c.mu.Unlock()\n\tc.n++\n}\n\nfunc (c *Counter) Value() int {\n\tc.mu.Lock()\n\tdefer c.mu.Unlock()\n\treturn c.n\n}\n\nWrite the test to a file named counter_test.go in the workspace, and note how it must be run.",
+      "expected_output": "Generates counter_test.go that increments the counter from many goroutines using a sync.WaitGroup, asserts the final value equals the expected total, and explicitly notes it must be run with go test -race in the chat response.",
       "assertions": [
         {
-          "text": "Uses sync.WaitGroup to synchronize goroutines",
-          "check": { "contains_all": ["WaitGroup"] }
+          "text": "Uses sync.WaitGroup to synchronize goroutines, in counter_test.go",
+          "check": { "files_exist": ["counter_test.go"], "file_contains": [{ "path": "counter_test.go", "contains": "WaitGroup" }] }
         },
         {
-          "text": "Asserts on the final counter value, not just absence of panic",
-          "check": { "contains_any": ["Value()", ".Value"] }
+          "text": "Asserts on the final counter value, not just absence of panic, in counter_test.go",
+          "check": { "file_contains": [{ "path": "counter_test.go", "contains": "Value()" }] }
         },
         {
           "text": "Notes the -race requirement",

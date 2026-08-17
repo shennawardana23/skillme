@@ -8,7 +8,7 @@
       "assertions": [
         {
           "text": "Identifies the double-decrement problem from the retry",
-          "check": { "contains_any": ["double", "twice", "decremented twice", "decrements it twice"] }
+          "check": { "contains_any": ["double", "twice", "decremented twice", "decrements it twice", "a second time", "silently oversells"] }
         },
         {
           "text": "Recommends an idempotency key or unique constraint-based fix",

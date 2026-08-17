@@ -11,8 +11,8 @@
           "check": { "contains_all": ["firebase/genkit/go"] }
         },
         {
-          "text": "Does not use the outdated genkit-ai module path",
-          "check": { "not_contains": ["genkit-ai/genkit"] }
+          "text": "Does not use the outdated genkit-ai module path as an actual import",
+          "check": { "not_contains": ["\"github.com/genkit-ai/genkit"] }
         }
       ]
     },

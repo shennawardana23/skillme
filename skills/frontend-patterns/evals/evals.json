@@ -12,7 +12,7 @@
         },
         {
           "text": "Recommends not lazy-loading the LCP image",
-          "check": { "contains_any": ["remove loading", "should not be lazy", "don't lazy-load", "not lazy"] }
+          "check": { "matches_any": ["(?i)remove\\s*`?loading", "(?i)should not be lazy", "(?i)don't lazy-load", "(?i)not lazy"] }
         }
       ],
       "timeout_seconds": 180

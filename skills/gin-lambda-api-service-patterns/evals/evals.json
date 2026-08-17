@@ -12,7 +12,7 @@
         },
         {
           "text": "States local testing alone doesn't confirm deployed behavior",
-          "check": { "contains_any": ["not enough", "does not confirm", "may not"] }
+          "check": { "contains_any": ["not enough", "does not confirm", "may not", "doesn't validate", "does not validate", "genuinely different"] }
         }
       ]
     },

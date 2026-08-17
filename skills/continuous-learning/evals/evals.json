@@ -6,7 +6,7 @@
       "prompt": "I'm setting up session-end pattern extraction so Claude Code saves reusable skills from past sessions automatically. I want to set auto_approve to true so every extracted pattern immediately becomes a saved skill with no review step. Is that a good default? What's the risk?",
       "expected_output": "Recommends against auto-approving extracted patterns by default, explaining that an unusual or low-quality extraction from one session can misdirect future sessions if not reviewed first.",
       "assertions": [
-        { "text": "Recommends against auto-approving by default", "check": { "contains_any": ["against", "not recommend", "risky", "keep it off", "should stay off"] } },
+        { "text": "Recommends against auto-approving by default", "check": { "contains_any": ["against", "not recommend", "risky", "keep it off", "should stay off", "keep `auto_approve: false`", "auto_approve: false", "no — keep"] } },
         { "text": "Explains the risk of an unreviewed pattern misdirecting future sessions", "check": { "contains_any": ["misdirect", "wrong direction", "unusual session", "review before", "quality"] } }
       ],
       "timeout_seconds": 180

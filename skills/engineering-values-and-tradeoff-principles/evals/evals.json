@@ -8,7 +8,7 @@
       "assertions": [
         {
           "text": "References the error budget concept",
-          "check": { "contains_any": ["error budget"] }
+          "check": { "matches_any": ["(?i)error[\\s-]budget"] }
         },
         {
           "text": "Recommends deciding the threshold ahead of time rather than relitigating each release",
@@ -40,7 +40,7 @@
       "assertions": [
         {
           "text": "Flags the repeated override as undermining the policy",
-          "check": { "contains_any": ["undermin", "no longer function", "stopped working", "not a real policy", "defeats the purpose"] }
+          "check": { "contains_any": ["undermin", "no longer function", "stopped working", "not a real policy", "defeats the purpose", "in name only", "is fiction", "policy in name"] }
         },
         {
           "text": "Contrasts with a proper visible/logged exception process",

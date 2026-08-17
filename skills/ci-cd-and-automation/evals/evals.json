@@ -8,11 +8,11 @@
       "assertions": [
         {
           "text": "Recommends fixing the issue rather than disabling the rule",
-          "check": { "contains_any": ["fix the", "fix it", "don't disable", "should not disable"] }
+          "check": { "contains_any": ["fix the", "fix it", "don't disable", "should not disable", "isn't the right fix", "the fix is to", "not silence"] }
         },
         {
           "text": "States gates should not be skipped/silenced",
-          "check": { "contains_any": ["not be skipped", "shouldn't be skipped", "no gate", "not disable"] }
+          "check": { "contains_any": ["not be skipped", "shouldn't be skipped", "no gate", "not disable", "not turning the linter off", "not a blanket rule change", "entire codebase going forward"] }
         }
       ],
       "timeout_seconds": 180

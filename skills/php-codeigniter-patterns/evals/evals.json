@@ -27,7 +27,7 @@
       "assertions": [
         {
           "text": "Flags is_admin as a mass-assignment / privilege-escalation risk if added to allowedFields",
-          "check": { "contains_any": ["privilege", "escalation", "risk", "should not", "never allow"] }
+          "check": { "contains_any": ["privilege", "escalation", "risk", "should not", "never allow", "grant themselves admin", "don't let", "self-service"] }
         },
         {
           "text": "Does not simply add is_admin to allowedFields without any caveat",

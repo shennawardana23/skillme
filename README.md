@@ -6,8 +6,10 @@
 A written-down, testable knowledge base of real engineering practice — Go,
 PHP (Laravel, CodeIgniter, legacy CodeIgniter), PostgreSQL/MySQL, Vue/Nuxt,
 hotel-domain modeling, QA, product management, agentic engineering, and
-policy. 125 topics, each grounded in a primary source (an official doc, a
-real codebase, a documented incident) rather than general impression.
+policy. 125 topics, drawn from official docs, real codebases, and documented
+incidents rather than general impression — see [Coverage](#coverage) below
+for exactly how many have been checked against a live model run, not just
+schema-validated, as of the last full sweep.
 
 It's packaged as a Claude Code plugin so any AI coding assistant that
 supports the [Agent Skills](https://agentskills.io/specification) format
@@ -26,6 +28,43 @@ runner, following the same evaluation methodology
 [Anthropic documents for Agent Skills](https://agentskills.io/skill-creation/evaluating-skills):
 a prompt plus assertions per case, graded with concrete, quoted evidence,
 not a vague pass/fail.
+
+## Coverage
+
+"Schema-valid" and "actually works against a real model" are different
+claims — see [`TESTING.md`](TESTING.md). This repo tracks the second one
+honestly rather than asserting it catalog-wide:
+
+- Every skill passes schema validation (`agentskills validate` +
+  `smeval validate`) — enforced in CI on every push.
+- A rolling live-test sweep (`scripts/test-all-skills.sh`) checks each
+  skill against a real model run. Its accumulating, always-current result
+  is `smeval-workspace/test-all-results/summary.txt` — read that file for
+  the exact count as of right now, not a number here that will drift out
+  of date.
+- As of the most recent sweep pass, over 110/125 skills had been
+  live-tested. Every partial failure found and diagnosed so far turned
+  out to be an eval-authoring bug (a grading assertion too narrow to
+  match a correct-but-differently-phrased answer, a markdown backtick
+  breaking a literal substring match, a blunt negative check banning a
+  phrase the model used correctly) — not an actual skill-content defect
+  — and was fixed and reverified against the model's saved output before
+  being counted as passing. A couple of failures turned out to be
+  ordinary single-run model variance (confirmed clean on an immediate
+  re-run) rather than anything requiring a fix. One failure was a real
+  bug in `smeval` itself, not the skill or the eval — a case could write
+  files into this actual repo instead of its isolated workspace; see
+  `TESTING.md`'s "A fixed workspace-escape bug" for the full story, now
+  fixed and verified. Skills not yet reached by the sweep are schema-valid
+  but not yet live-verified; don't read "125 skills" as "125
+  independently proven."
+
+This is the same rigor bar this catalog's own eval-quality bug reports
+apply to any other skill's claims — including a real, previously-hidden
+test-isolation bug in `smeval` itself, caught only because a benchmark run
+showed a suspiciously "no difference" result and was investigated rather
+than accepted (see `internal/engine/engine.go`'s `--setting-sources`
+comment for the full story).
 
 ## What's covered
 

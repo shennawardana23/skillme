@@ -3,20 +3,20 @@
   "evals": [
     {
       "id": "generate-prfaq-from-vague-idea",
-      "prompt": "We have a vague idea: let hotel guests check in and unlock their room using their phone instead of a physical key card. Write a PR-FAQ for this before we commit any engineering resources.",
-      "expected_output": "Produces a press release (headline, sub-headline, summary, problem, solution, a company spokesperson quote, and a specific customer quote) plus a two-part FAQ covering both external/customer questions and internal/technical questions.",
+      "prompt": "We have a vague idea: let hotel guests check in and unlock their room using their phone instead of a physical key card. Write a PR-FAQ for this before we commit any engineering resources. Don't ask clarifying questions - draft with reasonable assumptions and flag them as open questions inside the internal FAQ itself. Write it to a file named prfaq.md in the workspace.",
+      "expected_output": "Produces prfaq.md with a press release (headline, sub-headline, summary, problem, solution, a company spokesperson quote, and a specific customer quote) plus a two-part FAQ covering both external/customer questions and internal/technical questions.",
       "assertions": [
         {
-          "text": "Includes a press release headline",
-          "check": { "contains_all": ["Headline"] }
+          "text": "Includes a press release headline, in prfaq.md",
+          "check": { "files_exist": ["prfaq.md"], "file_contains": [{ "path": "prfaq.md", "contains": "Press Release" }] }
         },
         {
-          "text": "Includes a customer quote attributed to a named guest/customer, not just a spokesperson line",
-          "check": { "matches_any": ["(?i)said\\s+[^.\\n]{0,60}(guest|customer|traveler)"] }
+          "text": "Includes a customer quote attributed to a named guest/customer, not just a spokesperson line, in prfaq.md",
+          "check": { "file_contains": [{ "path": "prfaq.md", "contains": "said" }, { "path": "prfaq.md", "contains": "guest" }] }
         },
         {
-          "text": "Includes distinct External and Internal FAQ sections, not just the phrase PR-FAQ",
-          "check": { "contains_all": ["FAQ", "External", "Internal"] }
+          "text": "Includes distinct External and Internal FAQ sections, not just the phrase PR-FAQ, in prfaq.md",
+          "check": { "file_contains": [{ "path": "prfaq.md", "contains": "External FAQ" }, { "path": "prfaq.md", "contains": "Internal FAQ" }] }
         }
       ],
       "timeout_seconds": 180

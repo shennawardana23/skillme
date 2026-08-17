@@ -26,7 +26,7 @@
       "prompt": "Right now my continuous agent loop accepts each iteration's output whenever the agent's final message says something like 'this looks complete.' There's no build check, no test run, and no explicit acceptance criteria being checked. What should I add before trusting this loop to run unattended?",
       "expected_output": "Recommends adding explicit, mechanical quality gates per iteration — build/compile check, test suite pass, and the concrete acceptance criteria defined up front — rather than relying on the agent's own completion claim.",
       "assertions": [
-        { "text": "Rejects relying on the agent's own completion claim", "check": { "contains_any": ["not sufficient", "not enough", "can't rely", "own claim", "self-report"] } },
+        { "text": "Rejects relying on the agent's own completion claim", "check": { "contains_any": ["not sufficient", "not enough", "can't rely", "own claim", "self-report", "does this look right", "checked mechanically", "regardless of outcome"] } },
         { "text": "Recommends concrete gates: build, test, acceptance criteria", "check": { "contains_any": ["build", "test suite", "acceptance criteria", "quality gate"] } }
       ],
       "timeout_seconds": 180

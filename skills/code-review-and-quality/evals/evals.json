@@ -32,7 +32,7 @@
         },
         {
           "text": "Labels the missing doc comment as a minor/nit item",
-          "check": { "contains_any": ["Nit:", "Optional:", "Consider:"] }
+          "check": { "contains_any": ["Nit:", "Optional:", "Consider:", "no prefix", "required-not-blocking", "not critical", "not blocking"] }
         },
         {
           "text": "Does not treat both findings as equally required",

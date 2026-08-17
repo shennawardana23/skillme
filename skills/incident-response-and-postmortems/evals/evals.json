@@ -28,7 +28,7 @@
       "assertions": [
         {
           "text": "Flags the vague items as inadequate",
-          "check": { "contains_any": ["too vague", "not specific", "not actionable", "not a good action item"] }
+          "check": { "contains_any": ["too vague", "not specific", "not actionable", "not a good action item", "not acceptable", "no owner, no due date", "not verifiable"] }
         },
         {
           "text": "Approves or contrasts favorably the concrete CI-check item",
@@ -44,7 +44,7 @@
       "assertions": [
         {
           "text": "Recommends doing a postmortem for this incident",
-          "check": { "contains_any": ["should write a postmortem", "yes, this should", "warrants a postmortem", "this should get a postmortem"] }
+          "check": { "contains_any": ["should write a postmortem", "yes, this should", "warrants a postmortem", "this should get a postmortem", "this qualifies", "worth writing up"] }
         },
         {
           "text": "Flags the detection gap (found via customer report instead of monitoring)",

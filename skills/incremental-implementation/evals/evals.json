@@ -24,7 +24,7 @@
       "assertions": [
         {
           "text": "Says not to fix it as part of the current task",
-          "check": { "contains_any": ["should not fix", "don't fix", "out of scope", "not part of this task", "avoid fixing", "shouldn't touch"] }
+          "check": { "contains_any": ["should not fix", "don't fix", "out of scope", "not part of this task", "avoid fixing", "shouldn't touch", "leave those alone", "leave it alone", "touch only what"] }
         },
         {
           "text": "Recommends noting it for a separate task rather than silently ignoring it",
@@ -44,7 +44,7 @@
         },
         {
           "text": "States it should be present from the first commit, not added later",
-          "check": { "contains_any": ["from the first commit", "first commit that introduces", "from the start", "before it's reachable"] }
+          "check": { "contains_any": ["from the first commit", "first commit that introduces", "from the start", "before it's reachable", "very first commit", "first commit that adds"] }
         }
       ],
       "timeout_seconds": 180

@@ -27,7 +27,7 @@
       "assertions": [
         {
           "text": "States the test is written before the fix and must fail first",
-          "check": { "contains_any": ["fails first", "watch it fail", "must fail", "reproduces the bug", "confirm red", "confirm the bug", "→ FAIL", "-> FAIL"] }
+          "check": { "contains_any": ["fails first", "watch it fail", "must fail", "reproduces the bug", "confirm red", "confirm the bug", "→ FAIL", "-> FAIL", "--- FAIL", "proves the bug"] }
         },
         {
           "text": "Does not jump straight to editing the implementation without a test",

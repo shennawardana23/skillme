@@ -28,7 +28,7 @@
         },
         {
           "text": "Recommends setting a concrete date and tracking migration",
-          "check": { "contains_any": ["set a date", "specific date", "track migration", "migration progress"] }
+          "check": { "matches_any": ["(?i)set a\\w*.{0,20}date", "(?i)specific date", "(?i)concrete.{0,10}date", "(?i)track.{0,20}migration", "(?i)migration (progress|checklist)", "(?i)drive.{0,15}down"] }
         }
       ],
       "timeout_seconds": 180

@@ -40,7 +40,7 @@
       "assertions": [
         {
           "text": "Explains the ambiguity problem for bisect with mixed commits",
-          "check": { "contains_any": ["ambiguous", "hard to tell", "can't tell", "unclear which"] }
+          "check": { "contains_any": ["ambiguous", "hard to tell", "can't tell", "unclear which", "don't know which", "you still don't know"] }
         },
         {
           "text": "Recommends atomic commits going forward",

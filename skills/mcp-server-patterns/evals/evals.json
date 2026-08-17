@@ -24,7 +24,7 @@
       "assertions": [
         {
           "text": "Recommends using a tool rather than a resource",
-          "check": { "contains_any": ["tool, not", "should be a tool", "use a tool"] }
+          "check": { "matches_any": ["(?i)tool\\*{0,2},?\\s*not", "(?i)should be a\\s*\\*{0,2}tool", "(?i)use a tool", "(?i)modeling it as a tool"] }
         },
         {
           "text": "Explains resources must be side-effect-free / read-only",

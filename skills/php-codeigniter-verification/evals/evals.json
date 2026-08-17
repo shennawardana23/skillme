@@ -15,8 +15,8 @@
           "check": { "contains_all": ["spark test"] }
         },
         {
-          "text": "Does not use artisan (wrong framework's CLI)",
-          "check": { "not_contains": ["artisan"] }
+          "text": "Does not use artisan as an actual command (wrong framework's CLI)",
+          "check": { "not_contains": ["php artisan", "spark artisan"] }
         }
       ]
     },

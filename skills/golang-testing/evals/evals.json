@@ -19,16 +19,26 @@
     },
     {
       "id": "write-fuzz-test-for-parser",
-      "prompt": "Write a Go native fuzz test (using testing.F, Go 1.18+ style) for this function:\n\n```go\nfunc ParseDuration(s string) (time.Duration, error) {\n    return time.ParseDuration(s)\n}\n```\n\nSeed it with at least two real example inputs, and assert a property that should hold for any input that parses successfully (for example, that formatting the parsed duration back and reparsing it produces the same value), rather than a fixed table of expected outputs.",
-      "expected_output": "Defines a FuzzParseDuration(f *testing.F) function, seeds it with f.Add calls using real duration strings like \"1s\" or \"500ms\", and inside f.Fuzz(func(t *testing.T, s string) {...}) asserts a round-trip or consistency property for successfully parsed durations rather than a hardcoded expected value.",
+      "prompt": "Write a Go native fuzz test (using testing.F, Go 1.18+ style) for this function:\n\n```go\nfunc ParseDuration(s string) (time.Duration, error) {\n    return time.ParseDuration(s)\n}\n```\n\nSeed it with at least two real example inputs, and assert a property that should hold for any input that parses successfully (for example, that formatting the parsed duration back and reparsing it produces the same value), rather than a fixed table of expected outputs. Write it to a file named `parser_fuzz_test.go` in the workspace.",
+      "expected_output": "Defines a FuzzParseDuration(f *testing.F) function in parser_fuzz_test.go, seeds it with f.Add calls using real duration strings like \"1s\" or \"500ms\", and inside f.Fuzz(func(t *testing.T, s string) {...}) asserts a round-trip or consistency property for successfully parsed durations rather than a hardcoded expected value.",
       "assertions": [
         {
-          "text": "Defines a Fuzz function with testing.F and seeds it with f.Add",
-          "check": { "contains_all": ["testing.F", "f.Add("] }
+          "text": "Defines a Fuzz function with testing.F and seeds it with f.Add, in parser_fuzz_test.go",
+          "check": {
+            "files_exist": ["parser_fuzz_test.go"],
+            "file_contains": [
+              { "path": "parser_fuzz_test.go", "contains": "testing.F" },
+              { "path": "parser_fuzz_test.go", "contains": "f.Add(" }
+            ]
+          }
         },
         {
-          "text": "Uses f.Fuzz with a testing.T callback",
-          "check": { "matches_any": ["f\\.Fuzz\\(func\\(t \\*testing\\.T" ] }
+          "text": "Uses f.Fuzz with a testing.T callback, in parser_fuzz_test.go",
+          "check": {
+            "file_contains": [
+              { "path": "parser_fuzz_test.go", "contains": "f.Fuzz(func(t *testing.T" }
+            ]
+          }
         }
       ],
       "timeout_seconds": 180

@@ -26,7 +26,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -141,6 +144,28 @@ func attempt(ctx context.Context, opts Options, model string) (*Result, error) {
 
 	cmd := exec.CommandContext(attemptCtx, ClaudeBin, args...)
 	cmd.Dir = opts.WorkDir
+	// cmd.Dir changes the OS-level working directory but Go does not touch
+	// the inherited PWD env var to match — it stays whatever the smeval
+	// process's own PWD was (almost always this repo's root, since that's
+	// where `smeval run` gets invoked from). Node.js tools sometimes trust
+	// process.env.PWD over process.cwd() for path resolution, which let a
+	// file-writing case ("scaffold a new skill under skills/<name>/")
+	// silently escape the isolated per-case workspace and write real files
+	// into this actual repo instead — confirmed by an untracked directory
+	// appearing in `git status` after a live run, matching the case's
+	// prompt exactly, while the intended workspace stayed empty. Overriding
+	// PWD here closes that specific escape route.
+	absWorkDir, err := filepath.Abs(opts.WorkDir)
+	if err != nil {
+		absWorkDir = opts.WorkDir
+	}
+	env := os.Environ()
+	for i, kv := range env {
+		if strings.HasPrefix(kv, "PWD=") {
+			env[i] = "PWD=" + absWorkDir
+		}
+	}
+	cmd.Env = env
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

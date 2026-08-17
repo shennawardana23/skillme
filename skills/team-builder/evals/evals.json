@@ -27,7 +27,7 @@
       "expected_output": "Flags hardcoding the agent list as a design flaw, since new persona files added later would never appear, and recommends dynamic discovery from the actual directory instead.",
       "assertions": [
         { "text": "Flags hardcoding as a problem", "check": { "contains_any": ["hardcod", "not a good", "bad idea", "downside", "problem"] } },
-        { "text": "Recommends dynamic discovery instead", "check": { "contains_any": ["dynamic", "scan the directory", "discover", "auto-discover", "discover them"] } }
+        { "text": "Recommends dynamic discovery instead", "check": { "matches_any": ["(?i)dynamic", "(?i)scan(ning)? the directory", "(?i)discover", "(?i)auto-discover", "(?i)discover them"] } }
       ],
       "timeout_seconds": 180
     }

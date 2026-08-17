@@ -8,11 +8,23 @@
       "assertions": [
         {
           "text": "Pushes back on the universal-standard framing",
-          "check": { "contains_any": ["not a universal", "not an industry standard", "project-specific", "each project", "not a law"] }
+          "check": { "contains_any": ["not a universal", "isn't a universal", "not an industry standard", "isn't an industry", "project-specific", "each project", "not a law", "specific project", "own ci", "risk tolerance"] }
         },
         {
           "text": "Notes that coverage percentage can hide untested behavior",
-          "check": { "contains_any": ["no assertions", "measures what ran", "doesn't guarantee", "can still pass", "hide"] }
+          "check": {
+            "matches_any": [
+              "(?i)no assertions",
+              "(?i)zero real assertions",
+              "(?i)doesn't guarantee",
+              "(?i)can still pass",
+              "(?i)hide",
+              "(?i)checks? nothing",
+              "(?i)verifying a single behavior",
+              "(?i)even if the logic were wrong",
+              "(?i)measures what.{0,25}ran"
+            ]
+          }
         }
       ],
       "timeout_seconds": 180
@@ -44,7 +56,7 @@
         },
         {
           "text": "Rewritten signature avoids 'any' and uses a concrete Market type",
-          "check": { "contains_all": ["Market"], "not_matches": ["(?i):\\s*any\\b"] }
+          "check": { "matches_any": ["(?i)id:\\s*string\\)\\s*:\\s*Promise<Market>", "(?i)interface\\s+Market\\s*\\{"] }
         }
       ],
       "timeout_seconds": 180

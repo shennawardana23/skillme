@@ -83,6 +83,23 @@ common eval-authoring mistake in this catalog so far. Fix by pointing the
 assertion at the file (`files_exist` / `file_contains`) instead of
 widening the text match.
 
+### Re-verifying an assertion fix without a new API call
+
+If the model's answer was substantively correct and only the assertion's
+`contains_any`/`matches_any` list needed broadening (the common case — see
+above), you don't need to re-run the case to prove the fix works. The
+model's output is still sitting in `response.md`; only the grading logic
+changed. Re-grade the saved response against the edited `evals.json`
+directly, using `internal/grading.Grade` from a throwaway `main.go` (see
+git history for `cmd/regrade-scratch` in past commits for the ~40-line
+pattern: `evalspec.Load` the skill's `evals.json`, read the saved
+`response.md`, call `grading.Grade`, print `AssertionResults`). This is
+free, instant, and — because it grades the *exact same* model output the
+original failure was diagnosed against — a stronger proof than a fresh
+`-include` run, which would introduce new model-output variance on top of
+the assertion change you're trying to isolate. Delete the throwaway tool
+when done; it's not part of the shipped catalog.
+
 ### Iterating on one case
 
 ```bash
@@ -147,6 +164,90 @@ for the reason before assuming anything about the skill's content; a
 timeout on a case with an unusually long, thorough response may just need
 a longer `timeout_seconds` in that case's `evals.json` entry, not a
 content fix.
+
+## A fixed workspace-escape bug: the isolated case wrote to the real repo
+
+Found during this catalog's own live-test sweep, on
+`skill-catalog-authoring`'s `scaffold-new-skill` case, whose prompt asks
+the model to write real files "under `skills/http-retry-policy/`". The
+case's own isolated workspace came back empty, but a real, untracked
+`skills/http-retry-policy/` directory appeared in this actual repository
+— matching the case's expected content exactly. The model didn't
+misbehave; the isolation had a hole.
+
+Root cause: each case's workspace (`smeval-workspace/`-adjacent
+`skills/<name>-workspace/iteration-N/<case-id>/.../workspace/`) is a real
+directory *inside this repo's own git working tree* (gitignored, but
+still inside the tree — there is only one `.git`, at this repo's root).
+`internal/engine` sets the subprocess's OS-level working directory
+correctly via `cmd.Dir`, but a relative path that doesn't already exist
+under the workspace and *does* exist at the repo's real root — like
+`skills/http-retry-policy/`, which looks exactly like a normal path in
+this catalog — can still resolve there if anything in the write path
+trusts a discovered project/git root over the literal process cwd. Only
+one case in the whole catalog has a prompt shaped like this (checked via
+`grep -rln 'under skills/\|to skills/\|in skills/' skills/*/evals/evals.json`),
+so the blast radius was narrow, but the mechanism wasn't.
+
+Fixed two ways in the same commit, both defensible independently, proven
+together by re-running the case live and confirming the real repo's
+`skills/http-retry-policy/` did **not** reappear while the file correctly
+landed inside the isolated workspace (4/4 assertions passed):
+
+1. `internal/engine` now overrides the subprocess's inherited `PWD`
+   environment variable to match `cmd.Dir` — `cmd.Dir` changes the actual
+   OS working directory but Go does not touch the inherited env to
+   match, and some tools trust `process.env.PWD` over `process.cwd()`.
+2. `cmd/smeval/main.go` now runs `git init -q` inside every case
+   workspace right after creating it, so the workspace has its own `.git`
+   and nothing walking up looking for a project root can walk past it
+   into the real repo.
+
+If you ever see a live-run case write a file somewhere in this actual
+repo instead of its workspace, this is the failure mode to suspect first
+— check `git status --porcelain` for anything untracked right after a
+suspicious run, before concluding the skill's content is wrong.
+
+## A known, unfixed confound: account-level instruction bleed
+
+`--setting-sources project,local` (see above) excludes the *local*
+`user` settings tier — the tester machine's own `~/.claude/CLAUDE.md` and
+project-independent hooks. It does **not** exclude anything tied to the
+Claude account the `claude` CLI is authenticated as. If that account has
+an organization-level instruction configured (e.g. a standing preference
+to ask clarifying questions before starting an open-ended task), the
+isolated subprocess can still inherit it — because it isn't a local
+settings file `--setting-sources` has any control over.
+
+Observed several times in this catalog's live-test sweep: an open-ended
+"design this" / "write this from scratch" prompt got a page of
+clarifying questions back instead of a direct answer, once with the
+model explicitly citing "your org's preference to nail down context
+early" in its own response — direct evidence of the mechanism, not a
+guess. Two of those cases produced a normal, direct answer on a single
+immediate re-run — ordinary soft-bias variance, no fix needed.
+
+One case (`writing-product-requirements`'s `generate-prfaq-from-vague-idea`)
+reproduced on *two* consecutive re-runs, meaning it isn't always a
+one-shot fluke — for some prompt shapes the bias is sticky enough that a
+plain re-run won't clear it. Do not "fix" a case like this by broadening
+its assertions to accept clarifying questions as a pass — that hides a
+real methodological gap instead of documenting it. What *is* legitimate,
+and already an established pattern in this catalog (see
+`test-driven-development`'s `prove-it-bug-fix-pattern` prompt), is adding
+an explicit "don't ask clarifying questions — draft with reasonable
+assumptions, flag them as open questions in the output itself" line to
+the case's own prompt, so the eval reliably tests what the skill teaches
+instead of testing whether this particular reflex fires this run. That
+line closed `generate-prfaq-from-vague-idea` immediately, and revealed
+what the model does once it stops deflecting is worth checking too —
+that one also then wrote its answer to a file, the same file-vs-response
+mistake described above, which needed its own fix on top.
+
+If you hit this, re-run once before concluding anything; if it
+reproduces, add the explicit anti-deflection line to that case's own
+prompt rather than to the skill or to a shared default — this is a
+per-case escape hatch, not a catalog-wide policy change.
 
 ## Provider/model fallback
 
