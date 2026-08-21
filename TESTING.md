@@ -117,15 +117,38 @@ cat smeval-workspace/runs/<name>/iteration-1/benchmark.json
 ```
 
 Also runs every case with the skill absent entirely, and writes a
-side-by-side comparison:
+side-by-side comparison — [`examples/benchmark.sample.json`](examples/benchmark.sample.json)
+is real output from a run against this catalog, reproduced here for
+reference:
 
 ```json
 {
-  "with_skill":    { "pass_rate_mean": 1,    "time_seconds_mean": 9.7,  "tokens_mean": 86647 },
-  "without_skill": { "pass_rate_mean": 0.89, "time_seconds_mean": 20.4, "tokens_mean": 72990 },
-  "delta":         { "pass_rate_mean": 0.11, "time_seconds_mean": -10.6, "tokens_mean": 13657 }
+  "with_skill": {
+    "pass_rate_mean": 1,
+    "time_seconds_mean": 36.71,
+    "tokens_mean": 92870.66666666667
+  },
+  "without_skill": {
+    "pass_rate_mean": 0.8333333333333334,
+    "time_seconds_mean": 37.186,
+    "tokens_mean": 63351.666666666664
+  },
+  "delta": {
+    "pass_rate_mean": 0.16666666666666663,
+    "time_seconds_mean": -0.4759999999999991,
+    "tokens_mean": 29519.000000000007
+  }
 }
 ```
+
+Reading it: the skill won the one case the unskilled run missed
+(`delta.pass_rate_mean` > 0, the signal that actually matters), took
+about the same wall-clock time either way, and spent ~29.5k more tokens
+doing it — the skill's own guidance costs tokens to read and follow, so a
+positive `tokens_mean` delta alongside a positive `pass_rate_mean` delta
+is the expected, healthy shape. A positive token delta with a *zero or
+negative* pass-rate delta is the shape worth investigating — you paid
+tokens for a skill that didn't change the outcome.
 
 If `delta.pass_rate_mean` is at or near zero, the skill isn't adding
 measurable value for the cases you've written — either the model already
@@ -138,6 +161,46 @@ output varies run to run — a case that shows 3/3 without the skill once
 and 2/3 the next run is ordinary variance, not a regression to chase.
 Look for a consistent pattern across a couple of runs before concluding
 anything from a single number.
+
+## Reviewing results with a human
+
+Every `smeval run` scaffolds `iteration-N/feedback.json` — one empty-string
+entry per case ID, e.g.:
+
+```json
+{
+  "generate-prfaq-from-vague-idea": "",
+  "critique-prfaq-missing-customer-quote-and-faq": "",
+  "recommend-lighter-prd-over-prfaq": ""
+}
+```
+
+This exists because assertion grading only checks what someone thought to
+write an assertion for — [the spec's own framing](https://agentskills.io/skill-creation/evaluating-skills#reviewing-results-with-a-human)
+for exactly this file. Some qualities are real but not decomposable into a
+pass/fail check: whether a press release's headline is actually punchy,
+whether a report's structure reads well, whether an output is technically
+correct but misses the point. A human (or a separate qualitative-review
+pass) opens each case's `outputs/response.md` (or the real deliverable
+under `outputs/workspace/` if the case writes a file), and fills in that
+case's entry — specific and actionable, not "looks bad."
+
+Leaving an entry as `""` means "reviewed, it held up" — not "not yet
+looked at." Don't skip the review because assertions all passed; a real
+example from this catalog: `writing-product-requirements`'s
+`generate-prfaq-from-vague-idea` case passed 3/3 assertions (has a
+headline, has a customer quote, has both FAQ sections) on a run that
+still had a genuine craft problem invisible to any of those three checks
+— a 20-word press-release headline (real PR-FAQ headlines run ~10-12
+words) and two raw `[Open question]` placeholder tokens left inline in
+customer-facing FAQ copy instead of a provisional answer with the caveat
+in prose. Both are exactly the "technically correct, still worth
+tightening" gap assertions structurally can't express — caught only by
+actually reading the output.
+
+`feedback.json` is never overwritten if it already exists in that
+iteration directory, so filling it in is safe to do at any point before
+moving to the next iteration.
 
 ## Testing every skill in the catalog
 

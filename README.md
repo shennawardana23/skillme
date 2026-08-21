@@ -2,22 +2,113 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Skill Eval](https://github.com/shennawardana23/skillme/actions/workflows/skill-eval.yml/badge.svg)](https://github.com/shennawardana23/skillme/actions/workflows/skill-eval.yml)
+[![Test Plugin Installation](https://github.com/shennawardana23/skillme/actions/workflows/test-plugin-install.yml/badge.svg)](https://github.com/shennawardana23/skillme/actions/workflows/test-plugin-install.yml)
+[![Agent Skills spec](https://img.shields.io/badge/spec-agentskills.io-blue)](https://agentskills.io/specification)
 
-A written-down, testable knowledge base of real engineering practice — Go,
-PHP (Laravel, CodeIgniter, legacy CodeIgniter), PostgreSQL/MySQL, Vue/Nuxt,
-web quality (Core Web Vitals, accessibility, SEO), hotel-domain modeling,
-QA, product management, agentic engineering, and policy — plus
-`skill-inspector`, which reviews a *third-party* agent skill for safety
-before you install it. 132 topics, drawn from official docs, real
-codebases, and documented incidents rather than general impression — see
-[Coverage](#coverage) below for exactly how many have been checked against
-a live model run, not just schema-validated, as of the last full sweep.
+**A testable knowledge base of real engineering practice — not a collection of advice nobody has checked.**
+
+skillme is 132 skills spanning backend, frontend, databases, web quality,
+domain modeling, QA, product management, and agentic engineering itself
+— each one grounded in an official doc, a real codebase, or a documented
+incident rather than general impression, and each one backed by its own
+deterministic test suite so a claim survives being checked against a real
+model's output instead of being trusted because it reads well. See
+[What's covered](#whats-covered) for the actual topic list and
+[Coverage](#coverage) for exactly how many have been checked against a
+live model run, not just schema-validated, as of the last full sweep.
 
 It's packaged as a Claude Code plugin so any AI coding assistant that
 supports the [Agent Skills](https://agentskills.io/specification) format
 can load it, but the content itself is meant to read like something a
 senior engineer would hand a new hire — not tool-specific instructions,
 and not tied to any one company or codebase.
+
+---
+
+## Table of contents
+
+- [skillme](#skillme)
+  - [Table of contents](#table-of-contents)
+  - [Quick Start](#quick-start)
+  - [Why this exists](#why-this-exists)
+  - [Coverage](#coverage)
+  - [What's covered](#whats-covered)
+  - [Specialist review skills](#specialist-review-skills)
+  - [How a skill gets proven, not just written](#how-a-skill-gets-proven-not-just-written)
+  - [Anatomy of a skill](#anatomy-of-a-skill)
+  - [Requirements](#requirements)
+  - [Install](#install)
+    - [Claude Code plugin (managed bundle)](#claude-code-plugin-managed-bundle)
+    - [Any agent, as editable files (via skills.sh)](#any-agent-as-editable-files-via-skillssh)
+    - [Installing just one skill, not the whole catalog](#installing-just-one-skill-not-the-whole-catalog)
+  - [Project Structure](#project-structure)
+  - [Evaluating a skill locally](#evaluating-a-skill-locally)
+    - [Provider/model fallback](#providermodel-fallback)
+  - [Documentation](#documentation)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+---
+
+## Quick Start
+
+Fastest path in, any agent — no clone, no registration:
+
+```bash
+npx skills@latest add shennawardana23/skillme
+```
+
+<details>
+<summary><b>Claude Code (recommended)</b></summary>
+
+**Marketplace install:**
+
+```bash
+claude plugin marketplace add shennawardana23/skillme
+claude plugin install skillme@skillme
+```
+
+**Local / development — clone first, point Claude Code at the path:**
+
+```bash
+git clone https://github.com/shennawardana23/skillme.git
+claude --plugin-dir /path/to/skillme
+```
+
+</details>
+
+<details>
+<summary><b>Just one skill, not the whole catalog</b></summary>
+
+```bash
+npx skills@latest add shennawardana23/skillme --skill go-service-idioms
+```
+
+</details>
+
+Full comparison of the two install paths — managed plugin bundle vs.
+editable files via `skills.sh` — is in [Install](#install) below.
+
+<details>
+<summary><b>Prove a skill actually works, don't just install it</b></summary>
+
+```bash
+go build -o smeval ./cmd/smeval
+./smeval run skills/go-service-idioms -benchmark
+```
+
+Then open, for that run's `smeval-workspace/runs/go-service-idioms/iteration-1/`:
+
+- `report.html` — pass/fail per case, with the quoted assertion evidence
+- `feedback.json` — a stub for a human to record what an assertion can't
+  catch (see [`TESTING.md`](TESTING.md#reviewing-results-with-a-human))
+- `benchmark.json` — with-skill vs. without-skill, side by side; see
+  [`examples/benchmark.sample.json`](examples/benchmark.sample.json) for
+  what real output looks like and how to read it
+
+</details>
+
+---
 
 ## Why this exists
 
@@ -30,6 +121,8 @@ runner, following the same evaluation methodology
 [Anthropic documents for Agent Skills](https://agentskills.io/skill-creation/evaluating-skills):
 a prompt plus assertions per case, graded with concrete, quoted evidence,
 not a vague pass/fail.
+
+---
 
 ## Coverage
 
@@ -74,23 +167,114 @@ showed a suspiciously "no difference" result and was investigated rather
 than accepted (see `internal/engine/engine.go`'s `--setting-sources`
 comment for the full story).
 
+---
+
 ## What's covered
 
-| Area | Examples |
-| --- | --- |
-| Go | idioms, testing, service patterns, Gin+Lambda deployment, Genkit |
-| PHP | Laravel, CodeIgniter 4, legacy CodeIgniter 2/3, security, TDD |
-| Databases | PostgreSQL patterns, partitioning, MySQL/MariaDB, migrations |
-| Frontend | Vue/Nuxt, frontend engineering patterns |
-| Web quality | Core Web Vitals (LCP/INP/CLS), accessibility (WCAG 2.2), SEO, security/best-practices audits |
-| Hospitality domain | rate/inventory modeling, channel manager/OTA integration |
-| Agentic engineering | multi-agent orchestration, agent drift, eval design, third-party skill safety review (`skill-inspector`) |
-| Process | QA strategy, TDD, code review, security review, CI/CD |
-| Product & leadership | PR-FAQs, prioritization, feedback, incident response |
-| Policy & philosophy | error handling, dependency policy, deprecation |
+Every name below is a real, linked skill — not a topic label. Each area
+lists a handful out of the full 132; run `scripts/list-skills.sh` for the
+complete, current list.
 
-Run `scripts/list-skills.sh` for the full, current, exact list — the table
-above is illustrative, not exhaustive.
+| Area | Skills you'd reach for |
+| --- | --- |
+| Go | [`go-service-idioms`](skills/go-service-idioms/SKILL.md), [`golang-testing`](skills/golang-testing/SKILL.md), [`gin-lambda-api-service-patterns`](skills/gin-lambda-api-service-patterns/SKILL.md), [`genkit-go-flows`](skills/genkit-go-flows/SKILL.md), [`jwt-tenant-scoped-authorization`](skills/jwt-tenant-scoped-authorization/SKILL.md) |
+| PHP | [`laravel-patterns`](skills/laravel-patterns/SKILL.md), [`laravel-security`](skills/laravel-security/SKILL.md), [`php-codeigniter-patterns`](skills/php-codeigniter-patterns/SKILL.md), [`php-codeigniter-legacy-patterns`](skills/php-codeigniter-legacy-patterns/SKILL.md), [`php-codeigniter-security`](skills/php-codeigniter-security/SKILL.md) |
+| Databases | [`postgres-patterns`](skills/postgres-patterns/SKILL.md), [`postgres-hotel-partitioning`](skills/postgres-hotel-partitioning/SKILL.md), [`mysql-patterns`](skills/mysql-patterns/SKILL.md), [`database-migrations`](skills/database-migrations/SKILL.md) |
+| Frontend | [`vue-nuxt-frontend-patterns`](skills/vue-nuxt-frontend-patterns/SKILL.md), [`frontend-ui-engineering`](skills/frontend-ui-engineering/SKILL.md), [`frontend-patterns`](skills/frontend-patterns/SKILL.md) |
+| Web quality | [`web-quality-audit`](skills/web-quality-audit/SKILL.md), [`core-web-vitals`](skills/core-web-vitals/SKILL.md), [`accessibility`](skills/accessibility/SKILL.md), [`seo`](skills/seo/SKILL.md), [`best-practices`](skills/best-practices/SKILL.md) |
+| Hospitality domain | [`hotel-rate-and-inventory-modeling`](skills/hotel-rate-and-inventory-modeling/SKILL.md), [`channel-manager-ota-integration`](skills/channel-manager-ota-integration/SKILL.md) |
+| Agentic engineering | [`multi-agent-orchestration`](skills/multi-agent-orchestration/SKILL.md), [`agent-drift-and-re-anchoring`](skills/agent-drift-and-re-anchoring/SKILL.md), [`skill-catalog-authoring`](skills/skill-catalog-authoring/SKILL.md), [`skill-inspector`](skills/skill-inspector/SKILL.md), [`mcp-server-patterns`](skills/mcp-server-patterns/SKILL.md) |
+| QA & testing | [`qa-test-strategy-design`](skills/qa-test-strategy-design/SKILL.md), [`test-driven-development`](skills/test-driven-development/SKILL.md), [`e2e-testing`](skills/e2e-testing/SKILL.md), [`ai-regression-testing`](skills/ai-regression-testing/SKILL.md) |
+| Process & delivery | [`code-review-and-quality`](skills/code-review-and-quality/SKILL.md), [`ci-cd-and-automation`](skills/ci-cd-and-automation/SKILL.md), [`incident-response-and-postmortems`](skills/incident-response-and-postmortems/SKILL.md), [`release-management-and-rollback-planning`](skills/release-management-and-rollback-planning/SKILL.md) |
+| Product & leadership | [`writing-product-requirements`](skills/writing-product-requirements/SKILL.md), [`feature-prioritization-frameworks`](skills/feature-prioritization-frameworks/SKILL.md), [`one-on-ones-and-feedback-frameworks`](skills/one-on-ones-and-feedback-frameworks/SKILL.md) |
+| Policy & philosophy | [`error-handling-philosophy`](skills/error-handling-philosophy/SKILL.md), [`dependency-and-license-policy`](skills/dependency-and-license-policy/SKILL.md), [`backward-compatibility-and-deprecation-policy`](skills/backward-compatibility-and-deprecation-policy/SKILL.md) |
+
+---
+
+## Specialist review skills
+
+Six skills in the catalog exist specifically to review something —
+another skill, a diff, a config, a page — rather than to teach a pattern.
+They intentionally divide the same general territory by *what's being
+reviewed*, not by vague overlapping scope:
+
+| Skill | What it does | Use when |
+| --- | --- | --- |
+| [`skill-inspector`](skills/skill-inspector/SKILL.md) | Runs NVIDIA SkillSpector plus a manual source read on a third-party agent skill, then returns an APPROVE / CAUTION / REJECT verdict | You found a skill in someone else's repo and want to know if it's safe before installing it |
+| [`security-review`](skills/security-review/SKILL.md) | Reads application source (Go, TS, PHP, infra config) for auth gaps, unvalidated input, file-upload holes, leaked secrets, unsafe third-party calls | You're reviewing a PR or an existing codebase for security bugs |
+| [`security-and-hardening`](skills/security-and-hardening/SKILL.md) | Threat-models trust boundaries and designs OWASP Top 10 prevention into a feature | You're designing or building a feature, before the vulnerability exists to find |
+| [`security-scan`](skills/security-scan/SKILL.md) | Grades your own agent harness config — `CLAUDE.md`, `.claude/settings.json`, MCP configs, hooks — A through F for prompt-injection exposure | You want to know how exposed your own Claude Code setup is, not your application |
+| [`code-review-and-quality`](skills/code-review-and-quality/SKILL.md) | Sizes a diff, applies severity labels, and can help design a team's review process | You're reviewing a pull request, or defining how your team should |
+| [`web-quality-audit`](skills/web-quality-audit/SKILL.md) | Runs performance, accessibility, SEO, and best-practices checks and returns one prioritized report | You need a single pass across all four web-quality dimensions instead of four separate audits |
+
+These aren't a separate "agent" layer sitting outside the catalog — each
+is an ordinary skill with its own `SKILL.md` and `evals/evals.json`, like
+every other entry. `security-review`/`security-and-hardening`/
+`security-scan` in particular read as near-duplicates by name alone; each
+one's own description states the exact dividing line against its
+siblings, which is the pattern to follow if you add a skill that sounds
+close to an existing one.
+
+---
+
+## How a skill gets proven, not just written
+
+```
+skills/<name>/SKILL.md + evals/evals.json      ← prompt + assertions, written by hand
+              │
+              ▼
+        smeval validate                        ← schema check, free, no model call
+              │
+              ▼
+        smeval run                             ← spawns a fresh, isolated `claude` CLI
+              │                                    process (only this skill visible)
+              ▼
+        grading.json + report.html + feedback.json
+        quoted evidence + human review — never a bare pass/fail
+```
+
+No claim in this catalog ships on "seems right." `smeval` — this
+repository's own Go eval runner, no third-party dependency — validates the
+schema for free, then actually runs each case against the real `claude`
+CLI in a freshly-isolated workspace (the skill under test is the *only*
+skill visible) and grades the response with concrete, quoted evidence.
+See [How it works](#evaluating-a-skill-locally) below to run this
+yourself, and [`TESTING.md`](TESTING.md) for the full methodology,
+including a real workspace-isolation bug this exact loop caught and fixed
+in itself.
+
+---
+
+## Anatomy of a skill
+
+```
+skills/go-service-idioms/
+├── SKILL.md              ┌─ frontmatter ─────────────────────────┐
+│                         │ name: go-service-idioms               │
+│                         │ description: Use when asked to "write │
+│                         │   a Go function"... (trigger phrases) │
+│                         │ license: Apache-2.0                   │
+│                         │ metadata: { version, category }       │
+│                         └───────────────────────────────────────┘
+│                         Body: the actual guidance, written for the
+│                         agent executing it — imperative, grounded in
+│                         a real source, ending in Gotchas +
+│                         Real-world grounding sections.
+├── references/           Optional detail, loaded only when the body
+│                         actually points to it — keeps the always-in-
+│                         context body short (progressive disclosure).
+└── evals/evals.json      This skill's own test suite — see above.
+```
+
+Every claim of the form "do X because Y" in a `SKILL.md` body should
+trace to something real: an official doc, a documented incident, a
+verified library/API. `skill-catalog-authoring`
+(`skills/skill-catalog-authoring/SKILL.md`) is the actual, enforced
+specification for all of this — required fields, naming rules, the
+optional `skill-docs/<category>/<name>.md` human-facing page convention —
+this section is the map, not the source of truth.
+
+---
 
 ## Requirements
 
@@ -101,14 +285,19 @@ above is illustrative, not exhaustive.
   or with `ANTHROPIC_API_KEY` set — only needed to actually *run* an eval
   against a live model; schema validation works without it
 
+---
+
 ## Install
 
-Two ways in, two philosophies. The Claude Code plugin installs the whole
-catalog as a managed, read-only bundle — you `git pull` this repo and
-reinstall to pick up changes, rather than editing the skills in place.
-The `skills.sh` installer copies individual skill files straight into your
-own project, editable, across whichever coding agent you use. Pick one —
-installing both leaves you with every skill twice.
+Two ways in, two philosophies. Pick one — installing both leaves you with
+every skill twice.
+
+| | Claude Code plugin | `skills.sh` |
+| --- | --- | --- |
+| Gets you | The whole catalog, one managed bundle | Just the skill(s) you pick |
+| Editable? | No — read-only, reinstall to update | Yes — plain files in your project |
+| Works with | Claude Code only | Claude Code, Codex, Cursor, others |
+| Registration needed | Yes, this repo's own marketplace | No |
 
 ### Claude Code plugin (managed bundle)
 
@@ -167,7 +356,9 @@ browse `skills/` directly. Everything installed this way lands as plain,
 editable files in your own project; update just that skill later with
 `npx skills@latest update go-service-idioms`.
 
-## Repository layout
+---
+
+## Project Structure
 
 ```text
 skillme/
@@ -176,11 +367,17 @@ skillme/
 │   ├── references/           # optional detail, loaded only when needed
 │   └── evals/evals.json      # prompt + assertions, this catalog's test suite
 ├── skill-docs/<category>/<name>.md   # optional, human-facing "why/when" page
+├── examples/benchmark.sample.json    # real -benchmark output, annotated in TESTING.md
 ├── cmd/smeval/                # the eval runner CLI
 ├── internal/{evalspec,engine,grading,harness,report}/   # smeval's implementation
-├── .github/workflows/skill-eval.yml   # CI: build/vet/test, then validate + run every skill
+├── .github/workflows/
+│   ├── skill-eval.yml            # CI: build/vet/test, then schema-validate every skill
+│   └── test-plugin-install.yml   # CI: claude plugin validate + a real marketplace-add/install
+├── CLAUDE.md + .claude/{commands,rules}/   # eval-authoring rules + /eval-skill, /new-skill
 └── .claude-plugin/{plugin.json,marketplace.json}
 ```
+
+---
 
 ## Evaluating a skill locally
 
@@ -216,33 +413,31 @@ see (non-zero exit, timeout, unparseable output) and retries once in a
 fresh process against the fallback model. Both are exercised by real tests
 in `internal/engine/engine_test.go`.
 
+---
+
+## Documentation
+
+| Doc | Covers |
+| --- | --- |
+| This README | Install, what's covered, coverage honesty, repository layout |
+| [`TESTING.md`](TESTING.md) | The full eval methodology — schema vs. live, reading a failure's evidence, `-benchmark`, human review (`feedback.json`), real bugs this catalog's own testing loop has found and fixed in itself |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Skill/eval-authoring conventions, the pre-PR checklist, what CI does and doesn't check |
+| `skills/skill-catalog-authoring/SKILL.md` | The enforced spec for a skill's directory layout and frontmatter — the source of truth [Anatomy of a skill](#anatomy-of-a-skill) above summarizes |
+| `skill-docs/<category>/<name>.md` | Optional, per-skill human-facing "why/when would I reach for this" pages — not every skill has one; see `skill-catalog-authoring/references/skill-docs-template.md` for the template |
+| [`CLAUDE.md`](CLAUDE.md) + [`.claude/rules/skill-authoring.md`](.claude/rules/skill-authoring.md) | The eval-authoring rules Claude Code loads automatically in this repo |
+| [`.claude/commands/eval-skill.md`](.claude/commands/eval-skill.md), [`.claude/commands/new-skill.md`](.claude/commands/new-skill.md) | `/eval-skill <name>` and `/new-skill <name>` — run this catalog's own eval loop or scaffold a new entry without leaving the chat |
+
+---
+
 ## Contributing
 
-New skills and improvements to existing ones are welcome. Start with the
-`skill-catalog-authoring` skill (`skills/skill-catalog-authoring/SKILL.md`)
-for the required directory layout, frontmatter conventions, and
-`evals.json` schema — it also documents the optional `skill-docs/` page
-convention (`skill-catalog-authoring/references/skill-docs-template.md`).
+New skills, fixes to existing ones, and improvements to `smeval` itself
+are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for the required
+directory layout and frontmatter conventions, the eval-authoring mistakes
+this catalog has actually made (and how to avoid repeating them), the
+pre-PR checklist, and what CI does and doesn't check.
 
-Before opening a PR:
-
-1. `go build ./... && go vet ./... && gofmt -l .`
-2. `uvx --from skills-ref agentskills validate skills/<name>` and
-   `smeval validate skills/<name>` for anything you added or changed
-3. `smeval run skills/<name>` — **do this yourself, it's not a CI gate.**
-   A passing schema is not the same as a working skill; CI only checks
-   spec compliance and schema (no API key, no live model calls, on
-   purpose — see below). Actually running the eval against a real model
-   is the step that catches real bugs, and it's on you to do it before
-   opening the PR.
-
-CI (`.github/workflows/skill-eval.yml`) discovers any skill directory
-under `skills/` that contains an `evals/evals.json` automatically — no
-workflow edits are needed to pick up a new skill. It deliberately stops at
-`agentskills validate` + `smeval validate` (schema/spec only): re-running
-every skill's live eval on every push would mean real API cost and
-significant runtime at catalog scale for even a one-line change to a
-single skill.
+---
 
 ## License
 

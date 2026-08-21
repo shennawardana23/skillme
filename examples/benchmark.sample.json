@@ -1,0 +1,17 @@
+{
+  "with_skill": {
+    "pass_rate_mean": 1,
+    "time_seconds_mean": 36.71,
+    "tokens_mean": 92870.66666666667
+  },
+  "without_skill": {
+    "pass_rate_mean": 0.8333333333333334,
+    "time_seconds_mean": 37.186,
+    "tokens_mean": 63351.666666666664
+  },
+  "delta": {
+    "pass_rate_mean": 0.16666666666666663,
+    "time_seconds_mean": -0.4759999999999991,
+    "tokens_mean": 29519.000000000007
+  }
+}

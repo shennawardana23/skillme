@@ -1,0 +1,48 @@
+name: Test Plugin Installation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".claude-plugin/**"
+      - "skills/**"
+  pull_request:
+    paths:
+      - ".claude-plugin/**"
+      - "skills/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate plugin structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate marketplace and plugin manifests
+        run: claude plugin validate .
+
+  test-install:
+    name: Test plugin installation
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Add marketplace
+        run: claude plugin marketplace add ./
+
+      - name: List marketplaces
+        run: claude plugin marketplace list
+
+      - name: Install plugin
+        run: claude plugin install skillme@skillme --scope user
