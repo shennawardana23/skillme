@@ -5,11 +5,13 @@
 
 A written-down, testable knowledge base of real engineering practice — Go,
 PHP (Laravel, CodeIgniter, legacy CodeIgniter), PostgreSQL/MySQL, Vue/Nuxt,
-hotel-domain modeling, QA, product management, agentic engineering, and
-policy. 125 topics, drawn from official docs, real codebases, and documented
-incidents rather than general impression — see [Coverage](#coverage) below
-for exactly how many have been checked against a live model run, not just
-schema-validated, as of the last full sweep.
+web quality (Core Web Vitals, accessibility, SEO), hotel-domain modeling,
+QA, product management, agentic engineering, and policy — plus
+`skill-inspector`, which reviews a *third-party* agent skill for safety
+before you install it. 132 topics, drawn from official docs, real
+codebases, and documented incidents rather than general impression — see
+[Coverage](#coverage) below for exactly how many have been checked against
+a live model run, not just schema-validated, as of the last full sweep.
 
 It's packaged as a Claude Code plugin so any AI coding assistant that
 supports the [Agent Skills](https://agentskills.io/specification) format
@@ -42,22 +44,28 @@ honestly rather than asserting it catalog-wide:
   is `smeval-workspace/test-all-results/summary.txt` — read that file for
   the exact count as of right now, not a number here that will drift out
   of date.
-- As of the most recent sweep pass, over 110/125 skills had been
-  live-tested. Every partial failure found and diagnosed so far turned
-  out to be an eval-authoring bug (a grading assertion too narrow to
-  match a correct-but-differently-phrased answer, a markdown backtick
-  breaking a literal substring match, a blunt negative check banning a
-  phrase the model used correctly) — not an actual skill-content defect
-  — and was fixed and reverified against the model's saved output before
-  being counted as passing. A couple of failures turned out to be
-  ordinary single-run model variance (confirmed clean on an immediate
-  re-run) rather than anything requiring a fix. One failure was a real
-  bug in `smeval` itself, not the skill or the eval — a case could write
-  files into this actual repo instead of its isolated workspace; see
+- The original 125-skill catalog completed a full live-test sweep: every
+  partial failure found was individually diagnosed against the model's
+  actual saved output before being touched. Every one turned out to be an
+  eval-authoring bug (a grading assertion too narrow to match a
+  correct-but-differently-phrased answer, a markdown backtick breaking a
+  literal substring match, a blunt negative check banning a phrase the
+  model used correctly) — not an actual skill-content defect — and was
+  fixed and reverified against the model's saved output before being
+  counted as passing. A couple of failures turned out to be ordinary
+  single-run model variance (confirmed clean on an immediate re-run)
+  rather than anything requiring a fix. One failure was a real bug in
+  `smeval` itself, not the skill or the eval — a case could write files
+  into this actual repo instead of its isolated workspace; see
   `TESTING.md`'s "A fixed workspace-escape bug" for the full story, now
-  fixed and verified. Skills not yet reached by the sweep are schema-valid
-  but not yet live-verified; don't read "125 skills" as "125
-  independently proven."
+  fixed and verified.
+- `skill-inspector` and the 6 web-quality skills were added after that
+  sweep and are live-verified individually (their own eval cases run and
+  passing), but haven't yet gone through a full-catalog sweep pass of
+  their own alongside everything else. Read
+  `smeval-workspace/test-all-results/summary.txt` for the exact,
+  currently-accumulated count rather than trusting a number here — don't
+  read "132 skills" as "132 independently proven."
 
 This is the same rigor bar this catalog's own eval-quality bug reports
 apply to any other skill's claims — including a real, previously-hidden
@@ -74,8 +82,9 @@ comment for the full story).
 | PHP | Laravel, CodeIgniter 4, legacy CodeIgniter 2/3, security, TDD |
 | Databases | PostgreSQL patterns, partitioning, MySQL/MariaDB, migrations |
 | Frontend | Vue/Nuxt, frontend engineering patterns |
+| Web quality | Core Web Vitals (LCP/INP/CLS), accessibility (WCAG 2.2), SEO, security/best-practices audits |
 | Hospitality domain | rate/inventory modeling, channel manager/OTA integration |
-| Agentic engineering | multi-agent orchestration, agent drift, eval design |
+| Agentic engineering | multi-agent orchestration, agent drift, eval design, third-party skill safety review (`skill-inspector`) |
 | Process | QA strategy, TDD, code review, security review, CI/CD |
 | Product & leadership | PR-FAQs, prioritization, feedback, incident response |
 | Policy & philosophy | error handling, dependency policy, deprecation |
@@ -135,6 +144,28 @@ ordinary, editable files, for whichever agent(s) you tell it to target
 (Claude Code, Codex, Cursor, and others). Nothing updates behind your
 back; pull this repo's later changes yourself with `npx skills@latest
 update` when you want them.
+
+### Installing just one skill, not the whole catalog
+
+The Claude Code plugin route above is all-or-nothing — a plugin installs
+as one managed bundle, there's no per-skill flag. `skills.sh` is the one
+that supports picking a single skill out of this catalog:
+
+```bash
+npx skills@latest add shennawardana23/skillme --skill go-service-idioms
+
+# more than one, still without the rest of the catalog:
+npx skills@latest add shennawardana23/skillme --skill go-service-idioms security-review
+
+# not sure of the exact name yet:
+npx skills@latest add shennawardana23/skillme --list
+```
+
+`--list` prints every skill name in this repo without installing
+anything — run `scripts/list-skills.sh` locally for the same list, or
+browse `skills/` directly. Everything installed this way lands as plain,
+editable files in your own project; update just that skill later with
+`npx skills@latest update go-service-idioms`.
 
 ## Repository layout
 

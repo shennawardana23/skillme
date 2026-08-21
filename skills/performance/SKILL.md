@@ -3,7 +3,8 @@ name: performance
 description: Optimize web performance for faster loading and better user experience. Use when asked to "speed up my site", "optimize performance", "reduce load time", "fix slow loading", "improve page speed", or "performance audit". For Go backend profiling/measurement-first triage use performance-optimization instead — this skill is the deep frontend reference (budgets, caching, image/font formats, third-party scripts, code splitting).
 license: Apache-2.0
 metadata:
-  version: "1.0"
+  category: "web-quality"
+  version: "0.1.0"
 ---
 
 # Performance optimization

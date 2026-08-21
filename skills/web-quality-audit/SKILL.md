@@ -3,7 +3,8 @@ name: web-quality-audit
 description: Comprehensive web quality audit covering performance, accessibility, SEO, and best practices. Use when asked to "audit my site", "review web quality", "run lighthouse audit", "check page quality", or "optimize my website".
 license: Apache-2.0
 metadata:
-  version: "1.0"
+  category: "web-quality"
+  version: "0.1.0"
 ---
 
 # Web quality audit

@@ -3,7 +3,8 @@ name: seo
 description: Optimize for search engine visibility and ranking. Use when asked to "improve SEO", "optimize for search", "fix meta tags", "add structured data", "sitemap optimization", or "search engine optimization".
 license: Apache-2.0
 metadata:
-  version: "1.0"
+  category: "web-quality"
+  version: "0.1.0"
 ---
 
 # SEO optimization

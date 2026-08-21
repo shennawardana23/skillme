@@ -3,7 +3,8 @@ name: accessibility
 description: Audit and improve web accessibility following WCAG 2.2 guidelines. Use when asked to "improve accessibility", "a11y audit", "WCAG compliance", "screen reader support", "keyboard navigation", or "make accessible".
 license: Apache-2.0
 metadata:
-  version: "1.1"
+  category: "web-quality"
+  version: "0.1.0"
 ---
 
 # Accessibility (a11y)
