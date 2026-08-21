@@ -1,16 +1,34 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "skillme",
   "owner": {
-    "name": "shennawardana23"
+    "name": "Mochammad Shenna Wardana",
+    "url": "https://github.com/shennawardana23"
   },
-  "description": "A testable knowledge base of real engineering practice for Go, PHP, PostgreSQL/MySQL, Vue/Nuxt, and beyond, checked automatically with this repository's own eval runner (smeval).",
+  "description": "A testable knowledge base of real engineering practice — every skill backed by its own deterministic eval suite, checked automatically with this repository's own eval runner (smeval).",
   "plugins": [
     {
       "name": "skillme",
-      "source": "./",
-      "description": "A testable knowledge base of real engineering practice, spanning Go, PHP, PostgreSQL/MySQL, Vue/Nuxt, hotel-domain modeling, QA, product management, and agentic engineering — each entry checked automatically with smeval, this repository's own eval runner.",
+      "source": {
+        "source": "github",
+        "repo": "shennawardana23/skillme"
+      },
+      "description": "A testable knowledge base of real engineering practice — every skill backed by its own deterministic eval suite, checked automatically with smeval, this repository's own eval runner.",
       "category": "engineering",
-      "keywords": ["go", "php", "postgresql", "mysql", "vue", "nuxt", "smeval", "eval"]
+      "homepage": "https://github.com/shennawardana23/skillme",
+      "license": "Apache-2.0",
+      "keywords": [
+        "agent-skills",
+        "claude-code-plugin",
+        "engineering-skills",
+        "eval-driven",
+        "code-review",
+        "security",
+        "web-quality",
+        "qa",
+        "product-management",
+        "smeval"
+      ]
     }
   ]
 }

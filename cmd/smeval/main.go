@@ -222,9 +222,18 @@ func runRun(args []string) error {
 	if err := report.WriteHTML(iterationDir, suite.SkillName, withSkill, withoutSkill, *benchmark); err != nil {
 		return err
 	}
+	evalIDs := make([]string, len(withSkill))
+	for i, o := range withSkill {
+		evalIDs[i] = o.EvalID
+	}
+	if err := report.WriteFeedbackStub(iterationDir, evalIDs); err != nil {
+		return err
+	}
 
 	fmt.Printf("\n📋 Results: %d/%d cases fully passed — report: %s\n",
 		len(withSkill)-failures, len(withSkill), filepath.Join(iterationDir, "report.html"))
+	fmt.Printf("   Human review: open each case's outputs/response.md, then fill in %s\n",
+		filepath.Join(iterationDir, "feedback.json"))
 	if failures > 0 {
 		// Returned rather than os.Exit'd here so the harnessDir defer above
 		// still runs — os.Exit skips all deferred cleanup.

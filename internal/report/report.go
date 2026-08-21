@@ -6,6 +6,7 @@
 //	<skill>-workspace/iteration-N/<eval-id>/with_skill/{outputs/,timing.json,grading.json}
 //	<skill>-workspace/iteration-N/<eval-id>/without_skill/... (benchmark mode only)
 //	<skill>-workspace/iteration-N/benchmark.json              (benchmark mode only)
+//	<skill>-workspace/iteration-N/feedback.json               (stub — a human fills this in)
 //	<skill>-workspace/iteration-N/report.html
 package report
 
@@ -121,6 +122,31 @@ func WriteBenchmark(iterationDir string, withSkill, withoutSkill []RunOutcome) e
 		},
 	}
 	return writeJSON(filepath.Join(iterationDir, "benchmark.json"), b)
+}
+
+// WriteFeedbackStub scaffolds feedback.json — a place for a human (or a
+// separate qualitative-review pass) to record what deterministic assertions
+// structurally cannot check: prose/report quality, whether an output is
+// technically correct but misses the point, "does this feel right." The
+// spec (https://agentskills.io/skill-creation/evaluating-skills#reviewing-results-with-a-human)
+// treats this as a required pillar of the loop, not an optional extra —
+// assertion grading only checks what someone thought to write an assertion
+// for. Every eval ID gets an empty-string entry ready to fill in; empty
+// means "reviewed, looked fine," not "not yet reviewed," so leave an entry
+// empty only once you've actually looked at that case's output. Never
+// overwrites an existing feedback.json — a fresh iteration directory starts
+// empty by construction (NextIterationDir), so there's nothing to preserve
+// on a normal run, but this stays safe if it's ever called twice.
+func WriteFeedbackStub(iterationDir string, evalIDs []string) error {
+	path := filepath.Join(iterationDir, "feedback.json")
+	if _, err := os.Stat(path); err == nil {
+		return nil
+	}
+	feedback := make(map[string]string, len(evalIDs))
+	for _, id := range evalIDs {
+		feedback[id] = ""
+	}
+	return writeJSON(path, feedback)
 }
 
 // htmlData is what report.html.tmpl renders.
