@@ -3,7 +3,8 @@ name: best-practices
 description: Apply modern web development best practices for security, compatibility, and code quality. Use when asked to "apply best practices", "security audit", "modernize code", "code quality review", or "check for vulnerabilities".
 license: Apache-2.0
 metadata:
-  version: "1.0"
+  category: "web-quality"
+  version: "0.1.0"
 ---
 
 # Best practices

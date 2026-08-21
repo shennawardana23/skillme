@@ -1,6 +1,6 @@
 {
   "name": "skillme",
-  "version": "0.5.0",
+  "version": "0.1.0",
   "description": "A testable knowledge base of real engineering practice, spanning Go, PHP, PostgreSQL/MySQL, Vue/Nuxt, hotel-domain modeling, QA, product management, and agentic engineering — each entry checked automatically with smeval, this repository's own eval runner.",
   "author": {
     "name": "shennawardana23"

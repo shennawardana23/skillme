@@ -3,6 +3,7 @@ name: skill-inspector
 description: Reviews a third-party AI agent skill — a local directory, downloaded archive, or repo URL — for safety before installing it, using NVIDIA's SkillSpector static scanner plus source-aware semantic review. Use when asked whether a skill or downloaded skill folder is safe, trustworthy, installable, over-permissioned, or malicious, or before running "claude plugin install"/"npx skills add" on anything not already vetted. This inspects a skill someone else wrote, not this catalog's own harness config (use security-scan for that) or application source code (use security-review).
 license: Apache-2.0
 metadata:
+  category: "security"
   version: "0.1.0"
 ---
 

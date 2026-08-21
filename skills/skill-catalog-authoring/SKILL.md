@@ -2,7 +2,7 @@
 name: skill-catalog-authoring
 description: This skill should be used when the user asks to "add a new skill to skillme", "add a skill to this catalog", "write an eval for this skill", "validate this skill's evals", "run smeval on this skill", or otherwise extends or maintains a skill inside this plugin's skills/ directory. Provides the required directory layout, SKILL.md conventions, and evals.json schema for this repository's own eval runner.
 metadata:
-  version: "0.2.0"
+  version: "0.1.0"
 ---
 
 # Skill Catalog Authoring
