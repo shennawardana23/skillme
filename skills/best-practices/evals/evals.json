@@ -1,0 +1,53 @@
+{
+  "skill_name": "best-practices",
+  "evals": [
+    {
+      "id": "flags-cdn-script-without-sri",
+      "prompt": "Using the best-practices skill, review this for supply-chain risk: <script src=\"https://cdn.example.com/lib@1.2.3/dist/lib.js\"></script>, loaded from a CDN we don't control. What's missing?",
+      "expected_output": "Flags the missing Subresource Integrity (SRI) hash, explaining that without it a compromised CDN can serve modified/malicious code and the browser has no way to detect it, and recommends adding an integrity attribute plus crossorigin.",
+      "assertions": [
+        {
+          "text": "Flags the missing SRI protection",
+          "check": { "contains_any": ["Subresource Integrity", "SRI", "integrity attribute", "integrity hash"] }
+        },
+        {
+          "text": "Recommends the integrity attribute with crossorigin",
+          "check": { "contains_any": ["integrity=", "crossorigin"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-innerhtml-with-user-input",
+      "prompt": "Using the best-practices skill, review this code for security: element.innerHTML = userInput;. What's the risk and what should replace it?",
+      "expected_output": "Flags this as an XSS vulnerability since userInput could contain executable markup, and recommends using textContent for plain text or sanitizing with a library like DOMPurify if HTML is actually required.",
+      "assertions": [
+        {
+          "text": "Flags this as an XSS risk",
+          "check": { "contains_any": ["XSS", "cross-site scripting"] }
+        },
+        {
+          "text": "Recommends textContent or a sanitizer as the fix",
+          "check": { "contains_any": ["textContent", "DOMPurify", "sanitiz"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-source-maps-exposed-in-production",
+      "prompt": "Using the best-practices skill: our webpack config has devtool: 'source-map' unconditionally, including in the production build. Is this a problem, and what should change?",
+      "expected_output": "Flags that shipping full source maps in production exposes unminified original source code to anyone who requests the .map file, and recommends hidden-source-map (or no source maps) in production, uploading them privately to an error tracker instead.",
+      "assertions": [
+        {
+          "text": "Flags exposing source maps in production as a problem",
+          "check": { "contains_any": ["exposes", "exposed", "source code", "expose"] }
+        },
+        {
+          "text": "Recommends hidden-source-map or disabling maps in production",
+          "check": { "contains_any": ["hidden-source-map", "no source maps", "devtool: false"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

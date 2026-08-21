@@ -1,0 +1,53 @@
+{
+  "skill_name": "performance",
+  "evals": [
+    {
+      "id": "flags-unbatched-layout-reads-and-writes",
+      "prompt": "Using the performance skill, review this code for layout thrashing: elements.forEach(el => { const height = el.offsetHeight; el.style.height = (height + 10) + 'px'; }). What's wrong and how do you fix it?",
+      "expected_output": "Flags that interleaving a layout read (offsetHeight) with a layout write (style.height) inside the same loop forces a synchronous reflow on every iteration, and recommends batching all reads first, then all writes.",
+      "assertions": [
+        {
+          "text": "Flags the interleaved read/write as forcing repeated reflow",
+          "check": { "contains_any": ["reflow", "layout thrashing", "forces a", "forced layout"] }
+        },
+        {
+          "text": "Recommends batching reads before writes",
+          "check": { "contains_any": ["batch", "all reads", "then writes", "separate the reads"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-brotli-and-http2-for-slow-ttfb",
+      "prompt": "Using the performance skill: our TTFB is around 1.2 seconds and our text assets (HTML, CSS, JS) aren't compressed at all. What should we change, in order of what matters most?",
+      "expected_output": "Recommends enabling compression (Brotli preferred over Gzip) for text assets and notes HTTP/2 or HTTP/3 for connection multiplexing, alongside addressing the slow server response time itself (CDN, caching, efficient backend) as the actual TTFB fix.",
+      "assertions": [
+        {
+          "text": "Recommends compression, naming Brotli",
+          "check": { "contains_all": ["Brotli"] }
+        },
+        {
+          "text": "Addresses the TTFB/server-response side, not just compression",
+          "check": { "contains_any": ["CDN", "caching", "server response", "TTFB"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-full-lodash-import-for-tree-shaking",
+      "prompt": "Using the performance skill, review this import for bundle size: import _ from 'lodash'; then using _.debounce(fn, 300). What's the problem and the fix?",
+      "expected_output": "Flags that importing the entire lodash library defeats tree shaking and bloats the bundle for one function, and recommends importing only the specific function needed (e.g. import debounce from 'lodash/debounce').",
+      "assertions": [
+        {
+          "text": "Flags the whole-library import as a bundle-size problem",
+          "check": { "contains_any": ["tree shak", "entire library", "whole library", "bundle size"] }
+        },
+        {
+          "text": "Recommends importing only the specific function",
+          "check": { "contains_any": ["lodash/debounce", "only what", "specific function", "import debounce"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

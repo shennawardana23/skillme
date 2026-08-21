@@ -59,8 +59,7 @@ for dir in skills/*/; do
   total=$((total + 1))
   echo ""
   echo "=== $name ==="
-  out="skills/${name}-workspace"
-  summary=$(./smeval run "$dir" -output-dir "$out" 2>&1 | tee /dev/stderr)
+  summary=$(./smeval run "$dir" 2>&1 | tee /dev/stderr)
   line=$(echo "$summary" | grep -o '[0-9]*/[0-9]* cases fully passed' | head -1)
 
   if [ -z "$line" ]; then
@@ -99,4 +98,4 @@ fi
 
 echo ""
 echo "Full accumulated results: ${RESULTS_FILE}"
-echo "Per-case evidence: skills/<name>-workspace/iteration-1/<case-id>/with_skill/{outputs/response.md,grading.json}"
+echo "Per-case evidence: smeval-workspace/runs/<name>/iteration-1/<case-id>/with_skill/{outputs/response.md,grading.json}"

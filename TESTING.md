@@ -58,7 +58,7 @@ or on failure:
 ```
 
 A styled version of the same summary lands at
-`skills/<name>-workspace/iteration-N/report.html` — open it in a browser
+`smeval-workspace/runs/<name>/iteration-N/report.html` — open it in a browser
 rather than re-reading the terminal scrollback. `iteration-N`
 auto-increments each run, so nothing overwrites a previous result.
 
@@ -68,15 +68,15 @@ Don't stop at "it failed" — read the actual evidence before concluding
 whether the skill is wrong or the eval case is wrong:
 
 ```bash
-cat skills/<name>-workspace/iteration-1/<case-id>/with_skill/outputs/response.md   # what the model actually said
-cat skills/<name>-workspace/iteration-1/<case-id>/with_skill/grading.json          # exactly which assertion failed, and why
+cat smeval-workspace/runs/<name>/iteration-1/<case-id>/with_skill/outputs/response.md   # what the model actually said
+cat smeval-workspace/runs/<name>/iteration-1/<case-id>/with_skill/grading.json          # exactly which assertion failed, and why
 ```
 
 `grading.json`'s `evidence` field quotes exactly what was/wasn't found —
 e.g. `"missing required substring(s): PARTITION BY LIST"`. If the model's
 answer looks substantively correct despite that, check whether it wrote
 the real deliverable to a file in
-`skills/<name>-workspace/iteration-1/<case-id>/with_skill/workspace/`
+`smeval-workspace/runs/<name>/iteration-1/<case-id>/with_skill/workspace/`
 instead of the chat response — grading a case whose real output is a
 file, but whose assertions only check the chat text, is the single most
 common eval-authoring mistake in this catalog so far. Fix by pointing the
@@ -113,7 +113,7 @@ fixing one broken assertion.
 
 ```bash
 ./smeval run skills/<name> -benchmark
-cat skills/<name>-workspace/iteration-1/benchmark.json
+cat smeval-workspace/runs/<name>/iteration-1/benchmark.json
 ```
 
 Also runs every case with the skill absent entirely, and writes a
@@ -159,7 +159,7 @@ when it finishes (or is interrupted and re-run to completion).
 An `ERROR` result (as opposed to a partial pass) means the engine itself
 failed — a timeout, a non-zero exit, unparseable output — not that an
 assertion failed. Check
-`skills/<name>-workspace/iteration-N/<case-id>/with_skill/outputs/engine-error.txt`
+`smeval-workspace/runs/<name>/iteration-N/<case-id>/with_skill/outputs/engine-error.txt`
 for the reason before assuming anything about the skill's content; a
 timeout on a case with an unusually long, thorough response may just need
 a longer `timeout_seconds` in that case's `evals.json` entry, not a
@@ -176,7 +176,7 @@ case's own isolated workspace came back empty, but a real, untracked
 misbehave; the isolation had a hole.
 
 Root cause: each case's workspace (`smeval-workspace/`-adjacent
-`skills/<name>-workspace/iteration-N/<case-id>/.../workspace/`) is a real
+`smeval-workspace/runs/<name>/iteration-N/<case-id>/.../workspace/`) is a real
 directory *inside this repo's own git working tree* (gitignored, but
 still inside the tree — there is only one `.git`, at this repo's root).
 `internal/engine` sets the subprocess's OS-level working directory

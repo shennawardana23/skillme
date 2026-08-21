@@ -1,0 +1,45 @@
+{
+  "skill_name": "web-quality-audit",
+  "evals": [
+    {
+      "id": "categorizes-findings-by-severity",
+      "prompt": "Using the web-quality-audit skill, review this page and categorize the findings by severity: a login form has no CSP headers configured (Critical-worthy security gap), the hero image is missing width/height attributes, and one blog post has a meta description that's 200 characters long. Produce the categorized findings.",
+      "expected_output": "Categorizes the missing CSP as Critical (security), the missing image dimensions as a Core Web Vitals/CLS issue at High or Medium, and the oversized meta description as a Low/Medium SEO issue, using the skill's defined severity levels rather than treating all three as equally urgent.",
+      "assertions": [
+        {
+          "text": "Labels the missing CSP headers as Critical",
+          "check": { "contains_all": ["Critical"] }
+        },
+        {
+          "text": "Distinguishes severity across the three findings rather than treating them identically",
+          "check": { "contains_any": ["High", "Medium", "Low"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "covers_all_four_audit_categories",
+      "prompt": "Using the web-quality-audit skill, do a quick audit summary for a marketing site homepage. List which of the four audit categories you'd check and give one example check per category.",
+      "expected_output": "Names all four categories the skill defines (Performance, Accessibility, SEO, Best Practices) each with at least one concrete example check, not just performance alone.",
+      "assertions": [
+        {
+          "text": "Covers Performance",
+          "check": { "contains_all": ["Performance"] }
+        },
+        {
+          "text": "Covers Accessibility",
+          "check": { "contains_all": ["Accessibility"] }
+        },
+        {
+          "text": "Covers SEO",
+          "check": { "contains_all": ["SEO"] }
+        },
+        {
+          "text": "Covers Best Practices",
+          "check": { "contains_any": ["Best Practices", "Best practices"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

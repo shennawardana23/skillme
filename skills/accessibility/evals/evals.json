@@ -1,0 +1,53 @@
+{
+  "skill_name": "accessibility",
+  "evals": [
+    {
+      "id": "flags-icon-button-with-no-accessible-name",
+      "prompt": "Using the accessibility skill, review this button for accessibility: <button><svg><!-- menu icon --></svg></button>. What's wrong and how do you fix it?",
+      "expected_output": "Flags that the button has no accessible name (a screen reader user hears nothing meaningful), and recommends adding aria-label=\"Open menu\" (or visually-hidden text) plus aria-hidden=\"true\" on the decorative icon.",
+      "assertions": [
+        {
+          "text": "Flags the missing accessible name for the icon-only button",
+          "check": { "contains_any": ["accessible name", "no accessible name", "screen reader"] }
+        },
+        {
+          "text": "Recommends aria-label or visually-hidden text as the fix",
+          "check": { "contains_any": ["aria-label", "visually-hidden", "visually hidden"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-non-interactive-div-with-onclick",
+      "prompt": "Using the accessibility skill, review this for keyboard accessibility: <div class=\"card\" onclick=\"handleAction()\">Open</div>. What's the problem, and what's the best fix?",
+      "expected_output": "Flags that a div with only a click handler is not focusable and has no keyboard activation, and recommends using a native <button> element instead of adding manual tabindex/role/keydown handling to the div.",
+      "assertions": [
+        {
+          "text": "Flags the div as not keyboard-accessible/focusable",
+          "check": { "contains_any": ["not focusable", "not keyboard", "no keyboard", "keyboard accessible", "not in the Tab order", "not in the tab order", "can't reach it"] }
+        },
+        {
+          "text": "Recommends a native button as the primary fix",
+          "check": { "contains_any": ["native button", "<button>", "use a button"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-low-contrast-text",
+      "prompt": "Using the accessibility skill, is this CSS accessible for normal body text: color: #999; background: #fff;? Why or why not, per WCAG?",
+      "expected_output": "Flags that #999 on #fff is roughly 2.5:1 contrast, well below the WCAG AA minimum of 4.5:1 for normal text, and recommends a darker color that meets or exceeds 4.5:1.",
+      "assertions": [
+        {
+          "text": "Flags this as failing the WCAG AA contrast minimum",
+          "check": { "contains_any": ["4.5:1", "insufficient contrast", "fails", "below"] }
+        },
+        {
+          "text": "Names the correct AA threshold for normal text",
+          "check": { "contains_all": ["4.5"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

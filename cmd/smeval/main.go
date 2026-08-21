@@ -132,7 +132,11 @@ func runRun(args []string) error {
 	}
 
 	if *outputDir == "" {
-		*outputDir = strings.TrimRight(filepath.Clean(skillDir), "/") + "-workspace"
+		// One shared, already-gitignored root (smeval-workspace/) instead of a
+		// "<skill>-workspace" sibling scattered next to every single skill —
+		// 125 skills each leaving their own workspace directory inside
+		// skills/ turns that listing into 50% real content, 50% run output.
+		*outputDir = filepath.Join("smeval-workspace", "runs", filepath.Base(filepath.Clean(skillDir)))
 	}
 	iterationDir, err := report.NextIterationDir(*outputDir)
 	if err != nil {

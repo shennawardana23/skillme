@@ -1,0 +1,53 @@
+{
+  "skill_name": "seo",
+  "evals": [
+    {
+      "id": "flags-multiple-h1-and-poor-hierarchy",
+      "prompt": "Using the seo skill, review this heading structure: <h2>Welcome to Our Store</h2> <h4>Products</h4> <h1>Contact Us</h1>. What's wrong with it?",
+      "expected_output": "Flags the missing/misplaced single h1 (main topic should be the h1, not a secondary Contact Us heading) and the skipped heading level (h2 to h4), recommending a proper single-h1, logical-hierarchy structure.",
+      "assertions": [
+        {
+          "text": "Flags the heading hierarchy problem (multiple/misplaced h1, skipped level)",
+          "check": { "contains_any": ["single <h1>", "single h1", "one h1", "skip", "hierarchy"] }
+        },
+        {
+          "text": "Recommends a corrected structure",
+          "check": { "contains_any": ["h1", "logical hierarchy", "proper hierarchy"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-noncanonical-http-image-src",
+      "prompt": "Using the seo skill, review this for SEO/security issues on an HTTPS page: <img src=\"http://example.com/image.jpg\">. What's wrong?",
+      "expected_output": "Flags the mixed content (loading an HTTP resource from an HTTPS page) as a problem and recommends switching the image src to HTTPS.",
+      "assertions": [
+        {
+          "text": "Flags the mixed-content HTTP resource on an HTTPS page",
+          "check": { "contains_any": ["mixed content", "http", "https"] }
+        },
+        {
+          "text": "Recommends using HTTPS for the resource",
+          "check": { "contains_all": ["https"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "recommends-structured-data-for-faq-content",
+      "prompt": "Using the seo skill: we have an FAQ section on our page with plain HTML question/answer pairs, and we want it to show up as a rich result in Google Search. What should we add?",
+      "expected_output": "Recommends adding FAQPage JSON-LD structured data with mainEntity Question/acceptedAnswer entries matching the visible FAQ content, and mentions validating it with a structured data testing tool.",
+      "assertions": [
+        {
+          "text": "Recommends FAQPage structured data",
+          "check": { "contains_all": ["FAQPage"] }
+        },
+        {
+          "text": "Mentions JSON-LD as the format",
+          "check": { "contains_all": ["JSON-LD"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

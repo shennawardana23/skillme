@@ -1,0 +1,53 @@
+{
+  "skill_name": "core-web-vitals",
+  "evals": [
+    {
+      "id": "flags-lcp-image-not-preloaded",
+      "prompt": "Using the core-web-vitals skill: our homepage's LCP element is a hero <img> tag with no rel=preload link and no fetchpriority attribute, discovered by the browser only after it parses that far into the HTML. LCP is measuring around 3.8s. What's the fix?",
+      "expected_output": "Recommends adding a <link rel=\"preload\" as=\"image\"> for the hero image plus fetchpriority=\"high\" on the <img> tag itself, explaining this lets the browser start fetching before it would otherwise discover the image.",
+      "assertions": [
+        {
+          "text": "Recommends preloading the LCP image",
+          "check": { "contains_any": ["rel=\"preload\"", "rel='preload'", "preload"] }
+        },
+        {
+          "text": "Recommends fetchpriority high on the image",
+          "check": { "contains_all": ["fetchpriority"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-missing-image-dimensions-for-cls",
+      "prompt": "Using the core-web-vitals skill, review this code for CLS risk: <img src=\"photo.jpg\" alt=\"Photo\">. What's wrong and how do you fix it?",
+      "expected_output": "Flags the missing width/height (or aspect-ratio) as a CLS risk since the browser can't reserve space before the image loads, and recommends adding explicit width/height attributes or an aspect-ratio style.",
+      "assertions": [
+        {
+          "text": "Flags missing dimensions as a CLS risk",
+          "check": { "contains_any": ["layout shift", "CLS", "reserve space", "reserved space"] }
+        },
+        {
+          "text": "Recommends explicit width/height or aspect-ratio",
+          "check": { "contains_any": ["width", "aspect-ratio"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "identifies-inp-fix-for-heavy-click-handler",
+      "prompt": "Using the core-web-vitals skill: a button's click handler does a heavy synchronous computation and then updates the DOM, all before returning, and INP measurements show it's slow. What should change about the handler, and why does it help INP specifically?",
+      "expected_output": "Recommends giving immediate visual feedback first, then yielding to the scheduler (e.g. scheduler.yield() or a setTimeout fallback) before doing the heavy work, explaining this lets the browser paint before the main thread is blocked by the computation.",
+      "assertions": [
+        {
+          "text": "Recommends yielding to the browser/scheduler before the heavy work",
+          "check": { "contains_any": ["scheduler.yield", "yield to the", "yield before", "setTimeout"] }
+        },
+        {
+          "text": "Explains the reasoning in terms of letting the browser paint/respond",
+          "check": { "contains_any": ["paint", "main thread", "visual feedback"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}
