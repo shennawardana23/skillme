@@ -1,6 +1,6 @@
 {
   "name": "skillme",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A testable knowledge base of real engineering practice — every skill backed by its own deterministic eval suite, checked automatically with smeval, this repository's own eval runner.",
   "author": {
     "name": "Mochammad Shenna Wardana"

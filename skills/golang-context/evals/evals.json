@@ -1,0 +1,50 @@
+{
+  "skill_name": "golang-context",
+  "evals": [
+    {
+      "id": "no-defer-cancel-leak",
+      "prompt": "Review this Go code for bugs:\n\n```go\nfunc fetchWithTimeout(ctx context.Context, url string) (*http.Response, error) {\n    ctx, cancel := context.WithTimeout(ctx, 5*time.Second)\n    resp, err := http.NewRequestWithContext(ctx, \"GET\", url, nil)\n    _ = cancel\n    if err != nil {\n        return nil, err\n    }\n    return http.DefaultClient.Do(resp)\n}\n```",
+      "expected_output": "Flags that cancel is never actually called (assigned to _ instead of deferred), which leaks the timer/goroutine backing the derived context until the parent context is canceled. Recommends `defer cancel()` immediately after WithTimeout.",
+      "assertions": [
+        {
+          "text": "Identifies that cancel is discarded instead of deferred/called",
+          "check": { "contains_any": ["defer cancel", "never called", "not called", "discarded", "isn't called", "is not invoked"] }
+        },
+        {
+          "text": "Names the consequence as a leak of the timer/goroutine behind the derived context",
+          "check": { "contains_any": ["leak", "leaks"] }
+        }
+      ]
+    },
+    {
+      "id": "context-in-struct-field",
+      "prompt": "Review this Go code for bugs:\n\n```go\ntype Client struct {\n    ctx context.Context\n    db  *sql.DB\n}\n\nfunc NewClient(ctx context.Context, db *sql.DB) *Client {\n    return &Client{ctx: ctx, db: db}\n}\n\nfunc (c *Client) GetUser(id string) (*User, error) {\n    row := c.db.QueryRowContext(c.ctx, \"SELECT ... WHERE id = $1\", id)\n    ...\n}\n```",
+      "expected_output": "Flags storing context.Context in a struct field as an anti-pattern — the stored context goes stale relative to the actual call, and recommends GetUser(ctx context.Context, id string) taking ctx explicitly instead.",
+      "assertions": [
+        {
+          "text": "Flags storing context in a struct field as wrong",
+          "check": { "contains_any": ["store", "storing", "stored", "struct field"] }
+        },
+        {
+          "text": "Recommends passing ctx explicitly as a parameter instead",
+          "check": { "contains_any": ["as a parameter", "explicitly", "first parameter", "pass ctx"] }
+        }
+      ]
+    },
+    {
+      "id": "detached-cleanup-after-cancellation",
+      "prompt": "A request handler needs to write an audit log entry after the response is sent, using data from the request's context (a trace ID stored via WithValue). The request's own context gets canceled as soon as the response is written, but the audit write must still complete. What Go context should the audit write use, and why?",
+      "expected_output": "Recommends context.WithoutCancel(ctx) so the audit write keeps the request's values (trace ID) but is immune to the request context's cancellation, rather than switching to context.Background() and losing the trace ID.",
+      "assertions": [
+        {
+          "text": "Names context.WithoutCancel as the mechanism",
+          "check": { "contains_any": ["WithoutCancel"] }
+        },
+        {
+          "text": "Explains it preserves values while dropping cancellation, unlike context.Background()",
+          "check": { "contains_any": ["Background", "loses the trace", "lose the value", "still carries"] }
+        }
+      ]
+    }
+  ]
+}

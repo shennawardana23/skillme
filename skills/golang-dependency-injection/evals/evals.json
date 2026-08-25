@@ -1,0 +1,50 @@
+{
+  "skill_name": "golang-dependency-injection",
+  "evals": [
+    {
+      "id": "wire-vs-dig-tradeoff",
+      "prompt": "We're deciding between google/wire and uber-go/dig for a new Go service's dependency injection. What's the actual difference, and how does it affect when we find out about a missing dependency?",
+      "expected_output": "Explains wire generates real Go code at build time (wire_gen.go) via wire.Build, so a missing/ambiguous provider fails at build/codegen time, while dig resolves dependencies at runtime via reflection, so a missing provider only fails the first time that type is actually resolved/invoked.",
+      "assertions": [
+        {
+          "text": "Identifies wire as compile-time/code-generation based",
+          "check": { "contains_any": ["compile-time", "code generation", "codegen", "wire_gen", "generates code"] }
+        },
+        {
+          "text": "Identifies dig as runtime/reflection based, with errors surfacing at Invoke time",
+          "check": { "contains_any": ["runtime", "reflection", "Invoke"] }
+        }
+      ]
+    },
+    {
+      "id": "fx-lifecycle-hook",
+      "prompt": "Using uber-go/fx, write the fx.Invoke function that registers an OnStart/OnStop lifecycle hook for an *http.Server so it starts listening when the fx app starts and shuts down gracefully when it stops.",
+      "expected_output": "Uses fx.Lifecycle's Append method with an fx.Hook containing OnStart and OnStop functions that take a context.Context and return an error, calling the server's start/shutdown methods inside them.",
+      "assertions": [
+        {
+          "text": "Uses fx.Lifecycle / lc.Append with an fx.Hook",
+          "check": { "contains_all": ["Lifecycle", "Hook"] }
+        },
+        {
+          "text": "Defines both OnStart and OnStop callbacks",
+          "check": { "contains_all": ["OnStart", "OnStop"] }
+        }
+      ]
+    },
+    {
+      "id": "samber-do-generics-vs-dig-reflection",
+      "prompt": "What's the practical difference between samber/do and uber-go/dig, given they're both runtime dependency injection containers for Go?",
+      "expected_output": "Explains samber/do uses Go generics (Provide[T], Invoke[T]/MustInvoke[T]) so calls are type-checked at compile time on the calling side, while dig resolves constructor arguments via reflection over interface{} without that compile-time type safety on the call site, even though both still resolve the dependency graph at runtime.",
+      "assertions": [
+        {
+          "text": "Identifies generics as samber/do's mechanism",
+          "check": { "contains_any": ["generics", "generic", "Provide[T]", "Invoke[T]"] }
+        },
+        {
+          "text": "Identifies reflection as dig's mechanism, contrasted with do",
+          "check": { "contains_any": ["reflection", "interface{}", "reflect"] }
+        }
+      ]
+    }
+  ]
+}

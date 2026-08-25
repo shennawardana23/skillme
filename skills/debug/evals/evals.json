@@ -38,6 +38,23 @@
       "timeout_seconds": 180
     },
     {
+      "id": "traces-bug-across-files",
+      "prompt": "Using the debug skill: our service panics on startup with:\n\npanic: runtime error: invalid memory address or nil pointer dereference\n[signal SIGSEGV: segmentation violation code=0x2 addr=0x0 pc=0x104f2eef4]\n\ngoroutine 1 [running]:\nfixture/pkg/server.Start(0x1400010ef18)\n\t/pkg/server/server.go:12\nmain.main()\n\t/main.go:10\n\nThe repo is checked out at the current directory. Find the actual root cause and fix it.",
+      "expected_output": "Reads the actual fixture files (main.go, pkg/server/server.go, pkg/config/config.go) rather than guessing from the stack trace alone, identifies that the nil pointer is cfg.Timeout (never set in config.Load(), in a different file than where the panic surfaces), and fixes it there — not by adding a nil check at the symptom location in server.go, which would mask the real bug per the skill's own Gotchas section.",
+      "assertions": [
+        {
+          "text": "Identifies the root cause is in config.go (Timeout never set), not just at the panic site in server.go",
+          "check": { "contains_all": ["config.go", "Timeout"] }
+        },
+        {
+          "text": "Does not stop at a symptom-only fix (a nil check in server.go without also fixing where Timeout should have been set)",
+          "check": { "not_contains": ["just add a nil check in server.go", "add a nil check in Start"] }
+        }
+      ],
+      "fixture": "config-timeout-bug",
+      "timeout_seconds": 180
+    },
+    {
       "id": "distinguishes-intermittent-from-truly-random",
       "prompt": "Using the debug skill's guidance on intermittent bugs, a test that iterates over a Go map and asserts a specific output ordering fails about 1 in 5 runs. Is this truly random, and what's the likely cause?",
       "expected_output": "Explains this is not truly random — Go deliberately randomizes map iteration order — so the test's assumption of a fixed order is the actual bug, not flakiness in the underlying code.",

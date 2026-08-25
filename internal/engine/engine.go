@@ -186,6 +186,18 @@ func attempt(ctx context.Context, opts Options, model string) (*Result, error) {
 		return nil, fmt.Errorf("engine reported an error (is_error=%v, api_error_status=%v, terminal_reason=%q): %s",
 			cj.IsError, deref(cj.APIErrorStatus), cj.TerminalReason, cj.Result)
 	}
+	// claudeJSON's fields were captured empirically from a live invocation
+	// (see the package doc), not guaranteed by a versioned schema — an
+	// undocumented CLI change that renames or drops "result" would silently
+	// unmarshal into a zero-valued empty string here, with is_error still
+	// false, making a real engine failure look like a clean pass with blank
+	// content. A well-formed response is never actually empty, so treat this
+	// as an engine error (triggering the outer fallback) rather than letting
+	// it reach grading as a false "PASS: no assertions matched empty text"
+	// or, worse, a vacuously true case with no assertions at all.
+	if strings.TrimSpace(cj.Result) == "" {
+		return nil, fmt.Errorf("engine returned an empty result with is_error=false — likely an --output-format json shape mismatch (stdout: %s)", truncate(stdout.String(), 500))
+	}
 
 	total := cj.Usage.InputTokens + cj.Usage.OutputTokens + cj.Usage.CacheCreationInputToks + cj.Usage.CacheReadInputTokens
 	return &Result{

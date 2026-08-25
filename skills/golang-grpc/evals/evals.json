@@ -1,0 +1,50 @@
+{
+  "skill_name": "golang-grpc",
+  "evals": [
+    {
+      "id": "plain-error-instead-of-status",
+      "prompt": "Review this Go gRPC handler:\n\n```go\nfunc (s *guestServer) GetGuest(ctx context.Context, req *pb.GetGuestRequest) (*pb.Guest, error) {\n    guest, err := s.store.Find(ctx, req.Id)\n    if err != nil {\n        return nil, err\n    }\n    if guest == nil {\n        return nil, errors.New(\"guest not found\")\n    }\n    return guest, nil\n}\n```",
+      "expected_output": "Flags that returning a plain error (not a status.Error/status.Errorf with a codes.Code) means the client sees codes.Unknown regardless of the message, and recommends status.Errorf(codes.NotFound, ...) for the not-found case.",
+      "assertions": [
+        {
+          "text": "Names codes.Unknown as what the client actually sees",
+          "check": { "contains_any": ["codes.Unknown", "Unknown"] }
+        },
+        {
+          "text": "Recommends status.Error/status.Errorf with a specific code such as codes.NotFound",
+          "check": { "contains_any": ["status.Error", "status.Errorf", "codes.NotFound"] }
+        }
+      ]
+    },
+    {
+      "id": "interceptor-chain-order",
+      "prompt": "I set up my gRPC server with `grpc.ChainUnaryInterceptor(authInterceptor, loggingInterceptor)`. I expected loggingInterceptor to run first so it logs every request including auth failures, but it doesn't. Why not, and how do I fix the ordering?",
+      "expected_output": "Explains that ChainUnaryInterceptor runs interceptors outermost-first in the order given, so authInterceptor (listed first) runs before loggingInterceptor, not after. Recommends swapping the order to grpc.ChainUnaryInterceptor(loggingInterceptor, authInterceptor) so logging wraps everything.",
+      "assertions": [
+        {
+          "text": "Explains the first-listed interceptor is outermost/runs first",
+          "check": { "contains_any": ["outermost", "runs first", "first argument", "listed first"] }
+        },
+        {
+          "text": "Recommends putting loggingInterceptor before authInterceptor in the call",
+          "check": { "contains_any": ["loggingInterceptor, authInterceptor", "swap", "reorder", "put logging"] }
+        }
+      ]
+    },
+    {
+      "id": "stream-recv-eof-handling",
+      "prompt": "Write a Go gRPC server-side handler that receives a stream of UploadChunk messages from a client via stream.Recv() in a loop and stops cleanly when the client finishes sending.",
+      "expected_output": "Loop calls stream.Recv() and treats io.EOF as normal stream completion (break, not an error return), while any other non-nil error is returned wrapped as a status error.",
+      "assertions": [
+        {
+          "text": "Checks for io.EOF specifically to detect normal stream completion",
+          "check": { "contains_any": ["io.EOF"] }
+        },
+        {
+          "text": "Does not treat io.EOF as a failure to be returned as an RPC error",
+          "check": { "not_contains": ["status.Errorf(codes.Internal, \"recv: %v\", io.EOF)", "return nil, io.EOF"] }
+        }
+      ]
+    }
+  ]
+}

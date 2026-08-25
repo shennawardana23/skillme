@@ -6,7 +6,7 @@ paths:
 
 # Adding or changing a skill
 
-This catalog already has 132 skills, so a new idea more often overlaps
+This catalog already has 137 skills, so a new idea more often overlaps
 an existing skill than fills a real gap. Before creating a new
 `skills/<name>/` directory or significantly reworking one:
 

@@ -1,0 +1,54 @@
+{
+  "skill_name": "golang-concurrency",
+  "evals": [
+    {
+      "id": "bounded-worker-pool",
+      "prompt": "Write a Go function `process(ctx context.Context, items []Item, workers int) error` that processes items using a fixed number of worker goroutines reading from a channel, respects context cancellation, and returns the first error encountered. Answer inline in the chat as a fenced Go code block; do not create or edit any files.",
+      "expected_output": "Uses errgroup (or equivalent) for waiting and first-error propagation, bounds the worker count to the `workers` parameter instead of spawning one goroutine per item, and closes the input channel only from its single sending goroutine.",
+      "assertions": [
+        {
+          "text": "Uses errgroup for waiting and error propagation",
+          "check": { "contains_any": ["errgroup"] }
+        },
+        {
+          "text": "Uses a channel to distribute work across a bounded set of workers",
+          "check": { "contains_any": ["chan Item", "chan Item)", "make(chan"] }
+        },
+        {
+          "text": "Does not spawn one goroutine per item unboundedly instead of a bounded worker count",
+          "check": { "not_contains": ["for _, it := range items {\n\t\tgo func", "for _, item := range items {\n\t\tgo func"] }
+        }
+      ]
+    },
+    {
+      "id": "wg-add-after-go-bug",
+      "prompt": "Review this Go code for concurrency bugs and explain any you find:\n\n```go\nfunc runAll(tasks []func()) {\n    var wg sync.WaitGroup\n    for _, t := range tasks {\n        go func() {\n            wg.Add(1)\n            defer wg.Done()\n            t()\n        }()\n    }\n    wg.Wait()\n}\n```",
+      "expected_output": "Flags that wg.Add(1) is called inside the spawned goroutine instead of before the `go` statement, so wg.Wait() can race ahead and return before some goroutines have even registered. Recommends calling Add before `go`, or using Go 1.25+'s wg.Go(f) which does Add/Done for you.",
+      "assertions": [
+        {
+          "text": "Identifies that Add is called after/inside the goroutine instead of before spawning it",
+          "check": { "matches_any": ["(?i)add.{0,40}(before|prior to).{0,40}(go |goroutine|spawn)", "(?i)(before|prior to).{0,40}(go func|spawning|starting the goroutine)", "wg\\.Go\\("] }
+        },
+        {
+          "text": "Explains the consequence: Wait can return before every goroutine has registered via Add",
+          "check": { "contains_any": ["Wait can return", "Wait() can return", "Wait may return", "return before", "race", "may not wait"] }
+        }
+      ]
+    },
+    {
+      "id": "receiver-closes-channel",
+      "prompt": "Review this Go code for concurrency bugs and explain any you find:\n\n```go\nfunc consume(ch chan int, done chan struct{}) {\n    for v := range ch {\n        process(v)\n    }\n    close(ch)\n    close(done)\n}\n```",
+      "expected_output": "Flags that consume() closes ch even though it's the receiver, not the sender/owner, of that channel — if the sender ever writes to ch after this close, it panics with 'send on closed channel'. Recommends only the sender close ch.",
+      "assertions": [
+        {
+          "text": "Identifies that the receiver is closing a channel it doesn't own",
+          "check": { "contains_any": ["only the sender", "sender should close", "receiver should not close", "receiver closing", "doesn't own"] }
+        },
+        {
+          "text": "Names the panic risk if the sender writes after this close",
+          "check": { "contains_any": ["panic", "send on closed channel"] }
+        }
+      ]
+    }
+  ]
+}
