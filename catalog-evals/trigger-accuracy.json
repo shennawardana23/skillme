@@ -1,0 +1,50 @@
+{
+  "skill_name": "catalog-trigger-accuracy",
+  "evals": [
+    {
+      "id": "design-time-feature-picks-hardening-not-review-or-scan",
+      "prompt": "I'm about to add a file-upload feature to our API. Before I write any code, help me think through what could go wrong and design in the right protections from the start.",
+      "expected_output": "Engages security-and-hardening's threat-modeling framing (a feature being designed, before code exists) — not security-review's framing (auditing an existing diff/file for vulnerabilities) and not security-scan's framing (grading this repo's own Claude harness config, CLAUDE.md, settings.json).",
+      "assertions": [
+        {
+          "text": "Uses threat-modeling / trust-boundary framing appropriate to a feature not yet built",
+          "check": { "contains_any": ["threat model", "trust boundary", "OWASP", "attack surface"] }
+        },
+        {
+          "text": "Does not pull in security-scan's own-harness-config framing (CLAUDE.md, settings.json, hooks)",
+          "check": { "not_contains": ["CLAUDE.md", "settings.json", "prompt-injection exposure"] }
+        }
+      ]
+    },
+    {
+      "id": "single-identified-bug-picks-debug-not-triage-tree",
+      "prompt": "This test started failing after my last commit with \"expected 3, got 0\":\n\n```go\nfunc TestParseConfig(t *testing.T) {\n    got := ParseConfig(\"a,b,c\")\n    if len(got) != 3 {\n        t.Fatalf(\"expected 3, got %d\", len(got))\n    }\n}\n\nfunc ParseConfig(s string) []string {\n    var out []string\n    for _, part := range strings.Split(s, \";\") {\n        out = append(out, part)\n    }\n    return out\n}\n```\n\nFind and fix the bug in ParseConfig.",
+      "expected_output": "Fixes the bug without pulling in debugging-and-error-recovery's cross-failure-class triage-tree framing, which explicitly states it is not for root-causing one already-identified bug. NOTE: this deliberately does not also assert debug's Root Cause/Evidence output template — live testing showed that for a one-line, fully-specified bug (test and source both handed over in the prompt, nothing left to reproduce or isolate), the model correctly fixes it directly without the template, and forcing the template here would reward padding a trivial fix with unneeded ceremony, not real skill engagement. That specific question (does debug's structured output appear on a bug that actually requires the reproduce/isolate work) needs a case with a real codebase to search across, which trigger-run's isolated-empty-workspace harness cannot yet provide — see catalog-evals/README.md for a candidate follow-up.",
+      "assertions": [
+        {
+          "text": "Fixes the actual bug (wrong delimiter) rather than a different or incomplete change",
+          "check": { "matches_any": ["Split\\(s,\\s*\",\"\\)", "Split\\(s,\\s*`,`\\)"] }
+        },
+        {
+          "text": "Does not pull in debugging-and-error-recovery's cross-failure-class triage framing",
+          "check": { "not_contains": ["triage tree", "failure class", "stop-the-line"] }
+        }
+      ]
+    },
+    {
+      "id": "hotel-partitioned-select-picks-partitioning-not-migrations",
+      "prompt": "Write a SELECT query against the reservations table (partitioned by hotel_id) to find all confirmed reservations for hotel 42 checking in next week.",
+      "expected_output": "Engages postgres-hotel-partitioning's explicit hotel_id-filter requirement for a plain SELECT — not database-migrations' schema-change framing, which does not apply to a read query.",
+      "assertions": [
+        {
+          "text": "Query includes an explicit hotel_id filter, not just the id/date conditions",
+          "check": { "contains_any": ["hotel_id"] }
+        },
+        {
+          "text": "Does not pull in database-migrations' schema-change framing for what is a plain read query",
+          "check": { "not_contains": ["ALTER TABLE", "migration file", "golang-migrate"] }
+        }
+      ]
+    }
+  ]
+}

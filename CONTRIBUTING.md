@@ -24,13 +24,18 @@ go build ./... && go vet ./... && gofmt -l .   # confirm a clean baseline
 
 ## Before proposing a new skill
 
-This catalog is already 132 skills, so a new idea more often overlaps an
+This catalog is already 137 skills, so a new idea more often overlaps an
 existing one than fills a real gap. Before opening a PR for a new
 `skills/<name>/` directory:
 
 1. **Search the catalog.** Skim [What's covered](README.md#whats-covered)
    and `skills/` itself for something that already covers your idea,
-   whole or in part.
+   whole or in part. `./smeval similarity-check` (or `make
+   similarity-check`) automates part of this — it scores every pair of
+   skill descriptions by lexical (TF-IDF) similarity and reports what
+   scores highest, no model calls, free. It only catches shared
+   vocabulary, not paraphrased overlap, so it's a supplement to reading
+   descriptions yourself, not a replacement.
 2. **Check open PRs.** `gh pr list --state open` — don't add to a cluster
    of near-duplicate proposals on the same topic.
 3. **Read the anatomy.** Confirm your idea fits the shape in the README's
@@ -130,6 +135,20 @@ on every push. It deliberately does **not** run live evals: re-running
 every skill's live model call on every push would mean real API cost and
 significant runtime at this catalog's size, for even a one-line change
 to a single skill. That's why step 3 above is on you, not the CI gate.
+
+The same workflow also runs `smeval security-scan` against **every**
+skill directory (not just ones with evals), for free, on every push —
+a static check against Anthropic's own enterprise Risk Tier indicators
+(bundled scripts, network calls, hardcoded credentials, suspicious
+paths, MCP references; see `internal/riskscan`'s package doc). It only
+fails a PR on a High-concern finding — currently just a real
+credential-shaped string. A bundled script or a network mention in
+prose is reported but never blocks, because this catalog includes
+security-education skills whose entire subject matter is discussing
+those exact patterns; static analysis can't tell that apart from an
+actual attack, and forcing it to try produced nothing but false
+positives when tested against the real catalog. `smeval
+security-scan skills/<name>` locally to see it directly.
 
 ## Reporting a bug in `smeval` itself, not a skill
 

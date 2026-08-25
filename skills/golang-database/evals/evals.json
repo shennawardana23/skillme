@@ -1,0 +1,50 @@
+{
+  "skill_name": "golang-database",
+  "evals": [
+    {
+      "id": "pool-tuning-defaults",
+      "prompt": "I opened a *sql.DB in my Go service with sql.Open and I'm not calling any Set methods on it before using it in production. What's wrong with that, and what should I set?",
+      "expected_output": "Explains sql.DB defaults to unlimited open/idle connections and no connection lifetime, and recommends explicitly calling SetMaxOpenConns, SetMaxIdleConns, and SetConnMaxLifetime (and ideally SetConnMaxIdleTime) sized against the database's actual max_connections.",
+      "assertions": [
+        {
+          "text": "Names at least SetMaxOpenConns and SetConnMaxLifetime as needed",
+          "check": { "contains_all": ["SetMaxOpenConns", "SetConnMaxLifetime"] }
+        },
+        {
+          "text": "Explains the default is unbounded/unlimited connections",
+          "check": { "contains_any": ["unlimited", "unbounded", "no limit", "no cap"] }
+        }
+      ]
+    },
+    {
+      "id": "no-rows-not-an-error",
+      "prompt": "Review this Go code:\n\n```go\nfunc GetGuest(ctx context.Context, db *sql.DB, id string) (*Guest, error) {\n    var g Guest\n    err := db.QueryRowContext(ctx, \"SELECT id, name FROM guests WHERE id = $1\", id).Scan(&g.ID, &g.Name)\n    if err != nil {\n        return nil, fmt.Errorf(\"query guest: %w\", err)\n    }\n    return &g, nil\n}\n```",
+      "expected_output": "Flags that this treats sql.ErrNoRows (guest not found, an expected outcome) the same as a real database error, and recommends checking errors.Is(err, sql.ErrNoRows) separately and translating it to a domain-specific not-found result instead of wrapping and propagating it as a generic error.",
+      "assertions": [
+        {
+          "text": "Names sql.ErrNoRows specifically",
+          "check": { "contains_any": ["sql.ErrNoRows", "ErrNoRows"] }
+        },
+        {
+          "text": "Explains it should be handled/checked separately rather than treated as a generic error",
+          "check": { "contains_any": ["errors.Is", "separately", "not found", "expected outcome", "distinguish"] }
+        }
+      ]
+    },
+    {
+      "id": "hotel-partition-still-applies",
+      "prompt": "I'm using pgxpool to query the `reservations` table, which is partitioned by hotel_id in our Postgres setup. My query is `SELECT id, status FROM reservations WHERE id = $1`. Is there anything about the connection pooling or driver setup that changes because this table is partitioned?",
+      "expected_output": "Explains that pgxpool/connection pooling itself doesn't change for a partitioned table, but the query is missing an explicit hotel_id filter, which is required for partition pruning regardless of driver/pool configuration — points to postgres-hotel-partitioning.",
+      "assertions": [
+        {
+          "text": "Flags the missing explicit hotel_id filter in the query",
+          "check": { "contains_any": ["hotel_id", "hotel id"] }
+        },
+        {
+          "text": "Clarifies pooling/driver config is not the fix, the query itself is",
+          "check": { "contains_any": ["query", "filter", "WHERE"] }
+        }
+      ]
+    }
+  ]
+}

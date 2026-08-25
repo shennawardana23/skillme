@@ -7,7 +7,7 @@
 
 **A testable knowledge base of real engineering practice — not a collection of advice nobody has checked.**
 
-skillme is 132 skills spanning backend, frontend, databases, web quality,
+skillme is 137 skills spanning backend, frontend, databases, web quality,
 domain modeling, QA, product management, and agentic engineering itself
 — each one grounded in an official doc, a real codebase, or a documented
 incident rather than general impression, and each one backed by its own
@@ -29,6 +29,7 @@ and not tied to any one company or codebase.
 
 - [skillme](#skillme)
   - [Table of contents](#table-of-contents)
+  - [Who it's for](#who-its-for)
   - [Quick Start](#quick-start)
   - [Why this exists](#why-this-exists)
   - [Coverage](#coverage)
@@ -44,9 +45,38 @@ and not tied to any one company or codebase.
   - [Project Structure](#project-structure)
   - [Evaluating a skill locally](#evaluating-a-skill-locally)
     - [Provider/model fallback](#providermodel-fallback)
+  - [Makefile](#makefile)
+  - [Catalog-wide tooling](#catalog-wide-tooling)
   - [Documentation](#documentation)
   - [Contributing](#contributing)
   - [License](#license)
+
+---
+
+## Who it's for
+
+- **Engineers using Claude Code, or any Agent Skills-compatible
+  assistant**, who want the model to reach for a vetted, tested pattern
+  — a Go concurrency gotcha, a Postgres indexing rule, a security review
+  checklist — instead of re-explaining the same conventions in every
+  session or trusting whatever the model happens to recall.
+- **Teams that want consistent engineering practice across repos and
+  people**: install the plugin once and every session gets the same
+  grounded guidance, rather than each engineer's own half-remembered
+  house rules.
+- **Anyone building or maintaining their own skill catalog**, as a
+  reference implementation of an eval-driven one — `smeval`, the
+  per-skill isolation, the CI split between free schema checks and
+  manual live evals, and the catalog-wide trigger-accuracy/security/
+  duplication tooling are all real, working code here to read or fork,
+  not a description of a methodology.
+
+**Not what this is**: a general-purpose prompt library or creative-
+writing collection — every entry is an engineering pattern with a
+runnable test behind it, graded on whether it's true and specific, not
+on how persuasive it reads. It also doesn't replace reading the actual
+framework/library docs a skill is grounded in; see that skill's own
+"Real-world grounding" section for the primary source.
 
 ---
 
@@ -158,7 +188,7 @@ honestly rather than asserting it catalog-wide:
   their own alongside everything else. Read
   `smeval-workspace/test-all-results/summary.txt` for the exact,
   currently-accumulated count rather than trusting a number here — don't
-  read "132 skills" as "132 independently proven."
+  read "137 skills" as "137 independently proven."
 
 This is the same rigor bar this catalog's own eval-quality bug reports
 apply to any other skill's claims — including a real, previously-hidden
@@ -172,12 +202,12 @@ comment for the full story).
 ## What's covered
 
 Every name below is a real, linked skill — not a topic label. Each area
-lists a handful out of the full 132; run `scripts/list-skills.sh` for the
+lists a handful out of the full 137; run `scripts/list-skills.sh` for the
 complete, current list.
 
 | Area | Skills you'd reach for |
 | --- | --- |
-| Go | [`go-service-idioms`](skills/go-service-idioms/SKILL.md), [`golang-testing`](skills/golang-testing/SKILL.md), [`gin-lambda-api-service-patterns`](skills/gin-lambda-api-service-patterns/SKILL.md), [`genkit-go-flows`](skills/genkit-go-flows/SKILL.md), [`jwt-tenant-scoped-authorization`](skills/jwt-tenant-scoped-authorization/SKILL.md) |
+| Go | [`go-service-idioms`](skills/go-service-idioms/SKILL.md), [`golang-testing`](skills/golang-testing/SKILL.md), [`golang-concurrency`](skills/golang-concurrency/SKILL.md), [`golang-context`](skills/golang-context/SKILL.md), [`golang-database`](skills/golang-database/SKILL.md), [`golang-grpc`](skills/golang-grpc/SKILL.md), [`golang-dependency-injection`](skills/golang-dependency-injection/SKILL.md), [`gin-lambda-api-service-patterns`](skills/gin-lambda-api-service-patterns/SKILL.md), [`genkit-go-flows`](skills/genkit-go-flows/SKILL.md), [`jwt-tenant-scoped-authorization`](skills/jwt-tenant-scoped-authorization/SKILL.md) |
 | PHP | [`laravel-patterns`](skills/laravel-patterns/SKILL.md), [`laravel-security`](skills/laravel-security/SKILL.md), [`php-codeigniter-patterns`](skills/php-codeigniter-patterns/SKILL.md), [`php-codeigniter-legacy-patterns`](skills/php-codeigniter-legacy-patterns/SKILL.md), [`php-codeigniter-security`](skills/php-codeigniter-security/SKILL.md) |
 | Databases | [`postgres-patterns`](skills/postgres-patterns/SKILL.md), [`postgres-hotel-partitioning`](skills/postgres-hotel-partitioning/SKILL.md), [`mysql-patterns`](skills/mysql-patterns/SKILL.md), [`database-migrations`](skills/database-migrations/SKILL.md) |
 | Frontend | [`vue-nuxt-frontend-patterns`](skills/vue-nuxt-frontend-patterns/SKILL.md), [`frontend-ui-engineering`](skills/frontend-ui-engineering/SKILL.md), [`frontend-patterns`](skills/frontend-patterns/SKILL.md) |
@@ -365,13 +395,17 @@ skillme/
 ├── skills/<name>/
 │   ├── SKILL.md              # the skill itself — written for the agent
 │   ├── references/           # optional detail, loaded only when needed
-│   └── evals/evals.json      # prompt + assertions, this catalog's test suite
+│   └── evals/
+│       ├── evals.json        # prompt + assertions, this catalog's test suite
+│       └── fixtures/<name>/  # optional — files seeded for a context-dependent case
 ├── skill-docs/<category>/<name>.md   # optional, human-facing "why/when" page
+├── catalog-evals/             # catalog-wide trigger-accuracy/coexistence cases (all skills at once)
 ├── examples/benchmark.sample.json    # real -benchmark output, annotated in TESTING.md
+├── Makefile                   # make help — wraps smeval/scripts for convenience
 ├── cmd/smeval/                # the eval runner CLI
-├── internal/{evalspec,engine,grading,harness,report}/   # smeval's implementation
+├── internal/{evalspec,engine,grading,harness,report,riskscan,similarity}/   # smeval's implementation
 ├── .github/workflows/
-│   ├── skill-eval.yml            # CI: build/vet/test, then schema-validate every skill
+│   ├── skill-eval.yml            # CI: build/vet/test, schema-validate + security-scan every skill
 │   └── test-plugin-install.yml   # CI: claude plugin validate + a real marketplace-add/install
 ├── CLAUDE.md + .claude/{commands,rules}/   # eval-authoring rules + /eval-skill, /new-skill
 └── .claude-plugin/{plugin.json,marketplace.json}
@@ -415,6 +449,81 @@ in `internal/engine/engine_test.go`.
 
 ---
 
+## Makefile
+
+A `Makefile` wraps the commands above (and the ones in
+[Catalog-wide tooling](#catalog-wide-tooling) below) so you don't have to
+remember `smeval`'s exact flags. `make help` lists every target with a
+one-line description; the ones you'll actually reach for:
+
+| Target | What it does |
+| --- | --- |
+| `make ci` | `build` + `vet` + `unit-test` + `fmt-check` — the same steps CI's `test` job runs |
+| `make validate SKILL=<name>` | Spec + schema validation for one skill, free, no model calls |
+| `make validate-all` | Same, for every skill — mirrors CI's `validate` matrix |
+| `make eval SKILL=<name>` | Live eval for one skill (`INCLUDE=<case-substring>` to narrow to one case) |
+| `make eval-benchmark SKILL=<name>` | Live eval with a without-skill baseline for comparison |
+| `make test-all` / `test-all-fresh` / `test-all-only SKILL=<name>` | Live-test the whole catalog, resumable |
+| `make list` | Every skill with its eval case count |
+| `make report SKILL=<name>` | Open the latest run's `report.html` |
+| `make cat SKILL=<name> CASE=<id>` | Print one case's response + grading from the latest run |
+| `make trigger-validate` / `make trigger-run` | Catalog-wide triggering-accuracy/coexistence cases — see below |
+| `make security-scan SKILL=<name>` / `security-scan-all` | Static risk scan, free, no model calls — see below |
+| `make similarity-check THRESHOLD=0.NN` | Advisory duplicate/overlap detection across all skill descriptions — see below |
+| `make clean` | Remove the `smeval` binary and local eval workspaces (both gitignored) |
+
+---
+
+## Catalog-wide tooling
+
+At 137+ skills, three questions stop being answerable by testing one
+skill in isolation, and three tools exist specifically to answer them —
+all free (no model calls) except the first:
+
+**Does Claude pick the right skill, and does a new one steal triggers
+from an existing one?** `harness.BuildCatalog` installs the *entire*
+catalog into one harness instead of one skill alone, and
+`smeval trigger-run catalog-evals/trigger-accuracy.json` grades cases
+against it — the only place this catalog's own triggering accuracy and
+cross-skill coexistence (two of Anthropic's five official [enterprise
+evaluation dimensions](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise))
+get checked at all. Real model calls, real cost — see
+[`catalog-evals/README.md`](catalog-evals/README.md).
+
+**Is anything in a skill actually unsafe** — a bundled script, a live
+network call, a hardcoded credential? `smeval security-scan
+skills/<name>` statically scans against Anthropic's own enterprise Risk
+Tier indicators, free and instant. It's deliberately narrow where static
+analysis can't be trusted: this catalog includes skills whose entire
+subject is teaching about prompt injection and exfiltration
+(`security-review`, `skill-inspector`), so "discusses an attack" and
+"attempts one" use the same vocabulary — see `internal/riskscan`'s
+package doc for exactly which indicators are pass/fail versus
+advisory-only, and why. Wired into CI (`skill-eval.yml`'s
+`security-scan` job) on every push.
+
+**Does a new skill idea just duplicate an existing one?** `smeval
+similarity-check` scores every pair of skill descriptions by TF-IDF
+cosine similarity — lexical, not semantic, so it catches shared
+vocabulary but not paraphrased overlap — and reports the highest-scoring
+pairs for a human to actually go read. Always advisory, never fails a
+build; see `internal/similarity`'s package doc for the free-vs-embeddings
+trade-off it deliberately takes, and `CONTRIBUTING.md`'s "search the
+catalog first" step for where it fits.
+
+An eval case can also be **context-dependent** rather than the default
+greenfield (a completely empty workspace): set `"fixture": "<name>"` on
+a case in its skill's `evals.json`, naming a directory under that
+skill's own `evals/fixtures/`, and `smeval run` seeds those files into
+the case's isolated workspace before the prompt runs —
+`debug/evals/evals.json`'s `traces-bug-across-files` case is a worked
+example (a real two-file Go bug the model has to actually find, not one
+handed to it in the prompt). `smeval validate` reports each case's
+classification and catches a missing fixture directory before a live run
+would waste an API call discovering the same problem.
+
+---
+
 ## Documentation
 
 | Doc | Covers |
@@ -424,6 +533,7 @@ in `internal/engine/engine_test.go`.
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Skill/eval-authoring conventions, the pre-PR checklist, what CI does and doesn't check |
 | `skills/skill-catalog-authoring/SKILL.md` | The enforced spec for a skill's directory layout and frontmatter — the source of truth [Anatomy of a skill](#anatomy-of-a-skill) above summarizes |
 | `skill-docs/<category>/<name>.md` | Optional, per-skill human-facing "why/when would I reach for this" pages — not every skill has one; see `skill-catalog-authoring/references/skill-docs-template.md` for the template |
+| [`catalog-evals/README.md`](catalog-evals/README.md) | Catalog-wide trigger-accuracy/coexistence testing — what it is, how to run it, a documented sharp edge found writing the first cases |
 | [`CLAUDE.md`](CLAUDE.md) + [`.claude/rules/skill-authoring.md`](.claude/rules/skill-authoring.md) | The eval-authoring rules Claude Code loads automatically in this repo |
 | [`.claude/commands/eval-skill.md`](.claude/commands/eval-skill.md), [`.claude/commands/new-skill.md`](.claude/commands/new-skill.md) | `/eval-skill <name>` and `/new-skill <name>` — run this catalog's own eval loop or scaffold a new entry without leaving the chat |
 

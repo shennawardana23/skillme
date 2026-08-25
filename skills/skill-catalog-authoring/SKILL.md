@@ -100,6 +100,18 @@ and at least one case that specifically tries to catch the skill's most
 likely failure mode (the bug the skill exists to prevent, or a plausible
 wrong-but-plausible-sounding answer).
 
+An eval case is **greenfield** by default — `smeval` gives it a completely
+empty, isolated workspace, which is all most cases need since the prompt
+fully specifies the scenario. A case that genuinely needs the model to
+investigate across pre-existing files (not just read what the prompt
+already handed it) can add `"fixture": "<name>"`, naming a directory under
+this skill's own `evals/fixtures/<name>/` — `smeval run` copies its
+contents into the case's workspace before the prompt runs. See
+`debug/evals/evals.json`'s `traces-bug-across-files` case and its fixture
+for a worked example, and `catalog-evals/README.md` for why this exists.
+Only reach for a fixture when a case truly can't be tested greenfield —
+most cases shouldn't need one.
+
 ## Validating and running
 
 ```bash

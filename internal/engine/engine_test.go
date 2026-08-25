@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 )
@@ -131,5 +132,49 @@ func TestRun_NoFallbackConfigured_PrimaryFailure_ReturnsError(t *testing.T) {
 	})
 	if err == nil {
 		t.Fatal("Run should return an error when the primary fails and no fallback model is configured")
+	}
+}
+
+// writeEmptyResultClaude writes a fake claude that returns is_error:false but
+// an empty "result" — the shape a renamed/dropped JSON field would produce —
+// for every model, so this proves attempt() refuses to treat that as a
+// silent pass rather than actually exercising a real CLI regression.
+func writeEmptyResultClaude(t *testing.T) string {
+	t.Helper()
+	if runtime.GOOS == "windows" {
+		t.Skip("fake claude stub is a POSIX shell script")
+	}
+	dir := t.TempDir()
+	path := filepath.Join(dir, "fake-claude")
+	script := `#!/bin/sh
+echo '{"is_error":false,"result":"","duration_ms":1,"total_cost_usd":0,"usage":{"input_tokens":1,"output_tokens":0,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}}'
+exit 0
+`
+	if err := os.WriteFile(path, []byte(script), 0o755); err != nil {
+		t.Fatalf("write fake claude: %v", err)
+	}
+	return path
+}
+
+// TestRun_EmptyResultWithNoError_TreatedAsEngineError proves the hardening
+// against an --output-format json shape mismatch: an is_error:false response
+// with an empty "result" field must not reach grading as a false clean pass
+// — it should be classified as an engine error, engaging the outer fallback
+// exactly like any other engine-level failure.
+func TestRun_EmptyResultWithNoError_TreatedAsEngineError(t *testing.T) {
+	old := ClaudeBin
+	ClaudeBin = writeEmptyResultClaude(t)
+	defer func() { ClaudeBin = old }()
+
+	_, err := Run(context.Background(), Options{
+		Prompt:       "hi",
+		PrimaryModel: "sonnet",
+		Timeout:      5 * time.Second,
+	})
+	if err == nil {
+		t.Fatal("Run should treat an empty result with is_error=false as an engine error, not a silent pass")
+	}
+	if !strings.Contains(err.Error(), "empty result") {
+		t.Fatalf("expected an 'empty result' error, got: %v", err)
 	}
 }

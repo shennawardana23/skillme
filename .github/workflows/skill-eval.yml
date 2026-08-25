@@ -43,6 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       skills: ${{ steps.list.outputs.skills }}
+      all_skills: ${{ steps.list-all.outputs.skills }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
@@ -53,6 +54,18 @@ jobs:
           skills_json=$(find skills -mindepth 1 -maxdepth 1 -type d -print0 \
             | while IFS= read -r -d '' dir; do
                 if [ -f "$dir/evals/evals.json" ]; then
+                  basename "$dir"
+                fi
+              done | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo "skills=$skills_json" >> "$GITHUB_OUTPUT"
+
+      - id: list-all
+        name: List every skill directory (SKILL.md presence only, evals.json not required)
+        run: |
+          set -euo pipefail
+          skills_json=$(find skills -mindepth 1 -maxdepth 1 -type d -print0 \
+            | while IFS= read -r -d '' dir; do
+                if [ -f "$dir/SKILL.md" ]; then
                   basename "$dir"
                 fi
               done | sort | jq -R -s -c 'split("\n")[:-1]')
@@ -88,3 +101,32 @@ jobs:
 
       - name: Validate ${{ matrix.skill }}
         run: ./smeval validate "skills/${{ matrix.skill }}"
+
+  # Static risk-indicator scan — no model calls, no API key, runs on every
+  # skill (not just ones with evals.json). See internal/riskscan's package
+  # doc: only fails on a High-concern finding (a bundled credential-shaped
+  # secret); Medium/Informational findings (a bundled script, a network
+  # mention in prose, an "ignore previous instructions" phrase used to
+  # *teach about* injection rather than attempt it) are printed but never
+  # block — those two indicators cannot be told apart from a real attack by
+  # static analysis alone in a catalog that includes security-education
+  # content, and need skill-inspector's human/semantic review instead.
+  security-scan:
+    needs: [test, discover]
+    if: needs.discover.outputs.all_skills != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        skill: ${{ fromJson(needs.discover.outputs.all_skills) }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version-file: go.mod
+
+      - name: Build smeval
+        run: go build -o smeval ./cmd/smeval
+
+      - name: Security scan ${{ matrix.skill }}
+        run: ./smeval security-scan "skills/${{ matrix.skill }}"
