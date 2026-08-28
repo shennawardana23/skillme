@@ -89,70 +89,24 @@ Demand enters as sales orders or forecast consumption, drives the Master Product
 
 ## Decision Frameworks
 
-### Job Priority Sequencing
+Step-by-step algorithms for job priority sequencing, changeover sequence
+optimization, disruption re-sequencing, and bottleneck identification are
+in [references/decision-frameworks.md](references/decision-frameworks.md)
+— load it when actually executing one of these decisions.
 
-1. Any job past-due or about to miss its due date? Schedule those first, ordered by penalty exposure (contractual > reputational > internal KPI).
-2. Any job feeding a constraint whose buffer is yellow or red? Schedule those next.
-3. Among the rest, apply the dispatching rule fit for the mix: EDD for high-variety short-run (minimizes maximum lateness); SPT for long-run few-product (minimizes average flow time/WIP); setup-aware EDD (swap adjacent jobs when it saves >30 minutes of setup without a due-date miss) for mixed sequence-dependent-setup environments.
-4. Tie-break on customer tier, then margin.
+## Communication and Escalation
 
-### Changeover Sequence Optimization
-
-1. Build the setup matrix (changeover time and cost for every product-pair transition).
-2. Identify mandatory sequence constraints (allergen cross-contamination, hazmat sequencing) — these are non-negotiable, not optimizable.
-3. Apply nearest-neighbor heuristic for a feasible baseline sequence.
-4. Improve with 2-opt swaps, keeping any swap that reduces total changeover time without violating a due date.
-5. Validate against due dates last — due-date compliance always trumps changeover optimization.
-
-### Disruption Re-Sequencing
-
-1. Assess the impact window and whether the disrupted resource is the constraint.
-2. Freeze committed work (in-process or within 2 hours of start) unless physically impossible to continue.
-3. Re-sequence remaining jobs with the job-priority framework, using updated availability.
-4. Communicate the revised schedule within 30 minutes.
-5. Lock it for at least 4 hours — constant re-sequencing creates more chaos than the original disruption.
-
-### Bottleneck Identification
-
-1. Pull utilization by work center over the trailing 2 weeks, by shift, not averaged.
-2. Rank by load-hours/available-hours ratio; the top center is the suspected constraint.
-3. Verify causally: would one added hour of capacity here raise total output?
-4. Check for shifting patterns across shifts or product mix; if the top center changes, schedule the constraint per-shift, not on a weekly average.
-5. Distinguish true constraints from artificial ones — a center overloaded only because upstream batch-dumps into it needs the upstream release rate fixed, not added downstream capacity.
-
-## Communication Patterns
-
-- **Daily schedule publication**: clear, structured, table format — the shop floor doesn't read paragraphs.
-- **Schedule change notification**: urgent header, reason, specific affected jobs, new sequence/timing, effective time.
-- **Disruption escalation**: lead with impact magnitude (constraint hours lost, orders at risk), then cause, then response, then the decision needed from management.
-- **Overtime request**: quantify the business case explicitly — cost of overtime vs. at-risk revenue, plus union-rule compliance.
-- **Customer delivery impact**: never surprise the customer — notify as soon as a delay is likely, with the new date, cause (without blaming internal teams), and recovery plan.
-- **Maintenance coordination**: specific window requested, business justification, and the cost of deferring it.
-
-## Escalation Protocols
-
-| Trigger | Action | Timeline |
-|---|---|---|
-| Constraint work center down >30 min unplanned | Alert production manager + maintenance manager | Immediate |
-| Plan adherence <80% for a shift | Root cause analysis with shift supervisor | Within 4 hours |
-| Customer order projected to miss ship date | Notify sales and customer service with revised ETA | Within 2 hours of detection |
-| Overtime exceeds weekly budget by >20% | Escalate to plant manager with cost-benefit analysis | Within 1 business day |
-| Constraint OEE <65% for 3 consecutive shifts | Trigger focused improvement event | Within 1 week |
-| Quality yield at constraint <93% | Joint review with quality engineering | Within 24 hours |
-
-Escalation chain: Scheduler → Production Manager/Shift Superintendent (30 min for constraint issues) → Plant Manager (2 hours for customer-impacting issues) → VP Operations (same day for multi-customer impact or safety-related changes).
+Message templates for schedule publication/change notifications, plus the
+full escalation trigger table and chain, are in
+[references/communication-and-escalation.md](references/communication-and-escalation.md)
+— load it when writing a notification or escalation, not for routine
+scheduling.
 
 ## Performance Indicators
 
-| Metric | Target | Red Flag |
-|---|---|---|
-| Schedule adherence (±1 hour) | >90% | <80% |
-| On-time delivery | >95% | <90% |
-| OEE at constraint | >75% | <65% |
-| Changeover time vs. standard | <110% | >130% |
-| WIP days | <5 days | >8 days |
-| Constraint utilization | >85% | <75% |
-| First-pass yield at constraint | >97% | <93% |
+Target/red-flag thresholds for schedule adherence, OEE, changeover time,
+WIP, and yield are in
+[references/performance-indicators.md](references/performance-indicators.md).
 
 ## Gotchas
 

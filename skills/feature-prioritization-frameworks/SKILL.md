@@ -48,41 +48,15 @@ Compute each factor before combining them — don't eyeball the final score.
   systematically overrate features with a hidden testing or migration
   cost.
 
-### Worked example
+### Worked example and application steps
 
-Backlog of five features for a hotel booking product, one quarter reach:
-
-| Feature | Reach (users/qtr) | Impact | Confidence | Effort (person-months) | RICE |
-|---|---|---|---|---|---|
-| A: One-click rebooking | 4,000 | 2 | 80% | 2 | (4000×2×0.8)/2 = **3,200** |
-| B: Loyalty tier badges | 8,000 | 0.5 | 100% | 1 | (8000×0.5×1.0)/1 = **4,000** |
-| C: AI itinerary chatbot | 1,000 | 3 | 50% | 6 | (1000×3×0.5)/6 = **250** |
-| D: Guest review reminders | 6,000 | 1 | 80% | 0.5 | (6000×1×0.8)/0.5 = **9,600** |
-| E: Multi-currency pricing | 2,500 | 2 | 50% | 3 | (2500×2×0.5)/3 = **833** |
-
-Ranked by RICE: **D (9,600) > B (4,000) > A (3,200) > E (833) > C (250)**.
-
-Notice C looks exciting narratively ("AI chatbot") but ranks last — high
-effort and low confidence overwhelm a high impact score. This is RICE's
-main value: it makes an intuitively-appealing but weakly-evidenced,
-expensive bet lose to a boring, cheap, well-understood one on paper, and
-forces the team to argue about the *inputs* (is confidence really only
-50%? is effort really 6 months?) rather than about gut feel.
-
-### Applying RICE
-
-1. Score every feature on the same reach time window and the same effort
-   unit — a common error is mixing "reach this month" with "reach this
-   quarter" across rows, which silently distorts the ranking.
-2. Have the same person or a small group score all rows in one sitting.
-   Scoring different features on different days invites scope and
-   optimism drift between them.
-3. Use the ranked list as a starting point for discussion, not a final
-   verdict — RICE doesn't know about dependencies (feature E might be a
-   prerequisite for a future feature not yet in the backlog) or strategic
-   commitments made to a specific customer.
-4. Re-score when new evidence arrives (an experiment result, a sales
-   commitment) rather than treating the first score as permanent.
+A full worked RICE calculation (a five-feature hotel-booking backlog,
+computed scores, and why a narratively-exciting feature can still rank
+last) plus the step-by-step process for scoring a real backlog
+consistently are in
+[references/rice-worked-example.md](references/rice-worked-example.md)
+— load it when you're about to run an actual scoring pass, not for a
+quick refresher on what the factors mean.
 
 ## MoSCoW (lightweight, for stakeholder negotiation)
 
@@ -123,34 +97,28 @@ much of it you build and how satisfied customers are — it does not
 produce a rank-ordered list, so don't try to force a single Kano-derived
 number next to a RICE score.
 
-- **Basic (must-be)**: absence causes strong dissatisfaction, presence
-  causes no delight, just the absence of complaint (hot water in a hotel
-  room). Investment here has a ceiling — more doesn't make people happier
-  past a point.
-- **Performance**: satisfaction scales roughly linearly with how well it's
-  done (Wi-Fi speed, checkout speed). More is proportionally better.
-- **Delight (attractive/excitement)**: absence isn't noticed or missed,
-  but presence creates disproportionate satisfaction (an unexpected
-  upgrade). These often become tomorrow's Basic features once customers
-  come to expect them.
-- **Indifferent**: customers don't care either way; building it is
-  usually wasted effort regardless of what RICE-style impact estimate was
-  assigned to it.
-- **Reverse**: some customers are actively less satisfied when the
-  feature is present (e.g., a feature that adds a step for a segment that
-  wants simplicity) — worth checking for before a broad rollout,
-  especially on features aimed at power users vs. casual users.
+Five categories, briefly: **Basic** (absence causes dissatisfaction,
+presence isn't noticed — has a satisfaction ceiling, e.g. hot water in a
+hotel room), **Performance** (satisfaction scales roughly linearly with
+execution quality, e.g. Wi-Fi speed), **Delight** (absence isn't missed
+but presence disproportionately pleases — tends to decay into a Basic
+expectation over time), **Indifferent** (customers don't care either
+way; building it is usually wasted effort regardless of what impact
+score it might have gotten in RICE), and **Reverse** (some customers are
+actively less satisfied when the feature is present — worth checking
+before a broad rollout). Full definitions, examples, and the survey
+method used to classify a feature are in
+[references/kano-categories-and-framework-origins.md](references/kano-categories-and-framework-origins.md).
 
 Use Kano instead of RICE when the real question is "what kind of
 investment is this" rather than "which of these comparable items wins" —
 e.g., deciding whether a request is a Basic expectation you must meet
 regardless of ROI math, or a Delight feature where diminishing returns
 mean the fourth iteration isn't worth building even though the first one
-tested well. Kano is typically informed by structured customer surveys
-(the paired functional/dysfunctional question format from Kano's original
-method), which is heavier to run than RICE or MoSCoW — reserve it for
-features where the category (basic vs. delight) is genuinely unclear and
-worth the research cost, not for routine backlog grooming.
+tested well. Classifying a feature this way is heavier than scoring it
+with RICE or sorting it with MoSCoW — reserve it for features where the
+category is genuinely unclear and worth the research cost, not for
+routine backlog grooming.
 
 ## Choosing between the three
 
@@ -188,18 +156,10 @@ worth the research cost, not for routine backlog grooming.
 
 ## Real-world grounding
 
-RICE was developed and publicly documented by Intercom's product team
-(the framework write-up is commonly attributed to Intercom PM Sean
-McBride, published on Intercom's blog) as a way to compare feature
-requests on a shared quantitative basis rather than by whoever argued
-loudest in the room. MoSCoW originated in the 1990s within the DSDM
-(Dynamic Systems Development Method) agile framework as a way to
-negotiate fixed-timebox scope with stakeholders. The Kano model comes from
-Noriaki Kano's 1984 research on customer satisfaction, which used a
-paired-question survey technique (asking how a customer would feel both
-with and without a feature) to show that satisfaction is not always
-linear in feature investment — some features have ceilings, some have
-open-ended payoff, and some don't matter at all.
+RICE comes from Intercom's product team, MoSCoW from 1990s DSDM agile
+practice, and Kano from Noriaki Kano's 1984 customer-satisfaction
+research. Full attribution and the reasoning behind each origin are in
+[references/kano-categories-and-framework-origins.md](references/kano-categories-and-framework-origins.md).
 
 ## Verification
 

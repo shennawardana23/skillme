@@ -470,15 +470,17 @@ one-line description; the ones you'll actually reach for:
 | `make trigger-validate` / `make trigger-run` | Catalog-wide triggering-accuracy/coexistence cases — see below |
 | `make security-scan SKILL=<name>` / `security-scan-all` | Static risk scan, free, no model calls — see below |
 | `make similarity-check THRESHOLD=0.NN` | Advisory duplicate/overlap detection across all skill descriptions — see below |
+| `make feedback-check SKILL=<name>` | Fail if the latest run's `feedback.json` still has unreviewed entries — see below |
 | `make clean` | Remove the `smeval` binary and local eval workspaces (both gitignored) |
 
 ---
 
 ## Catalog-wide tooling
 
-At 137+ skills, three questions stop being answerable by testing one
-skill in isolation, and three tools exist specifically to answer them —
-all free (no model calls) except the first:
+At 137+ skills, some questions stop being answerable by testing one
+skill in isolation, or by an automated assertion at all, and dedicated
+tools exist specifically to answer them — all free (no model calls)
+except the first:
 
 **Does Claude pick the right skill, and does a new one steal triggers
 from an existing one?** `harness.BuildCatalog` installs the *entire*
@@ -510,6 +512,16 @@ pairs for a human to actually go read. Always advisory, never fails a
 build; see `internal/similarity`'s package doc for the free-vs-embeddings
 trade-off it deliberately takes, and `CONTRIBUTING.md`'s "search the
 catalog first" step for where it fits.
+
+**Did anyone actually read the model's response, or just trust the green
+checkmark?** Every `smeval run` writes a `feedback.json` stub — a place
+for a human to record what a deterministic assertion structurally can't
+check (prose quality, technically correct but misses the point, "does
+this feel right"). It existed from the start, but an audit of this
+catalog found every single one still empty. `smeval feedback-check
+skills/<name>` (`make feedback-check SKILL=<name>`) reports which case
+IDs are still unreviewed and fails until they aren't — now step 4 of
+`CONTRIBUTING.md`'s pre-PR checklist, not an honor system.
 
 An eval case can also be **context-dependent** rather than the default
 greenfield (a completely empty workspace): set `"fixture": "<name>"` on
