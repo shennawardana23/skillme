@@ -9,6 +9,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -16,6 +17,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -52,6 +55,8 @@ func main() {
 		err = runSecurityScan(os.Args[2:])
 	case "similarity-check":
 		err = runSimilarityCheck(os.Args[2:])
+	case "feedback-check":
+		err = runFeedbackCheck(os.Args[2:])
 	case "-h", "--help", "help":
 		usage()
 		return
@@ -77,6 +82,7 @@ Usage:
   smeval trigger-run <trigger-cases.json> [flags]
   smeval security-scan <skill-dir> [-quiet]
   smeval similarity-check [-skills-dir skills] [-threshold 0.3]
+  smeval feedback-check <skill-dir> [-output-dir dir]
 
 Flags for run:
   -primary-model string   Model for the primary attempt (default "sonnet")
@@ -119,7 +125,16 @@ this deliberately takes.
 
 Flags for similarity-check:
   -skills-dir string      Catalog root to scan (default "skills")
-  -threshold float        Minimum score to report, 0-1 (default 0.3)`)
+  -threshold float        Minimum score to report, 0-1 (default 0.3)
+
+feedback-check reports whether the latest run's feedback.json still has any
+unreviewed (empty-string) entries — the human-review layer the eval
+methodology treats as required (see report.WriteFeedbackStub's doc), which
+in practice sits unfilled unless something actually checks for it. No model
+calls. Exits non-zero if any entry is still empty.
+
+Flags for feedback-check:
+  -output-dir string      Workspace root to check (default "smeval-workspace/runs/<skill-dir base name>")`)
 }
 
 func evalsPath(skillDir string) string {
@@ -562,6 +577,93 @@ func runSimilarityCheck(args []string) error {
 	fmt.Println("\nAdvisory only — read both descriptions and decide per CONTRIBUTING.md's")
 	fmt.Println("\"prefer extending an existing skill\" rule; this never fails a build.")
 	return nil
+}
+
+// runFeedbackCheck reports whether the latest completed run's feedback.json
+// still has unreviewed (empty-string) entries. report.WriteFeedbackStub
+// documents the human-review layer as a required pillar of the eval
+// methodology, not an optional extra — but nothing enforced that until now,
+// and every feedback.json inspected across this catalog during a real
+// audit was still sitting empty. This closes that gap the same way
+// smeval validate closes the "did anyone run smeval run" gap: by actually
+// checking, not by trusting someone remembered.
+func runFeedbackCheck(args []string) error {
+	fs := flag.NewFlagSet("feedback-check", flag.ExitOnError)
+	outputDir := fs.String("output-dir", "", "")
+	fs.Parse(reorderArgs(args, map[string]bool{}))
+	if fs.NArg() != 1 {
+		return fmt.Errorf("usage: smeval feedback-check <skill-dir> [-output-dir dir]")
+	}
+	skillDir := fs.Arg(0)
+
+	runsDir := *outputDir
+	if runsDir == "" {
+		runsDir = filepath.Join("smeval-workspace", "runs", filepath.Base(filepath.Clean(skillDir)))
+	}
+
+	entries, err := os.ReadDir(runsDir)
+	if err != nil {
+		return fmt.Errorf("no runs found under %s: %w", runsDir, err)
+	}
+	var iterations []string
+	for _, e := range entries {
+		if e.IsDir() && strings.HasPrefix(e.Name(), "iteration-") {
+			iterations = append(iterations, e.Name())
+		}
+	}
+	sort.Slice(iterations, func(i, j int) bool {
+		ni, _ := strconv.Atoi(strings.TrimPrefix(iterations[i], "iteration-"))
+		nj, _ := strconv.Atoi(strings.TrimPrefix(iterations[j], "iteration-"))
+		return ni > nj
+	})
+
+	var feedbackPath string
+	for _, it := range iterations {
+		candidate := filepath.Join(runsDir, it, "feedback.json")
+		if _, err := os.Stat(candidate); err == nil {
+			feedbackPath = candidate
+			break
+		}
+	}
+	if feedbackPath == "" {
+		return fmt.Errorf("no completed run (with a feedback.json) found under %s", runsDir)
+	}
+
+	data, err := os.ReadFile(feedbackPath)
+	if err != nil {
+		return err
+	}
+	var feedback map[string]string
+	if err := json.Unmarshal(data, &feedback); err != nil {
+		return fmt.Errorf("parse %s: %w", feedbackPath, err)
+	}
+
+	caseIDs := make([]string, 0, len(feedback))
+	for id := range feedback {
+		caseIDs = append(caseIDs, id)
+	}
+	sort.Strings(caseIDs)
+
+	var unreviewed []string
+	for _, id := range caseIDs {
+		if strings.TrimSpace(feedback[id]) == "" {
+			unreviewed = append(unreviewed, id)
+		}
+	}
+
+	fmt.Printf("%s: %d/%d case(s) reviewed\n", feedbackPath, len(caseIDs)-len(unreviewed), len(caseIDs))
+	if len(unreviewed) == 0 {
+		return nil
+	}
+	fmt.Println("Unreviewed (empty) entries:")
+	for _, id := range unreviewed {
+		fmt.Printf("  - %s\n", id)
+	}
+	fmt.Printf("\nOpen each case's outputs/response.md, then fill in %s\n", feedbackPath)
+	fmt.Println("with what an assertion can't catch — prose/report quality, technically")
+	fmt.Println("correct but misses the point, \"does this feel right.\" An empty entry")
+	fmt.Println("means \"not yet reviewed,\" not \"nothing to say.\"")
+	return errCasesFailed
 }
 
 func runOne(ctx context.Context, ev evalspec.Eval, opts engine.Options, configuration, workDir string) report.RunOutcome {

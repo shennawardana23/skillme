@@ -71,6 +71,11 @@ security-scan-all: build ## Static risk scan of every skill (mirrors CI's securi
 similarity-check: build ## Advisory-only: report skill-description pairs likely to overlap (no model calls). Optional: THRESHOLD=0.NN
 	$(SMEVAL) similarity-check $(if $(THRESHOLD),-threshold $(THRESHOLD))
 
+.PHONY: feedback-check
+feedback-check: build ## Fail if the latest run's feedback.json has unreviewed entries. Usage: make feedback-check SKILL=<name>
+	@test -n "$(SKILL)" || (echo "usage: make feedback-check SKILL=<name>"; exit 1)
+	$(SMEVAL) feedback-check skills/$(SKILL)
+
 # ---- live evals (real `claude` CLI calls, real cost/time) ------------------
 
 .PHONY: eval

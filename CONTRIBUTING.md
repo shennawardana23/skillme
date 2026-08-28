@@ -124,6 +124,14 @@ actually made and fixed, so you don't repeat them:
    `TESTING.md`'s "Diagnosing a failure" section before assuming the
    skill's content is wrong — check whether it's actually one of the
    eval-authoring patterns above.
+4. `./smeval feedback-check skills/<name>` — after step 3, actually open
+   each case's `outputs/response.md` and fill in `feedback.json` with
+   what the assertions structurally can't catch (prose quality, correct
+   but misses the point, "does this feel right"). `feedback-check` exits
+   non-zero if any entry is still the empty-string default — an empty
+   entry means "not yet reviewed," not "nothing to say." This step
+   existed before but was never actually enforced; every `feedback.json`
+   audited across this catalog was still empty until this check did.
 
 ## What CI does and doesn't check
 

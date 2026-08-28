@@ -13,167 +13,120 @@ leaves a gap:
 
 - **North Star Metric (NSM)** — the single metric that best captures the
   core value a product delivers to customers *right now* (not revenue
-  directly, and not a vanity count). It gives the whole team one number to
-  rally around, with a small set of **input metrics** as the actionable
-  levers that move it.
+  directly, not a vanity count). Gives the team one number to rally
+  around, plus a small set of **input metrics** as actionable levers.
 - **AARRR / "Pirate Metrics"** (Dave McClure) — a five-stage funnel
   (Acquisition, Activation, Retention, Referral, Revenue) for diagnosing
-  *where* in the user journey a product is leaking. It doesn't tell the
-  team what to rally around; it tells the team where to look when
-  something's wrong.
+  *where* in the user journey a product is leaking. Tells the team where
+  to look, not what to rally around.
 
-Used together: AARRR breaks the user journey into stages you can instrument
-and diagnose. NSM gives the team one number the whole org agrees matters.
-Input metrics are the connective tissue — each input metric to the NSM
-usually maps to one AARRR stage, which is what makes "the North Star moved,
-here's why" a traceable statement instead of a guess.
+Used together: AARRR breaks the journey into diagnosable stages; NSM gives
+the org one number everyone agrees matters. Input metrics are the
+connective tissue — each usually maps to one AARRR stage, which is what
+makes "the North Star moved, here's why" traceable instead of a guess.
 
 ## Procedure: choosing a North Star Metric
 
-1. **Start from the core value exchange, not from what's easy to measure.**
-   Ask: "what does the user get, in one sentence, that they'd pay for or
-   miss if it vanished?" Airbnb's answer was "a place to stay booked
-   through us" → *nights booked*. Spotify's was "music that fills my time"
-   → *time spent listening*. A metric like "monthly active users" is
-   usually too generic to be a real North Star because it doesn't capture
-   *value delivered*, only *presence*.
-2. **Prefer a metric that reflects value received, not just an action
-   taken.** "Searches performed" is an action; "nights booked" is value
-   received (a completed transaction implying the search worked). If the
-   candidate metric can go up while users are actually failing (e.g.
-   "searches performed" rising because search is broken and users keep
-   retrying), it's measuring effort, not value — pick a metric further
-   downstream.
+1. **Start from the core value exchange, not what's easy to measure.** Ask:
+   "what does the user get, in one sentence, that they'd pay for or miss
+   if it vanished?" Airbnb: "a place to stay booked through us" → *nights
+   booked*. Spotify: "music that fills my time" → *time spent listening*.
+   "Monthly active users" is usually too generic — it captures *presence*,
+   not *value delivered*.
+2. **Prefer value received over action taken.** "Searches performed" is
+   an action; "nights booked" is value received. If a metric can rise
+   while users are actually failing — e.g. searches rising because search
+   is broken and users keep retrying — it's measuring effort, not value;
+   pick something further downstream.
 3. **Check it's a leading indicator of revenue, not revenue itself.**
    Revenue and headcount-style metrics are lagging and easy to game short
-   term (discounting, one-time promotions) without fixing the product.
-   The NSM should predict revenue over time while staying closer to the
-   user experience, so the team can act on it before revenue moves.
-4. **Verify it's a single number the whole company can understand and
-   track weekly**, not a composite index or dashboard of ten charts. If
-   engineering, sales, and support would each describe "success" using a
-   different metric, it isn't a North Star yet — keep narrowing.
+   term (discounting, one-time promotions). The NSM should predict
+   revenue while staying closer to the user experience.
+4. **Verify it's one number the whole company can track weekly**, not a
+   composite index or a ten-chart dashboard. If engineering, sales, and
+   support would each describe "success" using a different metric, keep
+   narrowing.
 5. **Pressure-test for gameability.** Ask "how would a team hit this
    number in a way that makes the product worse?" (e.g. "time spent
-   listening" could be inflated by removing a skip button). If an obvious
-   bad-faith path exists, pair the NSM with a guardrail metric (e.g.
-   skip rate, churn) that the team also watches so the NSM can't be gamed
-   in isolation.
-6. **Select 2-4 input metrics** — the metrics that causally drive the
-   NSM and that a team can actually act on this quarter. Good input
-   metrics are the multiplicative or additive components of the NSM
-   (e.g. for "nights booked": number of active listings × search-to-book
-   conversion rate × average length of stay). Vague inputs ("brand
-   awareness") aren't usable because no team owns a lever to move them
-   directly.
-7. **Assign ownership of each input metric to a specific team.** A North
-   Star with no owned inputs turns into a metric everyone watches and no
-   one is accountable for moving.
+   listening" inflated by removing a skip button). Pair the NSM with a
+   guardrail metric (e.g. skip rate, churn) if an obvious bad-faith path
+   exists.
+6. **Select 2-4 input metrics** that causally drive the NSM and that a
+   team can actually act on this quarter — ideally the multiplicative or
+   additive components of the NSM itself (e.g. "nights booked" = active
+   listings × search-to-book conversion rate × average length of stay).
+   Vague inputs ("brand awareness") aren't usable — no team owns a lever
+   to move them.
+7. **Assign ownership of each input metric to a specific team.** Unowned
+   inputs turn the North Star into a metric everyone watches and no one
+   is accountable for moving.
 
 ## Procedure: diagnosing a problem with AARRR
 
-1. **Place the reported symptom on the funnel before proposing a fix.**
-   The five stages, in order: **Acquisition** (users arrive), **Activation**
-   (users have a good first experience / reach an "aha" moment),
-   **Retention** (users come back), **Referral** (users bring others),
-   **Revenue** (users pay). Most vague complaints ("growth is
-   stalling," "engagement is down") actually describe one specific stage,
-   and the fix is different for each.
-2. **"Signups are up but usage isn't" is an Activation problem, not an
-   Acquisition problem** — Acquisition (getting people to sign up) is
-   clearly working; the leak is between signup and the user experiencing
-   real value. Don't respond to this symptom by spending more on
-   acquisition channels — it makes the funnel wider at the top while the
-   same fraction leaks through the middle.
-3. **"Users try it once and don't come back" is a Retention problem** even
-   if Activation (their first session) looked fine — a good first
-   experience with no reason to return is a distinct failure mode from a
-   bad first experience. Instrument a specific "come back by day N" metric
-   rather than treating "engagement" as one blob.
-4. **"We get users but they never invite anyone" is a Referral gap**, and
-   is often neglected because it's the stage with the least existing
-   instrumentation — teams frequently have Acquisition and Revenue
-   dashboards but no Referral metric at all, which means Referral problems
-   go undiagnosed by default, not because they don't exist.
-5. **"Usage is healthy but nobody converts to paid" is a Revenue-stage
-   problem**, and should not be treated as a Retention problem just
-   because both stages are "downstream" — check whether the issue is
-   pricing, packaging, or a missing upgrade prompt, not engagement.
+1. **Place the symptom on the funnel before proposing a fix.** Five
+   stages, in order: **Acquisition** (users arrive), **Activation** (good
+   first experience / "aha" moment), **Retention** (users return),
+   **Referral** (users bring others), **Revenue** (users pay). Vague
+   complaints ("growth is stalling," "engagement is down") usually
+   describe one specific stage, and the fix differs by stage.
+2. **"Signups up, usage flat" is Activation, not Acquisition** —
+   Acquisition is clearly working; the leak is between signup and the
+   user experiencing real value. Don't respond by spending more on
+   acquisition — that widens the top of the funnel while the same
+   fraction leaks through the middle.
+3. **"Users try it once and don't come back" is Retention**, even if
+   Activation looked fine — a good first experience with no reason to
+   return is a distinct failure mode from a bad one. Instrument a
+   specific "come back by day N" metric, not one "engagement" blob.
+4. **"We get users but they never invite anyone" is a Referral gap**,
+   often neglected because it has the least existing instrumentation —
+   teams frequently have Acquisition and Revenue dashboards but no
+   Referral metric, so the problem goes undiagnosed by default.
+5. **"Usage is healthy but nobody converts to paid" is Revenue**, not
+   Retention just because both are "downstream" — check whether the
+   issue is pricing, packaging, or a missing upgrade prompt.
 6. **Once the stage is identified, pick the input metric that lives in
-   that stage** and confirm the NSM's input-metric breakdown actually has
-   a metric there. If the NSM's inputs don't cover the stage where the
-   real leak is, that's a sign the NSM or its inputs need to be revisited,
-   not that the leak doesn't matter.
+   that stage** and confirm the NSM's breakdown actually covers it. If it
+   doesn't, that's a sign the NSM or its inputs need revisiting, not that
+   the leak doesn't matter.
 
 ## Worked example
 
-**Product**: a recipe-and-meal-planning app that generates a weekly grocery
-list from saved recipes.
-
-- **North Star Metric**: *meal plans completed per active user per week*
-  (a "completed" plan = recipes selected + grocery list generated). This
-  reflects the core value exchange (turning recipe browsing into an
-  actual, actionable plan) rather than a proxy like "recipes viewed,"
-  which could rise even if nobody ever finishes a plan.
-- **Input metrics**:
-  1. *% of new users who complete their first meal plan within 7 days*
-     (Activation stage) — the biggest lever on whether a user ever
-     experiences the core value at all.
-  2. *Average number of recipes saved per user per week* (feeds Retention
-     — a user with a growing recipe library has more reason to return).
-  3. *% of completed plans that generate a grocery list* (a friction
-     metric inside the core loop itself, closest to the NSM).
-- **Mapping a specific problem**: leadership reports "signups grew 40%
-  this quarter, but weekly active users barely moved." Using AARRR: signup
-  growth confirms Acquisition is healthy. Flat WAU despite growing signups
-  points at Activation — new users aren't reaching "first completed meal
-  plan." The relevant input metric is #1 above; the fix is in onboarding
-  (e.g. prompting a first plan during signup), not in acquisition spend or
-  in Referral/Revenue features.
+Both procedures applied end-to-end to a recipe-planning app — NSM
+selection, input metrics, and an AARRR diagnosis of "signups up, usage
+flat" — is in
+[references/worked-example.md](references/worked-example.md).
 
 ## Gotchas
 
 - **Picking "Monthly Active Users" as the North Star** is one of the most
-  common mistakes — MAU is a vanity metric that keeps rising from pure
-  acquisition even while the actual value delivered per user is falling,
-  so it can mask exactly the problem a North Star is supposed to surface.
-- **A North Star with no guardrail metric** invites a team to optimize the
-  number in a way that damages the product (e.g. maximizing "time spent"
-  by adding addictive-but-low-value engagement loops). Always pair the
-  NSM with at least one metric that would catch this.
-- **Treating AARRR stages as strictly sequential for every user** oversimplifies
-  real behavior — some users refer others before converting to paid, and
-  retention and referral interact. Use the stages as a diagnostic lens for
-  "where's the biggest leak," not as a rigid pipeline every single user
-  must follow in order.
-- **No metric exists for the Referral stage** on many teams by default,
-  which silently biases diagnosis toward Acquisition/Revenue problems
-  because those are the only stages with dashboards. Absence of data at a
-  stage is not evidence the stage is healthy.
-- **Changing the North Star Metric frequently** defeats its purpose — it
-  exists to give the team a stable, shared target over quarters. Swapping
-  it every time a dashboard looks disappointing is a sign the metric
-  wasn't chosen carefully in the first place, not a reason to keep
-  swapping.
+  common mistakes — MAU keeps rising from pure acquisition even as value
+  delivered per user falls, masking exactly the problem a North Star is
+  supposed to surface.
+- **A North Star with no guardrail metric** invites a team to optimize it
+  in ways that damage the product (e.g. inflating "time spent" with
+  addictive-but-low-value engagement loops). Always pair the NSM with a
+  metric that would catch this.
+- **Treating AARRR stages as strictly sequential** oversimplifies real
+  behavior — users can refer others before converting to paid, and
+  retention and referral interact. Use the stages as a diagnostic lens
+  for "where's the biggest leak," not a rigid pipeline.
+- **No Referral metric exists on many teams by default**, which silently
+  biases diagnosis toward Acquisition/Revenue — the only stages with
+  dashboards. Absence of data at a stage is not evidence it's healthy.
+- **Changing the North Star Metric frequently** defeats its purpose of
+  giving the team a stable, shared target over quarters. Swapping it
+  whenever a dashboard disappoints signals it wasn't chosen carefully.
 - **Input metrics chosen because they're easy to move, not because they
-  causally drive the NSM**, produce a team that hits its numbers while the
-  North Star itself stays flat — always check the causal link (ideally
-  via the NSM's own formula components) before adopting an input metric.
+  causally drive the NSM**, produce a team that hits its numbers while
+  the North Star itself stays flat — check the causal link before
+  adopting one.
 
 ## Real-world grounding
 
-The North Star Metric framework was popularized by growth expert Sean
-Ellis and later formalized into Amplitude's widely-read "North Star
-Playbook," which documents the now-standard examples of Airbnb's *nights
-booked* and Spotify's *time spent listening* as metrics chosen because
-they represent the core value exchange between product and customer,
-supported by a small set of input metrics that teams can directly act on.
-AARRR, commonly called "Pirate Metrics" because of its acronym, was
-created by startup investor and advisor Dave McClure as a simple, ordered
-funnel — Acquisition, Activation, Retention, Referral, Revenue — for
-diagnosing where in the customer lifecycle a startup is losing users, and
-remains a standard framework taught across startup accelerators and growth
-teams.
+Both frameworks trace to named sources (Sean Ellis/Amplitude for NSM,
+Dave McClure for AARRR) — attribution is in
+[references/real-world-grounding.md](references/real-world-grounding.md).
 
 ## Verification
 
