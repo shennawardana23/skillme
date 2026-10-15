@@ -1,0 +1,53 @@
+{
+  "skill_name": "ai-design-slop-audit",
+  "evals": [
+    {
+      "id": "flags-template-repetition-and-fake-proof-with-evidence",
+      "prompt": "Use the ai-design-slop-audit skill on this landing page description: every feature section uses the identical icon-in-a-circle plus heading plus one-sentence description card, six times in a row with unrelated content; the hero includes a stat '10,000+ happy customers' with no source anywhere in the product; the page uses a purple-to-indigo gradient background behind every section.",
+      "expected_output": "Flags the repeated icon-card template as a slop pattern grouped into one systemic finding (not six separate rows), flags the unsourced '10,000+ happy customers' stat as fabricated proof, and cites the purple/indigo gradient overuse -- all tied to concrete evidence from the description, not a generic tendency claim.",
+      "assertions": [
+        {
+          "text": "Flags the repeated card template as one systemic finding",
+          "check": { "contains_any": ["repeated", "template repetition", "same card", "icon-heading"] }
+        },
+        {
+          "text": "Flags the unsourced customer count as fabricated/unverifiable proof",
+          "check": { "contains_any": ["fabricat", "unverifiable", "unsourced", "no source", "invented"] }
+        },
+        {
+          "text": "Uses the required output structure with a findings table",
+          "check": { "contains_any": ["Findings", "Verdict"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "does-not-reject-a-technique-in-isolation",
+      "prompt": "Use the ai-design-slop-audit skill on this page: it uses a single dark glass-morphism header with a subtle blur, matching the rest of the product's existing dark glass design system used consistently across every other screen.",
+      "expected_output": "Does not flag the glass effect as slop merely for existing -- the audit judges whether it serves a role and matches the existing system, not whether the technique appears at all.",
+      "assertions": [
+        {
+          "text": "Does not flag the glass effect as inherently a problem",
+          "check": { "not_contains": ["glass effect is slop", "glass is always", "avoid glassmorphism entirely"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "prioritizes-findings-by-severity",
+      "prompt": "Use the ai-design-slop-audit skill on a signup page where: the primary 'Sign Up' button and a secondary 'Learn More' button are styled with equally strong visual weight (competing primary actions), and separately, the footer copyright text uses a slightly off-brand shade of gray.",
+      "expected_output": "Rates the competing primary-action issue as a higher priority (P0/P1) than the minor footer color inconsistency (P2/P3), reflecting the required severity ordering.",
+      "assertions": [
+        {
+          "text": "Flags competing primary actions as higher severity than the footer color nitpick",
+          "check": { "contains_any": ["P0", "P1"] }
+        },
+        {
+          "text": "Names the competing call-to-action problem specifically",
+          "check": { "contains_any": ["competing", "primary action", "unclear which"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

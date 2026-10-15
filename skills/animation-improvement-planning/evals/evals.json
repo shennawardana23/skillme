@@ -1,0 +1,45 @@
+{
+  "skill_name": "animation-improvement-planning",
+  "evals": [
+    {
+      "id": "produces-severity-ranked-table-not-single-verdict",
+      "prompt": "Use the animation-improvement-planning skill to audit motion across a small Vue app: Modal.vue uses ease-in for its entrance, Toast.vue rebuilds its keyframes on every re-render causing it to restart from zero when triggered rapidly, and Sidebar.vue has no animation on its expand/collapse.",
+      "expected_output": "Produces a severity-ranked findings table (HIGH/MEDIUM/LOW) covering the ease-in modal and the non-interruptible toast as corrective findings, and lists the sidebar as a separate missed-opportunity item rather than folding it into the same table.",
+      "assertions": [
+        {
+          "text": "Uses the required severity vocabulary",
+          "check": { "contains_any": ["HIGH", "MEDIUM", "LOW"] }
+        },
+        {
+          "text": "Flags the toast's non-interruptible keyframe restart",
+          "check": { "contains_any": ["interruptib", "restart", "retarget"] }
+        },
+        {
+          "text": "Lists the sidebar as a missed opportunity separately from corrective findings",
+          "check": { "contains_any": ["missed opportunit", "Missed Opportunit"] }
+        }
+      ],
+      "timeout_seconds": 240
+    },
+    {
+      "id": "plan-writes-self-contained-plan-file-not-inline-fix",
+      "prompt": "Use the animation-improvement-planning skill in 'plan' mode for: fix the ease-in easing on Modal.vue's entrance transition (currently `transition: transform 300ms ease-in`).",
+      "expected_output": "Writes a self-contained plan file under plans/ with an exact replacement value (a real cubic-bezier or ease-out) and file path, rather than editing Modal.vue directly.",
+      "assertions": [
+        {
+          "text": "Does not claim to have edited Modal.vue's source directly",
+          "check": { "not_contains": ["I've updated Modal.vue", "I have updated Modal.vue", "edited Modal.vue"] }
+        },
+        {
+          "text": "References writing a plan file under plans/",
+          "check": { "contains_any": ["plans/", "plan file"] }
+        },
+        {
+          "text": "Names ease-out or a concrete cubic-bezier replacement",
+          "check": { "contains_any": ["ease-out", "cubic-bezier"] }
+        }
+      ],
+      "timeout_seconds": 240
+    }
+  ]
+}

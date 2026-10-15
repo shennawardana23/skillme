@@ -1,0 +1,61 @@
+{
+  "skill_name": "animation-review",
+  "evals": [
+    {
+      "id": "flags-ease-in-and-scale-zero-on-popover",
+      "prompt": "Review this CSS with the animation-review skill:\n\n.dropdown-menu {\n  transform-origin: center;\n  transition: all 400ms ease-in;\n}\n.dropdown-menu[data-state=\"closed\"] {\n  transform: scale(0);\n  opacity: 0;\n}",
+      "expected_output": "Flags ease-in on a UI entrance, the transition: all shorthand, the wrong transform-origin (should anchor to the trigger, not center), and the scale(0) starting state, with a Block verdict.",
+      "assertions": [
+        {
+          "text": "Flags ease-in on the dropdown transition",
+          "check": { "contains_any": ["ease-in", "ease-out"] }
+        },
+        {
+          "text": "Flags the transition: all shorthand",
+          "check": { "contains_any": ["transition: all", "`all`", "all properties"] }
+        },
+        {
+          "text": "Flags scale(0) as an incorrect starting state",
+          "check": { "contains_any": ["scale(0)", "scale(0.9", "scale(0.92", "scale(0.95", "scale(0.97"] }
+        },
+        {
+          "text": "Reaches a Block verdict",
+          "check": { "contains_any": ["Block", "block"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "flags-motion-on-keyboard-shortcut",
+      "prompt": "Review this diff with the animation-review skill:\n\n// CommandPalette.tsx\nfunction openPalette() {\n  setOpen(true);\n}\n\n.command-palette {\n  animation: slideDown 350ms ease;\n}\n// Opens via Cmd+K, used constantly throughout the day",
+      "expected_output": "Flags animating a keyboard-triggered, high-frequency surface (command palette) as a finding, recommending the animation be removed rather than tuned.",
+      "assertions": [
+        {
+          "text": "Flags the high-frequency keyboard-triggered animation",
+          "check": { "contains_any": ["keyboard", "100+", "high-frequency", "frequency"] }
+        },
+        {
+          "text": "Recommends removing rather than merely tuning the animation",
+          "check": { "contains_any": ["remove", "delete", "no animation"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "approves-correct-gpu-only-transition",
+      "prompt": "Review this CSS with the animation-review skill:\n\n.toast {\n  transform-origin: var(--trigger-origin);\n  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 200ms ease-out;\n}\n.toast[data-state=\"open\"] {\n  transform: scale(1);\n  opacity: 1;\n}\n.toast[data-state=\"closed\"] {\n  transform: scale(0.95);\n  opacity: 0;\n}\n@media (prefers-reduced-motion: reduce) {\n  .toast { transition: opacity 200ms ease-out; }\n}",
+      "expected_output": "Recognizes the transition animates only transform/opacity, uses a real easing curve, starts from scale(0.95) not scale(0), and handles reduced motion -- reaches an Approve verdict with no feel-breaking finding.",
+      "assertions": [
+        {
+          "text": "Does not flag this as a Block",
+          "check": { "not_contains": ["**Block**", "Verdict: Block", "Decision: Block"] }
+        },
+        {
+          "text": "Reaches an Approve verdict",
+          "check": { "contains_any": ["Approve", "approve"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

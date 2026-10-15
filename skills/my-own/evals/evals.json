@@ -1,0 +1,57 @@
+{
+  "skill_name": "my-own",
+  "evals": [
+    {
+      "id": "rejects-coverage-claim-without-a-named-failure-test",
+      "prompt": "Use the my-own skill to critique this claim about a new payment-refund service: 'The refund service is fully tested -- we have 95% test coverage.' No further detail about what the tests actually check is given.",
+      "expected_output": "Rejects the coverage percentage as evidence on its own, and demands a specific named test that would fail if a refund were processed twice or for the wrong amount -- a concrete failure-mode test, not a coverage number.",
+      "assertions": [
+        {
+          "text": "Explicitly rejects the coverage percentage as sufficient evidence",
+          "check": { "contains_any": ["coverage", "not evidence", "isn't evidence", "is not evidence"] }
+        },
+        {
+          "text": "Demands a specific failure-mode test (e.g. double refund or wrong amount)",
+          "check": { "contains_any": ["double refund", "duplicate refund", "wrong amount", "twice"] }
+        }
+      ],
+      "timeout_seconds": 240
+    },
+    {
+      "id": "names_sdlc_stage_and_judges_by_its_bar",
+      "prompt": "Use the my-own skill to review this early design doc for a new agent-orchestration layer: it proposes a message-passing architecture between agents with a diagram and rationale, but has no implementation yet and explicitly says rollback procedures will be figured out during implementation.",
+      "expected_output": "Identifies this as a design/requirements-stage artifact and does not penalize it for lacking rollback procedures or production tests, while still holding it to design-stage bars like architectural soundness and stated failure modes.",
+      "assertions": [
+        {
+          "text": "Names the SDLC stage this artifact is at (design or requirements, not production)",
+          "check": { "contains_any": ["design stage", "design-stage", "requirements stage", "early stage", "proposal stage"] }
+        },
+        {
+          "text": "Does not penalize the doc for lacking a rollback procedure at this stage",
+          "check": { "not_contains": ["must include a rollback procedure now", "cannot sign off without rollback"] }
+        }
+      ],
+      "timeout_seconds": 240
+    },
+    {
+      "id": "verdict-is-explicit-and-not-hedged",
+      "prompt": "Use the my-own skill to review this production-ready PR for an AI agent tool-call pipeline: it has no handling at all for a tool call that times out -- the code awaits indefinitely with no timeout or fallback.",
+      "expected_output": "Gives an explicit 'do not sign off' verdict (not a vaguely encouraging one), citing the missing timeout/fallback handling as the blocking finding, and states what evidence (a timeout test, a fallback path) would change the verdict.",
+      "assertions": [
+        {
+          "text": "Gives an explicit non-approval verdict",
+          "check": { "contains_any": ["do not sign off", "not sign off", "required changes"] }
+        },
+        {
+          "text": "Names the missing timeout/fallback handling as the blocking issue",
+          "check": { "contains_any": ["timeout", "fallback"] }
+        },
+        {
+          "text": "States what would change the verdict",
+          "check": { "contains_any": ["would change", "What would change my mind", "resolved"] }
+        }
+      ],
+      "timeout_seconds": 240
+    }
+  ]
+}

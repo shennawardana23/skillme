@@ -108,6 +108,16 @@ them in favor of the project's actual design system:
 | Stock card grids | Ignores information priority and scanning order | Purpose-driven layout |
 | Shadow-heavy design | Competes with content, costs paint time | Subtle or no shadows unless specified |
 
+The test behind every row above: a choice is suspect when it could be
+pasted into an unrelated product unchanged, or communicates no useful
+information, state, action, hierarchy, or brand meaning. Name it, ask
+whether removing it improves clarity, and default to deleting it over
+adding a new effect to compensate.
+
+This table is the build-time checklist. To grade UI that's already
+shipped — a point-in-time audit with a cited, prioritized findings report
+instead of a build guide — use `ai-design-slop-audit`.
+
 **Spacing**: use the project's scale, never an invented value —
 `padding: 1rem` (on-scale) not `padding: 13px` (off-scale, arbitrary).
 
