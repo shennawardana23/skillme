@@ -1,0 +1,61 @@
+{
+  "skill_name": "me-on-review",
+  "evals": [
+    {
+      "id": "flags-missing-hotel-id-partition-filter",
+      "prompt": "Use the me-on-review skill to compile a review of this PR touching two files:\n\nfile: internal/booking/repository.go\nfunc (r *Repository) ListReservations(ctx context.Context, checkIn time.Time) ([]Reservation, error) {\n\treturn r.db.QueryContext(ctx, \"SELECT * FROM reservations WHERE check_in = $1\", checkIn)\n}\n\nfile: internal/booking/service.go\nfunc (s *Service) CountGuests(ctx context.Context, hotelID string) (int, error) {\n\treturn s.repo.CountByHotel(ctx, hotelID)\n}\n\nContext: reservations is a PostgreSQL table partitioned by hotel_id.",
+      "expected_output": "Flags ListReservations' query as missing an explicit hotel_id filter on a table partitioned by hotel_id, citing repository.go, as a correctness/performance finding distinct from CountGuests which already filters correctly.",
+      "assertions": [
+        {
+          "text": "Flags the missing hotel_id filter in the partitioned query",
+          "check": { "contains_any": ["hotel_id", "partition"] }
+        },
+        {
+          "text": "Cites the specific file with the missing filter",
+          "check": { "contains_any": ["repository.go", "ListReservations"] }
+        },
+        {
+          "text": "Does not raise the same finding against the already-correct CountGuests function",
+          "check": { "not_contains": ["CountGuests is missing", "CountGuests does not filter"] }
+        }
+      ],
+      "timeout_seconds": 240
+    },
+    {
+      "id": "compiles-narrative-report-grouped-by-theme-not-per-file",
+      "prompt": "Use the me-on-review skill on a 5-file PR where three separate files each introduce a query against a hotel_id-partitioned table with no hotel_id filter, and one file adds a new Python microservice with no stated reason for departing from the Go/PostgreSQL default.",
+      "expected_output": "Groups the three missing-filter instances into one theme (e.g. 'Partition filtering') rather than three separate per-file write-ups, and separately raises the unexplained Python service as a distinct finding, ending with a clear merge recommendation.",
+      "assertions": [
+        {
+          "text": "Groups findings by theme with a heading, not purely a per-file list",
+          "check": { "contains_any": ["## Findings", "### Partition", "### Stack"] }
+        },
+        {
+          "text": "Flags the unexplained departure from Go/PostgreSQL default",
+          "check": { "contains_any": ["Python", "stated reason", "no reason"] }
+        },
+        {
+          "text": "Ends with an explicit merge recommendation",
+          "check": { "contains_any": ["Merge", "Do not merge", "Recommendation"] }
+        }
+      ],
+      "timeout_seconds": 240
+    },
+    {
+      "id": "does-not-relitigate-what-scanners-already-cover",
+      "prompt": "Use the me-on-review skill on a one-file Go PR with a straightforward off-by-one loop bug: `for i := 0; i <= len(items); i++ { process(items[i]) }`. No hotel_id, units, or frontend-framework concerns apply.",
+      "expected_output": "Reports the off-by-one bug (citing it as a correctness finding) without inventing Archipelago-specific lens findings (hotel_id, units, Vue/React) that don't apply to this change.",
+      "assertions": [
+        {
+          "text": "Flags the off-by-one / out-of-bounds bug",
+          "check": { "contains_any": ["off-by-one", "out of bounds", "i <= len", "index out of range"] }
+        },
+        {
+          "text": "Does not fabricate an irrelevant hotel_id finding",
+          "check": { "not_contains": ["hotel_id filter is missing", "missing hotel_id"] }
+        }
+      ],
+      "timeout_seconds": 240
+    }
+  ]
+}

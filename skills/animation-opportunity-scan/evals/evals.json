@@ -1,0 +1,57 @@
+{
+  "skill_name": "animation-opportunity-scan",
+  "evals": [
+    {
+      "id": "rejects-command-palette-and-chart-suggestions",
+      "prompt": "Use the animation-opportunity-scan skill on this app: a command palette opened via Cmd+K used constantly throughout the day with no transition; a live analytics line chart that redraws instantly on new data; and a settings modal that appears/disappears instantly.",
+      "expected_output": "Rejects animating the command palette (keyboard-triggered, 100+/day) and the analytics chart (functional data being read), while accepting the settings modal as a legitimate occasional-frequency candidate.",
+      "assertions": [
+        {
+          "text": "Rejects the command palette as a candidate",
+          "check": { "contains_any": ["Rejected", "reject"] }
+        },
+        {
+          "text": "Names the keyboard/high-frequency reason for rejecting the command palette",
+          "check": { "contains_any": ["keyboard", "100+", "frequency"] }
+        },
+        {
+          "text": "Rejects or excludes the analytics chart as functional data",
+          "check": { "contains_any": ["chart", "data the user", "functional"] }
+        },
+        {
+          "text": "Accepts the settings modal as a suggestion",
+          "check": { "contains_any": ["modal", "Modal"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "produces-exact-values-not-vague-suggestions",
+      "prompt": "Use the animation-opportunity-scan skill on a settings drawer component (Drawer.vue) that currently appears and disappears instantly with a v-if toggle, opened occasionally from a settings icon.",
+      "expected_output": "Suggests a specific entrance/exit recipe for the drawer with an exact duration and easing/transform values, not a vague 'add some animation' recommendation.",
+      "assertions": [
+        {
+          "text": "Gives a concrete duration value in milliseconds",
+          "check": { "matches_any": ["\\d+ms", "\\d+\\s*ms"] }
+        },
+        {
+          "text": "Names a specific animated property or transform",
+          "check": { "contains_any": ["transform", "opacity", "translateY", "scale"] }
+        }
+      ],
+      "timeout_seconds": 180
+    },
+    {
+      "id": "reports_no_opportunities_when_none_clear_the_gate",
+      "prompt": "Use the animation-opportunity-scan skill on a dense internal reporting dashboard where every element is a data table or number that updates on a fixed refresh cycle, viewed by ops staff dozens of times per shift for fast scanning.",
+      "expected_output": "Finds few or no genuine opportunities given the high-frequency, data-scanning nature of the surface, and says so plainly rather than inventing speculative suggestions just to fill the table.",
+      "assertions": [
+        {
+          "text": "Acknowledges the surface needs little or no motion",
+          "check": { "contains_any": ["few opportunit", "no opportunit", "little motion", "minimal motion", "doesn't need"] }
+        }
+      ],
+      "timeout_seconds": 180
+    }
+  ]
+}

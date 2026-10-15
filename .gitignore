@@ -1,2 +1,11 @@
+node_modules
+dist
+.DS_Store
+
+# local eval artifacts (nested git repos) and the smeval binary
+smeval-workspace/
 /smeval
-/smeval-workspace/
+
+# company code: keep out of this public repo (local testing only)
+skills/boilerplate-pba-php/
+skills/review-boilerplate-php/
